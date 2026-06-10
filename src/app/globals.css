@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --piano: #000000;
+  --champagne: #2997ff;
+  --ivory: #f5f5f7;
+  --light-surface: #f5f5f7;
+  --light-text: #1d1d1f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--piano);
+  color: var(--ivory);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+}
+
+/* Lenis smooth scroll baseline */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* The 3D canvas is fixed behind the scrolling DOM overlay. */
+.canvas-root {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none; /* re-enable per-scene where interaction is needed */
+}
+
+/* Hide default scrollbar without losing scroll. */
+body::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+body {
+  scrollbar-width: none;
+}
+
+@layer components {
+  /* Floating glass panel — used by automation UI, nav, cards. */
+  .glass {
+    @apply rounded-2xl border border-white/10 bg-white/[0.04] shadow-glass backdrop-blur-glass;
+  }
+
+  /* Champagne gradient text. */
+  .text-gold {
+    @apply bg-gold-sheen bg-clip-text text-transparent;
+    background-size: 200% auto;
+  }
+
+  /* Eyebrow label — Apple section eyebrow: small, semibold, accent blue. */
+  .eyebrow {
+    @apply text-sm font-sans font-semibold tracking-normal text-champagne;
+  }
+
+  /* Display heading — Apple style: heavy, tight tracking, tight leading. */
+  .display {
+    @apply font-display font-semibold tracking-[-0.015em] text-ivory leading-[1.07];
+    font-feature-settings: 'liga' 1, 'kern' 1;
+  }
+
+  /* Light editorial section — Apple's #f5f5f7 panels over the dark canvas. */
+  .section-light {
+    background: var(--light-surface);
+    color: var(--light-text);
+  }
+  .section-light .display {
+    color: var(--light-text);
+  }
+  .section-light .eyebrow {
+    @apply text-champagne-deep;
+  }
+  .section-light .glass {
+    @apply border-black/[0.06] bg-white shadow-[0_4px_24px_-8px_rgba(0,0,0,0.12)];
+    backdrop-filter: none;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  /* Vignette overlay to deepen edges, film-grade falloff. */
+  .vignette::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 55%,
+      rgba(0, 0, 0, 0.55) 100%
+    );
+    z-index: 5;
+  }
+}
+
+/* Respect reduced motion at the CSS layer too. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
