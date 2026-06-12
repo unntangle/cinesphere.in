@@ -78,9 +78,22 @@ export const SCENES: SceneDef[] = [
     mood: 0.85,
   },
   {
-    id: 'dolby-atmos',
+    id: 'harman-kardon',
     index: 3,
-    label: 'Scene 04 — Audio / Video Display Solutions',
+    label: 'Scene 04 — Harman Kardon Authorized Dealer',
+    copy: {
+      eyebrow: 'Authorized Dealer',
+      title: 'Harman Kardon.',
+      body: 'Beautiful sound, beautifully made — official Harman Kardon audio, delivered and installed by Cinesphere.',
+      align: 'center',
+    },
+    camera: { position: [0, 0.5, 8], lookAt: [0, 0, 0] },
+    mood: 0.8,
+  },
+  {
+    id: 'dolby-atmos',
+    index: 4,
+    label: 'Scene 05 — Audio / Video Display Solutions',
     copy: {
       eyebrow: 'Our Solutions',
       title: 'Audio / Video\nDisplay Solutions.',
@@ -92,8 +105,8 @@ export const SCENES: SceneDef[] = [
   },
   {
     id: 'smart-villa',
-    index: 4,
-    label: 'Scene 05 — Conference, Boardroom & Studios',
+    index: 5,
+    label: 'Scene 06 — Conference, Boardroom & Studios',
     copy: {
       eyebrow: 'Our Solutions',
       title: 'Conference, Boardroom\n& Studios.',
@@ -105,8 +118,8 @@ export const SCENES: SceneDef[] = [
   },
   {
     id: 'automation',
-    index: 5,
-    label: 'Scene 06 — E-Class Rooms, Signage & Seminar Halls',
+    index: 6,
+    label: 'Scene 07 — E-Class Rooms, Signage & Seminar Halls',
     copy: {
       eyebrow: 'Our Solutions',
       title: 'Learn. Display.\nPresent.',
@@ -118,8 +131,8 @@ export const SCENES: SceneDef[] = [
   },
   {
     id: 'brand-vault',
-    index: 6,
-    label: 'Scene 07 — Our Valuable Clients',
+    index: 7,
+    label: 'Scene 08 — Our Valuable Clients',
     copy: {
       eyebrow: 'Our Clients',
       title: 'Know Our\nValuable Clients.',
@@ -132,8 +145,8 @@ export const SCENES: SceneDef[] = [
   },
   {
     id: 'projects',
-    index: 7,
-    label: 'Scene 08 — Gallery / Latest Works',
+    index: 8,
+    label: 'Scene 09 — Gallery / Latest Works',
     copy: {
       eyebrow: 'Gallery',
       title: "Let's Check Our\nLatest Works.",
@@ -145,8 +158,8 @@ export const SCENES: SceneDef[] = [
   },
   {
     id: 'why-us',
-    index: 8,
-    label: 'Scene 09 — Stats & Testimonials',
+    index: 9,
+    label: 'Scene 10 — Stats & Testimonials',
     copy: {
       eyebrow: 'Testimonials',
       title: "What Our\nClients Say.",
@@ -158,8 +171,8 @@ export const SCENES: SceneDef[] = [
   },
   {
     id: 'finale',
-    index: 9,
-    label: 'Scene 10 — Final CTA',
+    index: 10,
+    label: 'Scene 11 — Final CTA',
     copy: {
       eyebrow: 'Get Started',
       title: 'Getting the Job Done\nRight, the First Time.',

@@ -155,17 +155,26 @@ export function FocalRevealSection({ scene }: { scene: SceneDef }) {
     offset: ['start start', 'end end'],
   });
 
-  // The speaker climbs from below the fold to its resting position.
-  const speakerY = useTransform(scrollYProgress, [0.1, 0.42], ['105%', '0%']);
+  // ACT 1 — the golden sound wave sweeps in from the RIGHT, gliding
+  // left into its resting place as it fades up: sound arrives first.
+  const waveX = useTransform(
+    scrollYProgress,
+    [0.02, 0.2],
+    ['calc(-50% + 55vw)', 'calc(-50% + 0vw)'],
+  );
+  const waveOpacity = useTransform(scrollYProgress, [0.02, 0.16], [0, 1]);
 
-  // Side columns drift in from their own sides as they fade.
-  const leftColX = useTransform(scrollYProgress, [0.14, 0.4], ['-5vw', '0vw']);
-  const rightColX = useTransform(scrollYProgress, [0.14, 0.4], ['5vw', '0vw']);
-  const colOpacity = useTransform(scrollYProgress, [0.14, 0.4], [0, 1]);
+  // ACT 2 — the speaker climbs from below the fold to its resting
+  // position once the wave has settled.
+  const speakerY = useTransform(scrollYProgress, [0.2, 0.5], ['105%', '0%']);
 
-  // Sub-copy inside the columns + sound wave arrive a beat later.
-  const copyOpacity = useTransform(scrollYProgress, [0.26, 0.5], [0, 1]);
-  const waveOpacity = useTransform(scrollYProgress, [0.3, 0.54], [0, 1]);
+  // ACT 3 — side columns drift in from their own sides as they fade.
+  const leftColX = useTransform(scrollYProgress, [0.26, 0.52], ['-5vw', '0vw']);
+  const rightColX = useTransform(scrollYProgress, [0.26, 0.52], ['5vw', '0vw']);
+  const colOpacity = useTransform(scrollYProgress, [0.26, 0.52], [0, 1]);
+
+  // Sub-copy inside the columns arrives a beat later.
+  const copyOpacity = useTransform(scrollYProgress, [0.38, 0.6], [0, 1]);
 
   const still = reducedMotion; // show the finished composition statically
 
@@ -178,11 +187,20 @@ export function FocalRevealSection({ scene }: { scene: SceneDef }) {
       style={{ height: `${REVEAL_SCREENS * 100}vh` }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        {/* Cinematic golden sound wave — flowing behind the speaker. */}
+        {/* Cinematic golden sound wave — ACT 1: sweeps in from the right
+            (x glides right→left), then flows behind the rising speaker.
+            The centring translates live in the motion style because
+            framer's x animation owns the transform. */}
         <motion.div
-          style={still ? undefined : { opacity: waveOpacity }}
+          style={
+            still ? undefined : { opacity: waveOpacity, x: waveX, y: '-50%' }
+          }
           aria-hidden
-          className="absolute left-1/2 top-[42%] z-0 h-36 w-[80vw] max-w-5xl -translate-x-1/2 -translate-y-1/2 md:h-48"
+          className={
+            still
+              ? 'absolute left-1/2 top-[42%] z-0 h-36 w-[80vw] max-w-5xl -translate-x-1/2 -translate-y-1/2 md:h-48'
+              : 'absolute left-1/2 top-[42%] z-0 h-36 w-[80vw] max-w-5xl md:h-48'
+          }
         >
           <SoundWaveCanvas paused={still} />
         </motion.div>
@@ -256,13 +274,22 @@ export function FocalRevealSection({ scene }: { scene: SceneDef }) {
         {/* The speaker — rises from the bottom of the frame.
             Tone-graded into the black/gold theme; horizontal centring
             (x: -50%) lives inside the motion style because animating `y`
-            would overwrite a class-based translate. */}
+            would overwrite a class-based translate. Lifted off the stage
+            floor (bottom padding) so the base isn't flush against the
+            next section. */}
         <motion.img
           src="/G_Utopia_Evo.webp"
           alt="Focal Utopia Evo loudspeaker"
           style={still ? { x: '-50%' } : { y: speakerY, x: '-50%' }}
-          className="absolute bottom-0 left-1/2 z-20 h-[88vh] max-w-[80vw] object-contain object-bottom brightness-[0.82] contrast-[1.06] sepia-[0.28] saturate-[1.2] hue-rotate-[-6deg] drop-shadow-[0_-10px_90px_rgba(205,178,133,0.25)] md:max-w-[36vw]"
+          className="absolute bottom-[7vh] left-1/2 z-20 h-[80vh] max-w-[80vw] object-contain object-bottom brightness-[0.82] contrast-[1.06] sepia-[0.28] saturate-[1.2] hue-rotate-[-6deg] drop-shadow-[0_-10px_90px_rgba(205,178,133,0.25)] md:max-w-[36vw]"
           draggable={false}
+        />
+
+        {/* Bottom fade — melts the speaker image's rectangular edge
+            into pure black, removing the seam at the stage floor. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-30 h-[16vh] bg-gradient-to-t from-black via-black/70 to-transparent"
         />
       </div>
     </section>

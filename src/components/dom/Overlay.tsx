@@ -11,6 +11,7 @@ import {
 import { SceneSection } from './SceneSection';
 import { HeroFrameSequence } from './HeroFrameSequence';
 import { FocalRevealSection } from './FocalRevealSection';
+import { HarmanRevealSection } from './HarmanRevealSection';
 import { AboutSoundSection } from './AboutSoundSection';
 import { Button } from '@/components/ui/Button';
 
@@ -33,6 +34,12 @@ export function Overlay() {
         // pair splits left/right to unveil the message + sound waves.
         if (scene.id === 'sound-evolution') {
           return <FocalRevealSection key={scene.id} scene={scene} />;
+        }
+
+        // Scene 04 — Harman Kardon Authorized Dealer: the Citation pair
+        // splits left/right to unveil "Authorized Dealer of" + HK logo.
+        if (scene.id === 'harman-kardon') {
+          return <HarmanRevealSection key={scene.id} scene={scene} />;
         }
 
         // Scene 03 — About Us with centre-out sound burst (shockwave
