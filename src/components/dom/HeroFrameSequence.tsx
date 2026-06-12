@@ -63,10 +63,11 @@ export function HeroFrameSequence({ scene }: { scene: SceneDef }) {
   // near the end of the scrub, so the "TV off" moment is a true, complete
   // black regardless of how dark the clip's final frames actually are.
   const blackoutOpacity = useTransform(scrollYProgress, [0.68, 0.88], [0, 1]);
-  // Then the whole (now pure-black) stage fades out at the very end. The
-  // FOCAL section below is pulled up underneath this stage via a -100vh
-  // margin, so the fade reveals the speaker pair already pinned beneath.
-  const stageOpacity = useTransform(scrollYProgress, [0.93, 1], [1, 0]);
+  // Then the (now pure-black) stage fades out in the final beat. The next
+  // section is pulled up underneath this stage via a -100vh margin, so
+  // the fade reveals it already in place — no dead black scroll between
+  // the TV blackout and the next chapter.
+  const stageOpacity = useTransform(scrollYProgress, [0.96, 1], [1, 0]);
   const stageScale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
 
   /* ------------------------------------------------------------------ */

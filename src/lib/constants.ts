@@ -43,7 +43,7 @@ export const SCENES: SceneDef[] = [
     index: 0,
     label: 'Scene 01 — Welcome / 12 Years of Experience',
     copy: {
-      eyebrow: 'Welcome to Cine Sphere',
+      eyebrow: 'Welcome to Cinesphere',
       title: '12 Years of\nExperience.',
       body: 'We offer a huge range of audio and video solutions for every situation.',
       align: 'center',
@@ -52,9 +52,22 @@ export const SCENES: SceneDef[] = [
     mood: 0.4,
   },
   {
-    id: 'sound-evolution',
+    id: 'home-theatre',
     index: 1,
-    label: 'Scene 02 — Quality · Innovation · Leadership',
+    label: 'Scene 02 — About Us',
+    copy: {
+      eyebrow: 'About Us',
+      title: 'Welcome to Cinesphere',
+      body: 'Premium audio and video solutions for homes and businesses. Advanced technology, innovative design, unparalleled service. Trusted by 100+ clients.',
+      align: 'left',
+    },
+    camera: { position: [0, 1.4, 10], lookAt: [0, 1, 0] },
+    mood: 0.5,
+  },
+  {
+    id: 'sound-evolution',
+    index: 2,
+    label: 'Scene 03 — FOCAL Certified Partner',
     copy: {
       eyebrow: 'What Drives Us',
       title: 'Quality. Innovation.\nLeadership.',
@@ -63,19 +76,6 @@ export const SCENES: SceneDef[] = [
     },
     camera: { position: [0, 0.5, 8], lookAt: [0, 0, 0] },
     mood: 0.85,
-  },
-  {
-    id: 'home-theatre',
-    index: 2,
-    label: 'Scene 03 — About Us',
-    copy: {
-      eyebrow: 'About Us',
-      title: 'Welcome to\nCine Sphere.',
-      body: '12 years of giving solutions and supply on audio and video to both trade and private individuals — energy-efficient solutions, best sound quality, advanced technology, innovative design and unparalleled service. Trusted by 100+ clients.',
-      align: 'left',
-    },
-    camera: { position: [0, 1.4, 10], lookAt: [0, 1, 0] },
-    mood: 0.5,
   },
   {
     id: 'dolby-atmos',
@@ -216,7 +216,7 @@ export const TESTIMONIALS = [
   {
     name: 'Mr. Arul Selvan',
     quote:
-      'We hired Cine Sphere — they were prompt, efficient and did an awesome job on my home theater. Great ideas, competitive pricing, and great effort on wiring and installation without disturbing my room design. I highly recommend them for their flawless work.',
+      'We hired Cinesphere — they were prompt, efficient and did an awesome job on my home theater. Great ideas, competitive pricing, and great effort on wiring and installation without disturbing my room design. I highly recommend them for their flawless work.',
   },
   {
     name: 'Mr. Ramesh Rajasekar',
@@ -226,7 +226,7 @@ export const TESTIMONIALS = [
   {
     name: 'Mr. Sridhar',
     quote:
-      'The team was very professional — showed up on time, finished before the announced time, and was so helpful in understanding our needs. Cine Sphere delivered the system and made it so simple. Highly recommended!',
+      'The team was very professional — showed up on time, finished before the announced time, and was so helpful in understanding our needs. Cinesphere delivered the system and made it so simple. Highly recommended!',
   },
 ] as const;
 
@@ -239,7 +239,7 @@ export const STATS = [
 ] as const;
 
 export const BRAND = {
-  name: 'Cine Sphere',
+  name: 'Cinesphere',
   tagline: 'Finest Audio Artistry',
   city: 'No:70, Balaji Nagar, Part 3 Extension, Puzhal, Chennai',
   email: 'info@cinesphere.in',

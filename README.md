@@ -1,4 +1,4 @@
-# CineSphere — The Journey of Sound
+# Cinesphere — The Journey of Sound
 
 A luxury cinematic 3D web experience for a premium AV, Home Theatre, Smart Home
 & Automation integrator based in Chennai. The entire site is **one continuous

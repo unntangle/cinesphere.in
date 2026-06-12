@@ -6,24 +6,23 @@ import type { SceneDef } from '@/lib/constants';
 import { useExperience } from '@/store/useExperience';
 
 /**
- * FocalRevealSection — Scene 02 (Jesko Jets-style reveal)
+ * FocalRevealSection — Scene 03 (Jesko Jets-style reveal)
  * --------------------------------------------------------
- * After the hero's blackout lifts, a single Utopia Evo speaker RISES from
- * the bottom of the screen while two balanced columns settle in on either
- * side — the Focal logo + certified-partner message on the left, the
- * "Partner" headline + spec block on the right — with a cinematic golden
- * sound wave flowing behind the speaker.
+ * A self-contained sticky chapter: as the section pins, a single Utopia
+ * Evo speaker RISES from the bottom of the screen while two balanced
+ * columns settle in on either side — the Focal logo + certified-partner
+ * message on the left, the "Partner" headline + spec block on the right —
+ * with a cinematic golden sound wave flowing behind the speaker.
  *
- * Timing (the section overlaps the hero by 200vh, so its stage pins while
- * still hidden; the hero's blackout fade completes at ≈ 0.40 of this
- * section's scroll runway):
- *   0.00–0.40  hidden under the hero / blackout
- *   0.42–0.72  speaker rises; side columns drift in; wave follows
- *   0.72–1.00  finished composition holds
+ * Timing (the stage pins when the section reaches the viewport top; the
+ * stage is pure black at rest, so the scroll-in seam is invisible):
+ *   0.00–0.08  pinned, at rest (black — speaker below the fold)
+ *   0.10–0.42  speaker rises; side columns drift in; wave follows
+ *   0.42–1.00  finished composition holds
  */
 
-/** Scroll runway in viewport-heights (first 200vh hides under the hero). */
-const REVEAL_SCREENS = 3.5;
+/** Scroll runway in viewport-heights. */
+const REVEAL_SCREENS = 2.5;
 
 /* ------------------------------------------------------------------ */
 /* Cinematic sound wave — one refined lead line + quiet harmonic       */
@@ -75,11 +74,11 @@ function SoundWaveCanvas({ paused }: { paused: boolean }) {
 
     const makeGradient = () => {
       const g = ctx.createLinearGradient(0, 0, w, 0);
-      g.addColorStop(0, 'rgba(168,127,31,0)');
-      g.addColorStop(0.2, 'rgba(212,175,55,0.85)');
-      g.addColorStop(0.5, 'rgba(255,216,122,1)');
-      g.addColorStop(0.8, 'rgba(212,175,55,0.85)');
-      g.addColorStop(1, 'rgba(168,127,31,0)');
+      g.addColorStop(0, 'rgba(154,127,84,0)');
+      g.addColorStop(0.2, 'rgba(205,178,133,0.85)');
+      g.addColorStop(0.5, 'rgba(238,220,181,1)');
+      g.addColorStop(0.8, 'rgba(205,178,133,0.85)');
+      g.addColorStop(1, 'rgba(154,127,84,0)');
       return g;
     };
 
@@ -118,7 +117,7 @@ function SoundWaveCanvas({ paused }: { paused: boolean }) {
         ctx.strokeStyle = gradient;
         ctx.globalAlpha = r.alpha;
         ctx.lineWidth = r.width;
-        ctx.shadowColor = 'rgba(255,216,122,0.7)';
+        ctx.shadowColor = 'rgba(238,220,181,0.7)';
         ctx.shadowBlur = 12;
         ctx.stroke();
       }
@@ -157,16 +156,16 @@ export function FocalRevealSection({ scene }: { scene: SceneDef }) {
   });
 
   // The speaker climbs from below the fold to its resting position.
-  const speakerY = useTransform(scrollYProgress, [0.42, 0.72], ['105%', '0%']);
+  const speakerY = useTransform(scrollYProgress, [0.1, 0.42], ['105%', '0%']);
 
   // Side columns drift in from their own sides as they fade.
-  const leftColX = useTransform(scrollYProgress, [0.45, 0.7], ['-5vw', '0vw']);
-  const rightColX = useTransform(scrollYProgress, [0.45, 0.7], ['5vw', '0vw']);
-  const colOpacity = useTransform(scrollYProgress, [0.45, 0.7], [0, 1]);
+  const leftColX = useTransform(scrollYProgress, [0.14, 0.4], ['-5vw', '0vw']);
+  const rightColX = useTransform(scrollYProgress, [0.14, 0.4], ['5vw', '0vw']);
+  const colOpacity = useTransform(scrollYProgress, [0.14, 0.4], [0, 1]);
 
   // Sub-copy inside the columns + sound wave arrive a beat later.
-  const copyOpacity = useTransform(scrollYProgress, [0.55, 0.78], [0, 1]);
-  const waveOpacity = useTransform(scrollYProgress, [0.58, 0.8], [0, 1]);
+  const copyOpacity = useTransform(scrollYProgress, [0.26, 0.5], [0, 1]);
+  const waveOpacity = useTransform(scrollYProgress, [0.3, 0.54], [0, 1]);
 
   const still = reducedMotion; // show the finished composition statically
 
@@ -175,7 +174,7 @@ export function FocalRevealSection({ scene }: { scene: SceneDef }) {
       ref={sectionRef}
       id={scene.id}
       data-scene={scene.index}
-      className="relative z-10 -mt-[200vh] w-full bg-piano"
+      className="relative z-10 w-full bg-piano"
       style={{ height: `${REVEAL_SCREENS * 100}vh` }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden">
@@ -233,8 +232,8 @@ export function FocalRevealSection({ scene }: { scene: SceneDef }) {
                 </span>
               </div>
               <p className="mt-4 font-sans text-sm leading-relaxed text-ivory-muted">
-                High-fidelity French acoustics, delivered and installed by
-                Cine Sphere as a certified Focal partner.
+              High-fidelity French acoustics, delivered and installed by
+              Cinesphere as a certified Focal partner.
               </p>
             </motion.div>
           </motion.div>
@@ -262,7 +261,7 @@ export function FocalRevealSection({ scene }: { scene: SceneDef }) {
           src="/G_Utopia_Evo.webp"
           alt="Focal Utopia Evo loudspeaker"
           style={still ? { x: '-50%' } : { y: speakerY, x: '-50%' }}
-          className="absolute bottom-0 left-1/2 z-20 h-[88vh] max-w-[80vw] object-contain object-bottom brightness-[0.82] contrast-[1.06] sepia-[0.28] saturate-[1.2] hue-rotate-[-6deg] drop-shadow-[0_-10px_90px_rgba(212,175,55,0.25)] md:max-w-[36vw]"
+          className="absolute bottom-0 left-1/2 z-20 h-[88vh] max-w-[80vw] object-contain object-bottom brightness-[0.82] contrast-[1.06] sepia-[0.28] saturate-[1.2] hue-rotate-[-6deg] drop-shadow-[0_-10px_90px_rgba(205,178,133,0.25)] md:max-w-[36vw]"
           draggable={false}
         />
       </div>

@@ -11,6 +11,7 @@ import {
 import { SceneSection } from './SceneSection';
 import { HeroFrameSequence } from './HeroFrameSequence';
 import { FocalRevealSection } from './FocalRevealSection';
+import { AboutSoundSection } from './AboutSoundSection';
 import { Button } from '@/components/ui/Button';
 
 /**
@@ -32,6 +33,12 @@ export function Overlay() {
         // pair splits left/right to unveil the message + sound waves.
         if (scene.id === 'sound-evolution') {
           return <FocalRevealSection key={scene.id} scene={scene} />;
+        }
+
+        // Scene 03 — About Us with centre-out sound burst (shockwave
+        // rings + vibrating waveform flanking the copy).
+        if (scene.id === 'home-theatre') {
+          return <AboutSoundSection key={scene.id} scene={scene} />;
         }
 
         // Inject scene-specific DOM extras where the storyboard calls for them.

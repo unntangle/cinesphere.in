@@ -24,9 +24,9 @@ const sans = Inter({
 export const metadata: Metadata = {
   title: `${BRAND.name} — ${BRAND.tagline}`,
   description:
-    'Cine Sphere offers a huge range of audio and video solutions for every situation — home theatres, conference & boardroom integration, video/tele-conference studios, e-class rooms, digital signage and training & seminar halls across Chennai.',
+    'Cinesphere offers a huge range of audio and video solutions for every situation — home theatres, conference & boardroom integration, video/tele-conference studios, e-class rooms, digital signage and training & seminar halls across Chennai.',
   keywords: [
-    'Cine Sphere',
+    'Cinesphere',
     'audio video solutions Chennai',
     'home theatre solutions',
     'conference and boardroom integration',

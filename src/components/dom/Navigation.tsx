@@ -19,13 +19,15 @@ export function Navigation() {
       initial={{ opacity: 0, y: -12 }}
       animate={ready ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-      className="fixed inset-x-0 top-0 z-30 flex items-center justify-between bg-transparent px-6 py-3 md:px-12"
+      className="fixed inset-x-4 top-4 z-30 mx-auto flex max-w-7xl items-center justify-between rounded-full bg-black/55 px-5 py-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.35),0_0_46px_-6px_rgba(205,178,133,0.22),inset_0_1px_0_rgba(238,220,181,0.08)] backdrop-blur-xl backdrop-saturate-150 md:inset-x-10 md:px-8"
     >
-      <a
-        href="#top"
-        className="font-sans text-base font-semibold tracking-[-0.015em] text-ivory"
-      >
-        {BRAND.name}
+      <a href="#top" aria-label={BRAND.name} className="flex items-center">
+        <img
+          src="/cs-logo-color.webp"
+          alt={BRAND.name}
+          className="h-7 w-auto object-contain md:h-8"
+          draggable={false}
+        />
       </a>
 
       {/* Desktop menu */}

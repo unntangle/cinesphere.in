@@ -4,7 +4,7 @@
 
 :root {
   --piano: #000000;
-  --champagne: #d4af37;
+  --champagne: #cdb285;
   --ivory: #f5f5f7;
   --light-surface: #f5f5f7;
   --light-text: #1d1d1f;
@@ -60,13 +60,7 @@ body {
     @apply rounded-2xl border border-white/10 bg-white/[0.04] shadow-glass backdrop-blur-glass;
   }
 
-  /* Champagne gradient text. */
-  .text-gold {
-    @apply bg-gold-sheen bg-clip-text text-transparent;
-    background-size: 200% auto;
-  }
-
-  /* Eyebrow label — Apple section eyebrow: small, semibold, accent blue. */
+  /* Eyebrow label — Apple section eyebrow: small, semibold, accent gold. */
   .eyebrow {
     @apply text-sm font-sans font-semibold tracking-normal text-champagne;
   }
@@ -75,6 +69,14 @@ body {
   .display {
     @apply font-display font-semibold tracking-[-0.015em] text-ivory leading-[1.07];
     font-feature-settings: 'liga' 1, 'kern' 1;
+  }
+
+  /* Champagne gradient text. NOTE: declared AFTER .display so that when
+     both classes are combined (e.g. "display text-gold"), the gradient's
+     transparent clip wins over .display's solid ivory color. */
+  .text-gold {
+    @apply bg-gold-sheen bg-clip-text text-transparent;
+    background-size: 200% auto;
   }
 
   /* Light editorial section — Apple's #f5f5f7 panels over the dark canvas. */
@@ -97,6 +99,19 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  /* Sheen sweep for .text-gold — the gradient (background-size: 200%)
+     glides across the lettering like light over polished metal. */
+  .text-gold-sweep {
+    animation: gold-sweep 4s ease-in-out infinite;
+  }
+  @keyframes gold-sweep {
+    0% {
+      background-position: 0% center;
+    }
+    100% {
+      background-position: -200% center;
+    }
   }
   /* Animated equalizer bar — used by the FOCAL reveal sound waves. */
   .soundbar {

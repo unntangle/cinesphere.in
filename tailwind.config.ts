@@ -31,12 +31,13 @@ const config: Config = {
           muted: '#86868b',
           faint: '#6e6e73',
         },
-        // The one accent — champagne gold
+        // The one accent — champagne gold, sampled from the CINESPHERE
+        // logo's gradient (muted champagne-tan, not saturated yellow-gold)
         champagne: {
-          DEFAULT: '#d4af37', // champagne gold on dark
-          light: '#f0d98c',
-          deep: '#a87f1f', // button gold
-          glow: '#ffd87a',
+          DEFAULT: '#cdb285', // logo mid-tone
+          light: '#e4d2ac',
+          deep: '#9a7f54', // button gold
+          glow: '#eedcb5',
         },
       },
       fontFamily: {
@@ -67,7 +68,7 @@ const config: Config = {
       },
       backgroundImage: {
         'gold-sheen':
-          'linear-gradient(110deg, #a87f1f 0%, #d4af37 45%, #f5e3a3 55%, #a87f1f 100%)',
+          'linear-gradient(110deg, #9a7f54 0%, #cdb285 45%, #eedcb5 55%, #9a7f54 100%)',
         'piano-fade':
           'radial-gradient(ellipse at center, #161617 0%, #000000 70%)',
         'carbon-weave':
@@ -75,7 +76,7 @@ const config: Config = {
       },
       boxShadow: {
         glass: '0 8px 40px -8px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)',
-        gold: '0 0 28px -4px rgba(212,175,55,0.45)',
+        gold: '0 0 28px -4px rgba(205,178,133,0.45)',
       },
       backdropBlur: {
         glass: '14px',
