@@ -47,9 +47,7 @@ export function Scene09WhyChooseUs({ active }: { active: boolean }) {
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={MOTES}
-          array={positions}
-          itemSize={3}
+          args={[positions, 3]}
         />
       </bufferGeometry>
       <pointsMaterial

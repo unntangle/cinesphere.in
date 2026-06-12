@@ -83,9 +83,7 @@ export function Scene10Finale({ active }: { active: boolean }) {
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            count={COUNT}
-            array={scattered}
-            itemSize={3}
+            args={[scattered, 3]}
           />
         </bufferGeometry>
         <pointsMaterial
