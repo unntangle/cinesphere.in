@@ -63,7 +63,6 @@ export const SCENES: SceneDef[] = [
     },
     camera: { position: [0, 0.5, 8], lookAt: [0, 0, 0] },
     mood: 0.85,
-    theme: 'light',
   },
   {
     id: 'home-theatre',

@@ -98,6 +98,22 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  /* Animated equalizer bar — used by the FOCAL reveal sound waves. */
+  .soundbar {
+    transform-origin: center;
+    animation: soundwave 1.4s ease-in-out infinite;
+  }
+  @keyframes soundwave {
+    0%,
+    100% {
+      transform: scaleY(0.25);
+      opacity: 0.55;
+    }
+    50% {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
   /* Vignette overlay to deepen edges, film-grade falloff. */
   .vignette::after {
     content: '';

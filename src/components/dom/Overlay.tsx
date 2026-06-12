@@ -9,7 +9,8 @@ import {
   TESTIMONIALS,
 } from '@/lib/constants';
 import { SceneSection } from './SceneSection';
-import { HeroVideoSection } from './HeroVideoSection';
+import { HeroFrameSequence } from './HeroFrameSequence';
+import { FocalRevealSection } from './FocalRevealSection';
 import { Button } from '@/components/ui/Button';
 
 /**
@@ -21,9 +22,16 @@ export function Overlay() {
   return (
     <main id="top" className="relative z-10">
       {SCENES.map((scene) => {
-        // Scene 01 — scroll-scrubbed hero film.
+        // Scene 01 — scroll-scrubbed hero (canvas frame sequence; falls
+        // back to the <video> hero automatically if no frames exist yet).
         if (scene.id === 'birth-of-sound') {
-          return <HeroVideoSection key={scene.id} scene={scene} />;
+          return <HeroFrameSequence key={scene.id} scene={scene} />;
+        }
+
+        // Scene 02 — FOCAL certified-partner curtain reveal: the speaker
+        // pair splits left/right to unveil the message + sound waves.
+        if (scene.id === 'sound-evolution') {
+          return <FocalRevealSection key={scene.id} scene={scene} />;
         }
 
         // Inject scene-specific DOM extras where the storyboard calls for them.

@@ -42,7 +42,7 @@ export function HeroVideoSection({ scene }: { scene: SceneDef }) {
   // The video holds the frame until the end, dimming slightly as it hands
   // off to the next chapter. The scroll cue fades as the journey begins.
   const cueOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
-  const videoOpacity = useTransform(scrollYProgress, [0.92, 1], [1, 0.75]);
+  const videoOpacity = useTransform(scrollYProgress, [0.92, 1], [1, 0.9]);
   const videoScale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
 
   /* ------------------------------------------------------------------ */
@@ -100,12 +100,18 @@ export function HeroVideoSection({ scene }: { scene: SceneDef }) {
       raf = requestAnimationFrame(tick);
       if (!ready || !video.duration || !video.seekable.length) return;
 
-      // Map full scroll range → full video duration (minus a hair so we
-      // never seek past the end and snap to black).
-      const target = clamp(scrollYProgress.get()) * (video.duration - 0.05);
+      // Map most of the scroll range → the video, finishing the scrub at
+      // 90% of the runway and well before the clip's final frames. This
+      // (a) avoids seeking into a dark/black tail at the end of the file
+      // and (b) holds a stable final frame during the sticky release, so
+      // the handoff to the next section doesn't visibly "jump".
+      const SCRUB_END = 0.9; // fraction of runway that drives the video
+      const END_MARGIN = 0.4; // seconds of the clip we never seek into
+      const p = clamp(scrollYProgress.get() / SCRUB_END);
+      const target = p * Math.max(0.1, video.duration - END_MARGIN);
 
       // Chase the target — smooths out wheel steps and trackpad flicks.
-      smoothed += (target - smoothed) * 0.18;
+      smoothed += (target - smoothed) * 0.14;
 
       // Watchdog: if 'seeked' never fired (e.g. seek to identical time),
       // release the lock so we don't deadlock.
@@ -142,7 +148,7 @@ export function HeroVideoSection({ scene }: { scene: SceneDef }) {
         {/* Scroll-scrubbed film, pinned to the stage. */}
         <motion.video
         ref={videoRef}
-        src="/hero/hero-1.mp4"
+        src="/hero/hero-2.mp4"
         style={{ opacity: videoOpacity, scale: videoScale }}
         className="absolute inset-0 h-full w-full object-cover"
         muted
