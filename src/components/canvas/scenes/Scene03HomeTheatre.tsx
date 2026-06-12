@@ -45,7 +45,7 @@ export function Scene03HomeTheatre({ active }: { active: boolean }) {
         <planeGeometry args={[8, 3.6]} />
         <meshStandardMaterial
           color="#101012"
-          emissive="#64d2ff"
+          emissive="#f0d98c"
           emissiveIntensity={0.25}
         />
       </mesh>

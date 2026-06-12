@@ -55,7 +55,7 @@ export function Scene08Projects({ active }: { active: boolean }) {
             <boxGeometry args={[0.6, t.h, 0.6]} />
             <meshStandardMaterial
               color="#101012"
-              emissive="#2997ff"
+              emissive="#d4af37"
               emissiveIntensity={t.flagship ? 0.3 : 0.08}
               metalness={0.5}
               roughness={0.5}
@@ -65,7 +65,7 @@ export function Scene08Projects({ active }: { active: boolean }) {
           {t.flagship && (
             <mesh position={[0, t.h * 2, 0]}>
               <cylinderGeometry args={[0.02, 0.02, t.h * 4, 8]} />
-              <meshBasicMaterial color="#64d2ff" transparent opacity={0.4} />
+              <meshBasicMaterial color="#f0d98c" transparent opacity={0.4} />
             </mesh>
           )}
         </group>

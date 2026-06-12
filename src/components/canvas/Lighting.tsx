@@ -30,20 +30,20 @@ export function Lighting() {
   return (
     <>
       <ambientLight intensity={0.15} />
-      {/* cool key — Apple-style studio white-blue */}
+      {/* warm key — champagne-gold studio light */}
       <pointLight
         ref={keyRef}
         position={[4, 5, 4]}
         intensity={8}
-        color="#bcd7ff"
+        color="#ffe9c2"
         distance={40}
         decay={1.4}
       />
-      {/* cool fill from the opposite side for separation */}
+      {/* warm fill from the opposite side for separation */}
       <pointLight
         position={[-6, 2, -4]}
         intensity={3}
-        color="#5a6b8c"
+        color="#8c7a5a"
         distance={40}
         decay={1.6}
       />

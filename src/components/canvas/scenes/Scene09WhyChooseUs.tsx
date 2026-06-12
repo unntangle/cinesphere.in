@@ -54,7 +54,7 @@ export function Scene09WhyChooseUs({ active }: { active: boolean }) {
       </bufferGeometry>
       <pointsMaterial
         size={0.02}
-        color="#2997ff"
+        color="#d4af37"
         transparent
         opacity={0.5}
         depthWrite={false}

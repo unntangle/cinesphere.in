@@ -142,7 +142,7 @@ export function HeroVideoSection({ scene }: { scene: SceneDef }) {
         {/* Scroll-scrubbed film, pinned to the stage. */}
         <motion.video
         ref={videoRef}
-        src="/hero/hero-video.mp4"
+        src="/hero/hero-hometheatre1.mp4"
         style={{ opacity: videoOpacity, scale: videoScale }}
         className="absolute inset-0 h-full w-full object-cover"
         muted

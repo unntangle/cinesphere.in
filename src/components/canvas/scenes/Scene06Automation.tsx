@@ -44,7 +44,7 @@ export function Scene06Automation({ active }: { active: boolean }) {
               <planeGeometry args={[1.5, 1]} />
               <meshStandardMaterial
                 color="#16161a"
-                emissive="#2997ff"
+                emissive="#d4af37"
                 emissiveIntensity={0.15}
                 transparent
                 opacity={0.55}

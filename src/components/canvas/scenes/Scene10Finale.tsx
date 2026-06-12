@@ -90,7 +90,7 @@ export function Scene10Finale({ active }: { active: boolean }) {
         </bufferGeometry>
         <pointsMaterial
           size={0.02}
-          color="#64d2ff"
+          color="#f0d98c"
           transparent
           opacity={0.85}
           depthWrite={false}
@@ -103,8 +103,8 @@ export function Scene10Finale({ active }: { active: boolean }) {
       <mesh ref={core}>
         <icosahedronGeometry args={[0.8, 4]} />
         <meshStandardMaterial
-          color="#2997ff"
-          emissive="#64d2ff"
+          color="#d4af37"
+          emissive="#f0d98c"
           emissiveIntensity={0.5}
           metalness={0.6}
           roughness={0.2}

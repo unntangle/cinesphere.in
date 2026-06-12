@@ -84,7 +84,7 @@ export function Scene01BirthOfSound({ active }: { active: boolean }) {
             metalness={0.9}
             roughness={0.25}
             side={THREE.DoubleSide}
-            emissive="#2997ff"
+            emissive="#d4af37"
             emissiveIntensity={0.05}
           />
         </mesh>
@@ -106,7 +106,7 @@ export function Scene01BirthOfSound({ active }: { active: boolean }) {
         </bufferGeometry>
         <pointsMaterial
           size={0.015}
-          color="#64d2ff"
+          color="#f0d98c"
           transparent
           opacity={0.4}
           depthWrite={false}

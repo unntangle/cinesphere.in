@@ -3,11 +3,10 @@ import type { Config } from 'tailwindcss';
 /**
  * Cine Sphere Design System — Apple-style premium theme.
  *
- * Palette philosophy: Apple's product-page language — true black canvas,
+ * Palette philosophy: luxury gold & black — true black canvas,
  * #f5f5f7 light editorial sections, #86868b neutral gray copy on both,
- * and Apple blue as the single accent. Token names are kept from the
- * original system (piano/ivory/champagne) so component classes are stable;
- * only the values are remapped.
+ * and champagne gold as the single accent. Token names are kept from the
+ * original system (piano/ivory/champagne) so component classes are stable.
  */
 const config: Config = {
   content: ['./src/**/*.{ts,tsx}'],
@@ -32,12 +31,12 @@ const config: Config = {
           muted: '#86868b',
           faint: '#6e6e73',
         },
-        // The one accent — Apple blue
+        // The one accent — champagne gold
         champagne: {
-          DEFAULT: '#2997ff', // link blue on dark
-          light: '#64d2ff',
-          deep: '#0071e3', // button blue
-          glow: '#5ac8fa',
+          DEFAULT: '#d4af37', // champagne gold on dark
+          light: '#f0d98c',
+          deep: '#a87f1f', // button gold
+          glow: '#ffd87a',
         },
       },
       fontFamily: {
@@ -68,7 +67,7 @@ const config: Config = {
       },
       backgroundImage: {
         'gold-sheen':
-          'linear-gradient(110deg, #0071e3 0%, #2997ff 45%, #64d2ff 55%, #0071e3 100%)',
+          'linear-gradient(110deg, #a87f1f 0%, #d4af37 45%, #f5e3a3 55%, #a87f1f 100%)',
         'piano-fade':
           'radial-gradient(ellipse at center, #161617 0%, #000000 70%)',
         'carbon-weave':
@@ -76,7 +75,7 @@ const config: Config = {
       },
       boxShadow: {
         glass: '0 8px 40px -8px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)',
-        gold: '0 0 28px -4px rgba(41,151,255,0.45)',
+        gold: '0 0 28px -4px rgba(212,175,55,0.45)',
       },
       backdropBlur: {
         glass: '14px',

@@ -20,10 +20,10 @@ import * as THREE from 'three';
  *  - Add labels (Front L/R, Surround, Height, LFE) as billboarded sprites.
  */
 const CHANNELS = [
-  { color: '#64d2ff', radius: 3, height: 0.2, speed: 0.6 }, // front
-  { color: '#2997ff', radius: 3.5, height: 0.6, speed: -0.45 }, // rear
-  { color: '#5ac8fa', radius: 2.2, height: 1.6, speed: 0.8 }, // height
-  { color: '#0071e3', radius: 1.2, height: -0.6, speed: 0.3 }, // LFE/sub
+  { color: '#f0d98c', radius: 3, height: 0.2, speed: 0.6 }, // front
+  { color: '#d4af37', radius: 3.5, height: 0.6, speed: -0.45 }, // rear
+  { color: '#ffd87a', radius: 2.2, height: 1.6, speed: 0.8 }, // height
+  { color: '#a87f1f', radius: 1.2, height: -0.6, speed: 0.3 }, // LFE/sub
 ];
 
 export function Scene04DolbyAtmos({ active }: { active: boolean }) {
@@ -65,7 +65,7 @@ export function Scene04DolbyAtmos({ active }: { active: boolean }) {
       {/* listener position marker */}
       <mesh>
         <ringGeometry args={[0.4, 0.45, 48]} />
-        <meshBasicMaterial color="#2997ff" transparent opacity={0.3} side={THREE.DoubleSide} />
+        <meshBasicMaterial color="#d4af37" transparent opacity={0.3} side={THREE.DoubleSide} />
       </mesh>
     </group>
   );

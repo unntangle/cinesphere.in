@@ -70,8 +70,8 @@ export function Scene05SmartVilla({ active }: { active: boolean }) {
       <mesh ref={pulse}>
         <sphereGeometry args={[0.15, 20, 20]} />
         <meshStandardMaterial
-          color="#64d2ff"
-          emissive="#64d2ff"
+          color="#f0d98c"
+          emissive="#f0d98c"
           emissiveIntensity={3}
           toneMapped={false}
         />

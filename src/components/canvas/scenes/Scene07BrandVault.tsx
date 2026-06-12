@@ -51,7 +51,7 @@ export function Scene07BrandVault({ active }: { active: boolean }) {
                   color="#1a1a1d"
                   metalness={0.9}
                   roughness={0.2}
-                  emissive="#2997ff"
+                  emissive="#d4af37"
                   emissiveIntensity={0.08}
                 />
               </mesh>

@@ -64,8 +64,8 @@ export function Scene02SoundEvolution({ active }: { active: boolean }) {
       >
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial
-          color="#2997ff"
-          emissive="#2997ff"
+          color="#d4af37"
+          emissive="#d4af37"
           emissiveIntensity={0.4}
           metalness={0.6}
           roughness={0.3}
@@ -77,7 +77,7 @@ export function Scene02SoundEvolution({ active }: { active: boolean }) {
         <icosahedronGeometry args={[0.6, 2]} />
         <meshStandardMaterial
           color="#16161a"
-          emissive="#64d2ff"
+          emissive="#f0d98c"
           emissiveIntensity={0.15}
           wireframe
         />
