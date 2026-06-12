@@ -2,16 +2,18 @@
 
 import {
   SCENES,
-  BRANDS,
-  STATS,
   BRAND,
-  SOLUTIONS,
-  TESTIMONIALS,
 } from '@/lib/constants';
 import { SceneSection } from './SceneSection';
 import { HeroFrameSequence } from './HeroFrameSequence';
 import { FocalRevealSection } from './FocalRevealSection';
 import { HarmanRevealSection } from './HarmanRevealSection';
+import { SolutionsCarouselSection } from './SolutionsCarouselSection';
+import { StatsBandSection } from './StatsBandSection';
+import { GalleryParallaxSection } from './GalleryParallaxSection';
+import { TestimonialsSection } from './TestimonialsSection';
+import { ClientsMarqueeSection } from './ClientsMarqueeSection';
+import { FooterSection } from './FooterSection';
 import { AboutSoundSection } from './AboutSoundSection';
 import { Button } from '@/components/ui/Button';
 
@@ -48,91 +50,88 @@ export function Overlay() {
           return <AboutSoundSection key={scene.id} scene={scene} />;
         }
 
-        // Inject scene-specific DOM extras where the storyboard calls for them.
-        if (scene.id === 'brand-vault') {
+        // Scenes 05–07 — Our Solutions, merged into one Apple-style
+        // horizontal carousel, followed by the "mixing console" stats
+        // band (count-up numbers + equalizer meters).
+        if (scene.id === 'dolby-atmos') {
           return (
-            <SceneSection key={scene.id} scene={scene}>
-              <ul className="mt-10 flex flex-wrap gap-x-8 gap-y-3">
-                {BRANDS.map((b) => (
-                  <li
-                    key={b}
-                    className="font-display text-xl text-ivory-muted transition-colors hover:text-champagne"
-                  >
-                    {b}
-                  </li>
-                ))}
-              </ul>
-            </SceneSection>
+            <div key={scene.id}>
+              <SolutionsCarouselSection scene={scene} />
+              <GalleryParallaxSection />
+              <TestimonialsSection />
+              <StatsBandSection />
+            </div>
           );
+        }
+        if (scene.id === 'smart-villa' || scene.id === 'automation') {
+          // Absorbed into the solutions carousel above.
+          return null;
+        }
+        if (scene.id === 'projects') {
+          // Gallery moved up — rendered as GalleryParallaxSection right
+          // below the stats band (it carries the #projects anchor).
+          return null;
+        }
+
+        // Scene — Our Valuable Clients: rounded logo cards in a
+        // seamless infinite marquee (pause on hover).
+        // NOTE: the "Get in Touch" ContactCTASection is hidden for now —
+        // re-add <ContactCTASection /> below the marquee to restore it.
+        if (scene.id === 'brand-vault') {
+          return <ClientsMarqueeSection key={scene.id} scene={scene} />;
         }
 
         if (scene.id === 'why-us') {
-          return (
-            <SceneSection key={scene.id} scene={scene}>
-              <dl className="mt-12 grid grid-cols-2 gap-8 md:grid-cols-4">
-                {STATS.map((s) => (
-                  <div key={s.label}>
-                    <dt className="text-gold font-display text-5xl md:text-6xl">
-                      {s.value}
-                      {s.suffix}
-                    </dt>
-                    <dd className="eyebrow mt-2 text-ivory-faint">{s.label}</dd>
-                  </div>
-                ))}
-              </dl>
-              <div className="mt-14 grid gap-6 text-left md:grid-cols-3">
-                {TESTIMONIALS.map((t) => (
-                  <figure key={t.name} className="glass p-6">
-                    <blockquote className="font-sans text-sm leading-relaxed text-ivory-muted">
-                      “{t.quote}”
-                    </blockquote>
-                    <figcaption className="eyebrow mt-4">{t.name}</figcaption>
-                  </figure>
-                ))}
-              </div>
-            </SceneSection>
-          );
+          // Testimonials moved up — rendered as TestimonialsSection
+          // (the "liner notes" track-list) below the gallery.
+          return null;
         }
 
         if (scene.id === 'finale') {
+          // Closing CTA — contained banner card: dark rounded panel on
+          // the light theme, copy left, studio image right (faded into
+          // the card), single Get Started CTA — followed by the footer.
           return (
-            <SceneSection key={scene.id} scene={scene}>
-              <div className="mt-10 flex flex-wrap justify-center gap-4">
-                <Button variant="gold">Quick Enquiry</Button>
-                <Button variant="ghost">Call {BRAND.phone}</Button>
-                <Button variant="ghost">Explore More</Button>
-              </div>
-
-              <footer
-                id="contact"
-                className="mt-24 border-t border-white/10 pt-10 text-center"
+            <div key={scene.id}>
+              <section
+                id={scene.id}
+                data-scene={scene.index}
+                className="section-light relative z-10 w-full px-6 pb-4 pt-12 md:px-16"
               >
-                <p className="display text-2xl text-gold">{BRAND.name}</p>
-                <p className="eyebrow mt-3">{BRAND.tagline}</p>
+                <div className="relative mx-auto grid max-w-7xl items-center overflow-hidden rounded-3xl bg-piano md:grid-cols-2">
+                  {/* Copy — left. */}
+                  <div className="relative z-10 p-8 md:p-10 lg:p-12">
+                    <p className="eyebrow">{scene.copy.eyebrow}</p>
+                    <h2 className="display mt-2 whitespace-pre-line text-balance text-xl !text-ivory md:text-2xl lg:text-3xl">
+                      {scene.copy.title}
+                    </h2>
+                    <p className="mt-3 max-w-md font-sans text-sm leading-relaxed text-ivory-muted">
+                      {scene.copy.body}
+                    </p>
+                    <a href="#contact" className="mt-6 inline-block">
+                      <Button variant="gold">Let&apos;s Talk</Button>
+                    </a>
+                  </div>
 
-                <ul className="mx-auto mt-8 flex max-w-3xl flex-wrap justify-center gap-x-6 gap-y-2">
-                  {SOLUTIONS.map((s) => (
-                    <li
-                      key={s}
-                      className="font-sans text-xs text-ivory-faint transition-colors hover:text-champagne"
-                    >
-                      {s}
-                    </li>
-                  ))}
-                </ul>
-
-                <p className="mt-8 font-sans text-sm text-ivory-muted">
-                  {BRAND.city}
-                </p>
-                <p className="mt-2 font-sans text-sm text-ivory-muted">
-                  {BRAND.phone} · {BRAND.email}
-                </p>
-                <p className="mt-8 font-sans text-xs text-ivory-faint">
-                  © {new Date().getFullYear()} {BRAND.name}. All Rights
-                  Reserved.
-                </p>
-              </footer>
-            </SceneSection>
+                  {/* Image — right, melting into the card on its left edge. */}
+                  <div className="relative h-44 md:h-full md:min-h-[15rem]">
+                    <img
+                      src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1400&q=70"
+                      alt=""
+                      aria-hidden
+                      className="absolute inset-0 h-full w-full object-cover brightness-[0.8] sepia-[0.25] saturate-[1.15]"
+                      loading="lazy"
+                      draggable={false}
+                    />
+                    <div
+                      aria-hidden
+                      className="absolute inset-0 bg-gradient-to-t from-piano via-transparent to-transparent md:bg-gradient-to-r md:from-piano md:via-piano/30 md:to-transparent"
+                    />
+                  </div>
+                </div>
+              </section>
+              <FooterSection />
+            </div>
           );
         }
 

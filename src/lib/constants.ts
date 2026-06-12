@@ -172,11 +172,11 @@ export const SCENES: SceneDef[] = [
   {
     id: 'finale',
     index: 10,
-    label: 'Scene 11 — Final CTA',
+    label: "Scene 11 — Let's Talk CTA",
     copy: {
-      eyebrow: 'Get Started',
-      title: 'Getting the Job Done\nRight, the First Time.',
-      body: 'We have transformed family values into successful business values while promoting the highest standards of entrepreneurship and quality of life.',
+      eyebrow: "Let's Talk",
+      title: 'Having queries?\nWe’re all ears.',
+      body: 'From a single listening room to a full auditorium — tell us what you have in mind and our team will get back to you within a working day.',
       align: 'center',
     },
     camera: { position: [0, 0, 6], lookAt: [0, 0, 0] },
@@ -196,21 +196,17 @@ export const BRANDS = [
   'The Residency',
 ] as const;
 
-/** Full solutions list — used in the footer. */
+/** Full solutions list — used in the footer (matches the 9 cards in
+ *  the Our Solutions carousel). */
 export const SOLUTIONS = [
   'Audio / Video Display Solutions',
-  'Conference and Boardroom Integration',
-  'Video/Tele Conference Studios',
-  'E-Class Rooms',
-  'Training & Seminar Hall Solutions',
-  'Digital Signage',
+  'Conference, Boardroom & Tele-Conference Studios',
+  'E-Class Rooms & Seminar Halls',
+  'Home Theatre Solutions',
+  'Multi-Room Audio & Background Music',
   'Auditoriums AV',
-  'Intelligent Solutions',
-  'Multi Room Audio',
-  'Paging / Background Music',
-  'Home Theater Solutions',
-  'Stage Lighting',
-  'LED Video Wall',
+  'Digital Signage & LED Video Wall',
+  'Intelligent Solutions & Stage Lighting',
   'Surveillance Solutions',
 ] as const;
 
@@ -248,13 +244,14 @@ export const STATS = [
   { value: 80, suffix: '+', label: 'Total Projects' },
   { value: 110, suffix: '+', label: 'Happy Customers' },
   { value: 10, suffix: '+', label: 'Our Team Members' },
-  { value: 10, suffix: '+', label: 'Years of Experience' },
+  { value: 12, suffix: '+', label: 'Years of Experience' },
 ] as const;
 
 export const BRAND = {
   name: 'Cinesphere',
   tagline: 'Finest Audio Artistry',
-  city: 'No:70, Balaji Nagar, Part 3 Extension, Puzhal, Chennai',
+  city: '1st Floor, Sri Govind Towers, W582, School Rd, W Block, Anna Nagar West Extension, Chennai, Tamil Nadu 600101',
+  maps: 'https://share.google/FxqpEtxcAzB79G8Pq',
   email: 'info@cinesphere.in',
   phone: '+91 98841 80066',
 } as const;

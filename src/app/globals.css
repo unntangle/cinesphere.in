@@ -147,6 +147,16 @@ body {
       opacity: 0;
     }
   }
+  /* Infinite logo marquee — the track holds TWO copies of the card
+     list and glides by half its width, looping seamlessly. */
+  .marquee-track {
+    animation: marquee 32s linear infinite;
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
   /* Vignette overlay to deepen edges, film-grade falloff. */
   .vignette::after {
     content: '';
