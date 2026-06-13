@@ -127,16 +127,35 @@ function SoundWaveCanvas({ paused }: { paused: boolean }) {
 
     if (paused) {
       draw(1200);
-    } else {
-      const loop = (time: number) => {
-        raf = requestAnimationFrame(loop);
-        draw(time);
+      return () => {
+        window.removeEventListener('resize', resize);
       };
-      raf = requestAnimationFrame(loop);
     }
 
-    return () => {
+    // Animate only while visible to keep the frame budget free elsewhere.
+    let running = false;
+    const loop = (time: number) => {
+      raf = requestAnimationFrame(loop);
+      draw(time);
+    };
+    const startLoop = () => {
+      if (running) return;
+      running = true;
+      raf = requestAnimationFrame(loop);
+    };
+    const stopLoop = () => {
+      running = false;
       cancelAnimationFrame(raf);
+    };
+    const io = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? startLoop() : stopLoop()),
+      { rootMargin: '150px' },
+    );
+    io.observe(canvas);
+
+    return () => {
+      stopLoop();
+      io.disconnect();
       window.removeEventListener('resize', resize);
     };
   }, [paused]);
@@ -216,7 +235,7 @@ export function FocalRevealSection({ scene }: { scene: SceneDef }) {
             {/* Champagne-tinted; sized so the FOCAL wordmark inside the
                 logo matches the cap-height of the "Partner" headline. */}
             <img
-              src="/focal-logo.webp"
+              src="/images/focal-logo.webp"
               alt="FOCAL — The Spirit of Sound"
               className="h-20 w-auto self-start object-contain object-left brightness-[0.98] sepia-[0.85] saturate-[1.4] lg:h-24 xl:h-28"
               draggable={false}
@@ -263,7 +282,7 @@ export function FocalRevealSection({ scene }: { scene: SceneDef }) {
           className="pointer-events-none absolute inset-x-6 top-[14%] z-10 flex flex-col items-center gap-4 text-center md:hidden"
         >
           <img
-            src="/focal-logo.webp"
+            src="/images/focal-logo.webp"
             alt="FOCAL — The Spirit of Sound"
             className="h-10 w-auto object-contain brightness-[0.98] sepia-[0.85] saturate-[1.4]"
             draggable={false}
@@ -278,7 +297,7 @@ export function FocalRevealSection({ scene }: { scene: SceneDef }) {
             floor (bottom padding) so the base isn't flush against the
             next section. */}
         <motion.img
-          src="/G_Utopia_Evo.webp"
+          src="/images/G_Utopia_Evo.webp"
           alt="Focal Utopia Evo loudspeaker"
           style={still ? { x: '-50%' } : { y: speakerY, x: '-50%' }}
           className="absolute bottom-[7vh] left-1/2 z-20 h-[80vh] max-w-[80vw] object-contain object-bottom brightness-[0.82] contrast-[1.06] sepia-[0.28] saturate-[1.2] hue-rotate-[-6deg] drop-shadow-[0_-10px_90px_rgba(205,178,133,0.25)] md:max-w-[36vw]"

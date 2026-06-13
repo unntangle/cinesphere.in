@@ -69,7 +69,7 @@ export function FooterSection() {
         {/* Breadcrumb row — wordmark + tagline. */}
         <div className="flex items-center gap-3 border-b border-black/10 pb-4">
           <img
-            src="/cs-logo-color.webp"
+            src="/images/cs-logo-color.webp"
             alt={BRAND.name}
             className="h-6 w-auto object-contain"
             draggable={false}

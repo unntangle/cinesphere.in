@@ -181,7 +181,7 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
                 the offset lives in the motion style so framer's y/opacity
                 animation doesn't overwrite it. */}
             <motion.img
-              src="/Harman_kardon_Logo.webp"
+              src="/images/Harman_kardon_Logo.webp"
               alt="Harman Kardon"
               style={
                 still
@@ -222,7 +222,7 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
             dims the real base, then (b) shows the reflected base fading
             into the floor within a few vh. */}
         <motion.img
-          src="/HM-CT.webp"
+          src="/images/HM-CT.webp"
           alt=""
           aria-hidden
           style={
@@ -234,7 +234,7 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
           draggable={false}
         />
         <motion.img
-          src="/HM-CT.webp"
+          src="/images/HM-CT.webp"
           alt=""
           aria-hidden
           style={
@@ -246,7 +246,7 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
           draggable={false}
         />
         <motion.img
-          src="/HM-CT.webp"
+          src="/images/HM-CT.webp"
           alt=""
           aria-hidden
           style={
@@ -258,7 +258,7 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
           draggable={false}
         />
         <motion.img
-          src="/HM-CT.webp"
+          src="/images/HM-CT.webp"
           alt=""
           aria-hidden
           style={
@@ -330,7 +330,7 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
             (y lives in the motion style — a class translate would be
             overwritten by framer's inline transform.) */}
         <motion.img
-          src="/HM-CT.webp"
+          src="/images/HM-CT.webp"
           alt="Harman Kardon Citation speaker"
           style={
             still
@@ -341,7 +341,7 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
           draggable={false}
         />
         <motion.img
-          src="/HM-CT.webp"
+          src="/images/HM-CT.webp"
           alt=""
           aria-hidden
           style={
@@ -355,7 +355,7 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
 
         {/* THE DUPLICATED PAIR — mobile (smaller, tighter split). */}
         <motion.img
-          src="/HM-CT.webp"
+          src="/images/HM-CT.webp"
           alt="Harman Kardon Citation speaker"
           style={
             still
@@ -366,7 +366,7 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
           draggable={false}
         />
         <motion.img
-          src="/HM-CT.webp"
+          src="/images/HM-CT.webp"
           alt=""
           aria-hidden
           style={

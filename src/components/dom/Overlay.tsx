@@ -17,6 +17,22 @@ import { SoundWaveSection } from './SoundWaveSection';
 import { FooterSection } from './FooterSection';
 import { AboutSoundSection } from './AboutSoundSection';
 import { Button } from '@/components/ui/Button';
+import { motion, type Variants } from 'framer-motion';
+import { useExperience } from '@/store/useExperience';
+
+/* Reveal variants for the closing CTA banner. */
+const CTA_CONTAINER: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+};
+const CTA_ITEM: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+  },
+};
 
 /**
  * The full DOM overlay: every chapter's copy in scroll order, plus the
@@ -24,6 +40,8 @@ import { Button } from '@/components/ui/Button';
  * contact footer (Scene 10). The WebGL canvas sits fixed behind this.
  */
 export function Overlay() {
+  const reducedMotion = useExperience((s) => s.reducedMotion);
+
   return (
     <main id="top" className="relative z-10">
       {SCENES.map((scene) => {
@@ -105,22 +123,50 @@ export function Overlay() {
                 className="section-light relative z-10 w-full px-6 pb-4 pt-12 md:px-16"
               >
                 <div className="relative mx-auto grid max-w-7xl items-center overflow-hidden rounded-3xl bg-piano md:grid-cols-2">
-                  {/* Copy — left. */}
-                  <div className="relative z-10 p-8 md:p-10 lg:p-12">
-                    <p className="eyebrow">{scene.copy.eyebrow}</p>
-                    <h2 className="display mt-2 whitespace-pre-line text-balance text-xl !text-ivory md:text-2xl lg:text-3xl">
+                  {/* Copy — left. Staggers in as the banner appears. */}
+                  <motion.div
+                    initial={reducedMotion ? undefined : 'hidden'}
+                    whileInView={reducedMotion ? undefined : 'show'}
+                    viewport={{ once: true, margin: '-15%' }}
+                    variants={reducedMotion ? undefined : CTA_CONTAINER}
+                    className="relative z-10 p-8 md:p-10 lg:p-12"
+                  >
+                    <motion.p
+                      variants={reducedMotion ? undefined : CTA_ITEM}
+                      className="eyebrow"
+                    >
+                      {scene.copy.eyebrow}
+                    </motion.p>
+                    <motion.h2
+                      variants={reducedMotion ? undefined : CTA_ITEM}
+                      className="display mt-2 whitespace-pre-line text-balance text-xl !text-ivory md:text-2xl lg:text-3xl"
+                    >
                       {scene.copy.title}
-                    </h2>
-                    <p className="mt-3 max-w-md font-sans text-sm leading-relaxed text-ivory-muted">
+                    </motion.h2>
+                    <motion.p
+                      variants={reducedMotion ? undefined : CTA_ITEM}
+                      className="mt-3 max-w-md font-sans text-sm leading-relaxed text-ivory-muted"
+                    >
                       {scene.copy.body}
-                    </p>
-                    <a href="#contact" className="mt-6 inline-block">
+                    </motion.p>
+                    <motion.a
+                      variants={reducedMotion ? undefined : CTA_ITEM}
+                      href="#contact"
+                      className="mt-6 inline-block"
+                    >
                       <Button variant="gold">Let&apos;s Talk</Button>
-                    </a>
-                  </div>
+                    </motion.a>
+                  </motion.div>
 
-                  {/* Image — right, melting into the card on its left edge. */}
-                  <div className="relative h-44 md:h-full md:min-h-[15rem]">
+                  {/* Image — right, melting into the card on its left edge.
+                      Eases in from the right as the banner reveals. */}
+                  <motion.div
+                    initial={reducedMotion ? undefined : { opacity: 0, x: 40 }}
+                    whileInView={reducedMotion ? undefined : { opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: '-15%' }}
+                    transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                    className="relative h-44 md:h-full md:min-h-[15rem]"
+                  >
                     <img
                       src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1400&q=70"
                       alt=""
@@ -133,7 +179,7 @@ export function Overlay() {
                       aria-hidden
                       className="absolute inset-0 bg-gradient-to-t from-piano via-transparent to-transparent md:bg-gradient-to-r md:from-piano md:via-piano/30 md:to-transparent"
                     />
-                  </div>
+                  </motion.div>
                 </div>
               </section>
               <FooterSection />

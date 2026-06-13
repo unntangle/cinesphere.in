@@ -54,7 +54,7 @@ export function ContactCTASection() {
             className="absolute left-1/2 top-1/2 h-[120%] w-[120%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(205,178,133,0.14),transparent_65%)]"
           />
           <img
-            src="/waves.webp"
+            src="/images/waves.webp"
             alt=""
             aria-hidden
             className="relative w-full rounded-3xl object-cover brightness-[0.9] sepia-[0.45] saturate-[1.5] hue-rotate-[-12deg]"

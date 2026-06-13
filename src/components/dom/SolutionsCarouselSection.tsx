@@ -45,7 +45,7 @@ const SOLUTION_CARDS: SolutionCard[] = [
     title: 'Conference, Boardroom & Tele-Conference Studios',
     lead: 'Seamless AV integration',
     rest: 'for clear communication and smooth collaboration across distances.',
-    image: '/conference-room.webp',
+    image: '/images/conference-room.webp',
   },
   {
     title: 'E-Class Rooms & Seminar Halls',
@@ -136,23 +136,82 @@ export function SolutionsCarouselSection({ scene }: { scene: SceneDef }) {
       style={{ height: `${CAROUSEL_SCREENS * 100}vh` }}
     >
       <div className="sticky top-0 flex h-screen w-full flex-col justify-center overflow-hidden">
-        {/* Header — eyebrow + display title, pinned top-left. Always
-            visible (no scroll gating) so it reads even while the
-            section is still entering the viewport. */}
-        <div className="px-[7vw] pb-10 md:pb-14">
-          <p className="eyebrow">{scene.copy.eyebrow}</p>
-          <h2 className="display mt-3 text-4xl md:text-5xl lg:text-6xl">
+        {/* Header — eyebrow + display title. Staggers into view (rising
+            out of a soft blur) the first time the section appears. */}
+        <motion.div
+          initial={still ? undefined : 'hidden'}
+          whileInView={still ? undefined : 'show'}
+          viewport={{ once: true, margin: '-20%' }}
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+          }}
+          className="px-[7vw] pb-10 md:pb-14"
+        >
+          <motion.p
+            variants={{
+              hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
+              show: {
+                opacity: 1,
+                y: 0,
+                filter: 'blur(0px)',
+                transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+              },
+            }}
+            className="eyebrow"
+          >
+            {scene.copy.eyebrow}
+          </motion.p>
+          <motion.h2
+            variants={{
+              hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
+              show: {
+                opacity: 1,
+                y: 0,
+                filter: 'blur(0px)',
+                transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+              },
+            }}
+            className="display mt-3 text-4xl md:text-5xl lg:text-6xl"
+          >
             Solutions for every space.
-          </h2>
-        </div>
+          </motion.h2>
+        </motion.div>
 
-        {/* The horizontal track — large media cards with captions. */}
+        {/* The horizontal track — large media cards with captions.
+            Orchestrates a staggered reveal: each card lifts + fades up
+            in sequence the first time the section enters the viewport. */}
+        <motion.div
+          initial={still ? undefined : 'hidden'}
+          whileInView={still ? undefined : 'show'}
+          viewport={{ once: true, margin: '-15%' }}
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.14, delayChildren: 0.1 } },
+          }}
+        >
         <motion.div
           style={still ? undefined : { x: trackX }}
           className="flex w-max items-start gap-[4vw] pl-[7vw] pr-[7vw]"
         >
           {SOLUTION_CARDS.map((card, index) => (
-            <div key={card.title} className="w-[78vw] flex-none md:w-[54vw]">
+            <motion.div
+              key={card.title}
+              variants={
+                still
+                  ? undefined
+                  : {
+                      hidden: { opacity: 0, y: 60, scale: 0.94 },
+                      show: {
+                        opacity: 1,
+                        y: 0,
+                        scale: 1,
+                        transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+                      },
+                    }
+              }
+              className="w-[78vw] flex-none md:w-[54vw]"
+            >
               <div className="relative h-[42vh] w-full overflow-hidden rounded-3xl bg-carbon md:h-[52vh]">
                 {card.image ? (
                   <img
@@ -164,7 +223,7 @@ export function SolutionsCarouselSection({ scene }: { scene: SceneDef }) {
                         : 'object-cover'
                     }`}
                     style={
-                      card.image === '/conference-room.webp'
+                      card.image === '/images/conference-room.webp'
                         ? undefined
                         : {
                             filter:
@@ -195,8 +254,9 @@ export function SolutionsCarouselSection({ scene }: { scene: SceneDef }) {
                 <span className="font-semibold text-carbon">{card.lead}</span>{' '}
                 {card.rest}
               </p>
-            </div>
+            </motion.div>
           ))}
+        </motion.div>
         </motion.div>
       </div>
     </section>

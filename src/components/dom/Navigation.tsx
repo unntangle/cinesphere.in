@@ -59,7 +59,7 @@ export function Navigation() {
     >
       <Link href="/#top" aria-label={BRAND.name} className="flex items-center">
         <img
-          src="/cs-logo-color.webp"
+          src="/images/cs-logo-color.webp"
           alt={BRAND.name}
           className="h-7 w-auto object-contain md:h-8"
           draggable={false}
@@ -81,7 +81,7 @@ export function Navigation() {
           href="/#contact"
           className="rounded-full bg-champagne-deep px-4 py-1.5 font-sans text-xs font-medium text-white transition-colors hover:bg-champagne"
         >
-          Quick Enquiry
+          Let&apos;s Talk
         </Link>
       </nav>
 
@@ -135,7 +135,7 @@ export function Navigation() {
               onClick={() => setOpen(false)}
               className="mt-2 rounded-full bg-champagne-deep px-4 py-2.5 text-center font-sans text-sm font-medium text-white transition-colors hover:bg-champagne"
             >
-              Quick Enquiry
+              Let&apos;s Talk
             </Link>
           </motion.nav>
         )}

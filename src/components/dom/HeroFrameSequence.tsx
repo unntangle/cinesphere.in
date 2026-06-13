@@ -176,10 +176,26 @@ export function HeroFrameSequence({ scene }: { scene: SceneDef }) {
         lastDrawn = found.i;
       }
     };
-    raf = requestAnimationFrame(tick);
+    let running = false;
+    const startLoop = () => {
+      if (running) return;
+      running = true;
+      raf = requestAnimationFrame(tick);
+    };
+    const stopLoop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+    // Only drive the frame draw while the hero is on screen.
+    const io = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? startLoop() : stopLoop()),
+      { rootMargin: '150px' },
+    );
+    io.observe(canvas);
 
     return () => {
-      cancelAnimationFrame(raf);
+      stopLoop();
+      io.disconnect();
       window.removeEventListener('resize', resize);
     };
   }, [hasFrames, scrollYProgress, reducedMotion]);

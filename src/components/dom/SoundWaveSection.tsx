@@ -32,6 +32,7 @@ const VERT = /* glsl */ `
   uniform float uTwist;
   uniform float uFocal;
   uniform float uSpeed;
+  uniform float uCamZ;
   uniform vec2  uPointer;
 
   attribute float aAngle;
@@ -48,7 +49,7 @@ const VERT = /* glsl */ `
     // Travel phase: far (p ~ 1) -> near (p ~ 0) as time advances, so the
     // particles approach the camera = forward dolly. Wraps seamlessly.
     float p = fract(aDepth - t * uSpeed);
-    float worldZ = -uLength * p;            // 0 (at camera) .. -uLength (far)
+    float worldZ = uCamZ - uLength * p;     // just ahead of the moving camera
 
     // Spiral: twist deepens with distance + a slow global spin.
     float ang = aAngle + t * 0.12 + (1.0 - p) * uTwist;
@@ -146,6 +147,7 @@ function TunnelCanvas({ paused }: { paused: boolean }) {
       uTwist: { value: 2.2 },
       uFocal: { value: 80.0 },
       uSpeed: { value: 0.055 },
+      uCamZ: { value: 0 },
       uPointer: { value: new THREE.Vector2(0, 0) },
     };
 
@@ -232,28 +234,89 @@ function TunnelCanvas({ paused }: { paused: boolean }) {
     let raf = 0;
     const ptr = uniforms.uPointer.value as THREE.Vector2;
 
+    // Fly the camera along the tunnel's bending centreline (these cx/cy must
+    // mirror the shader's centreline exactly) while it dollies forward in -Z,
+    // so we travel *into* the curving wormhole instead of watching it from a
+    // fixed point. The dolly speed matches the particle flow, so the tube
+    // reads as a fixed structure in space that we move through.
+    const dolly = uniforms.uLength.value * uniforms.uSpeed.value;
+    const lookAhead = 16;
+
+    const flyCamera = (t: number) => {
+      const camZ = -t * dolly;
+      uniforms.uCamZ.value = camZ;
+
+      const cx = (z: number) =>
+        2.4 * Math.sin(z * 0.08 + t * 0.25) +
+        1.2 * Math.cos(z * 0.15 - t * 0.18) +
+        ptr.x * 2.0;
+      const cy = (z: number) =>
+        2.2 * Math.cos(z * 0.1 - t * 0.22) +
+        1.1 * Math.sin(z * 0.13 + t * 0.2) +
+        ptr.y * 2.0;
+
+      camera.position.set(cx(camZ), cy(camZ), camZ);
+      camera.lookAt(cx(camZ - lookAhead), cy(camZ - lookAhead), camZ - lookAhead);
+    };
+
     if (paused) {
       // Single still frame for reduced-motion / low-power.
       uniforms.uTime.value = 6.0;
+      flyCamera(6.0);
       renderer.render(scene, camera);
-    } else {
-      canvas.addEventListener('pointermove', onMove);
-      canvas.addEventListener('pointerleave', onLeave);
 
-      const start = performance.now();
-      const loop = (now: number) => {
-        raf = requestAnimationFrame(loop);
-        uniforms.uTime.value = (now - start) / 1000;
-        // Ease the steering pointer for buttery, shake-free motion.
-        ptr.x += (pointerTarget.current.x - ptr.x) * 0.04;
-        ptr.y += (pointerTarget.current.y - ptr.y) * 0.04;
-        renderer.render(scene, camera);
+      return () => {
+        window.removeEventListener('resize', resize);
+        geometry.dispose();
+        material.dispose();
+        renderer.dispose();
       };
-      raf = requestAnimationFrame(loop);
     }
 
-    return () => {
+    canvas.addEventListener('pointermove', onMove);
+    canvas.addEventListener('pointerleave', onLeave);
+
+    // Render ONLY while the section is on screen. When it scrolls out of
+    // view the loop is fully suspended (zero GPU/CPU cost), so it never
+    // competes for the frame budget while the rest of the page scrolls.
+    // Time accrues only while visible, so motion stays continuous.
+    let running = false;
+    let elapsed = 0;
+    let last = 0;
+
+    const loop = (now: number) => {
+      raf = requestAnimationFrame(loop);
+      if (last === 0) last = now;
+      elapsed += (now - last) / 1000;
+      last = now;
+      uniforms.uTime.value = elapsed;
+      // Ease the steering pointer for buttery, shake-free motion.
+      ptr.x += (pointerTarget.current.x - ptr.x) * 0.04;
+      ptr.y += (pointerTarget.current.y - ptr.y) * 0.04;
+      flyCamera(elapsed);
+      renderer.render(scene, camera);
+    };
+
+    const startLoop = () => {
+      if (running) return;
+      running = true;
+      last = 0;
+      raf = requestAnimationFrame(loop);
+    };
+    const stopLoop = () => {
+      running = false;
       cancelAnimationFrame(raf);
+    };
+
+    const io = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? startLoop() : stopLoop()),
+      { rootMargin: '150px' },
+    );
+    io.observe(canvas);
+
+    return () => {
+      stopLoop();
+      io.disconnect();
       window.removeEventListener('resize', resize);
       canvas.removeEventListener('pointermove', onMove);
       canvas.removeEventListener('pointerleave', onLeave);

@@ -183,16 +183,36 @@ function ElectricWaveCanvas({ paused }: { paused: boolean }) {
 
     if (paused) {
       drawFrame(2300, false);
-    } else {
-      const loop = (time: number) => {
-        raf = requestAnimationFrame(loop);
-        drawFrame(time / 1000, true);
+      return () => {
+        window.removeEventListener('resize', resize);
       };
-      raf = requestAnimationFrame(loop);
     }
 
-    return () => {
+    // Only animate while on screen — the per-frame blur/shadow work here is
+    // expensive, so suspending it off-screen keeps scrolling smooth.
+    let running = false;
+    const loop = (time: number) => {
+      raf = requestAnimationFrame(loop);
+      drawFrame(time / 1000, true);
+    };
+    const startLoop = () => {
+      if (running) return;
+      running = true;
+      raf = requestAnimationFrame(loop);
+    };
+    const stopLoop = () => {
+      running = false;
       cancelAnimationFrame(raf);
+    };
+    const io = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? startLoop() : stopLoop()),
+      { rootMargin: '150px' },
+    );
+    io.observe(canvas);
+
+    return () => {
+      stopLoop();
+      io.disconnect();
       window.removeEventListener('resize', resize);
     };
   }, [paused]);
@@ -261,7 +281,7 @@ export function AboutSoundSection({ scene }: { scene: SceneDef }) {
     >
       {/* Background image, graded dark so the theme stays seamless. */}
       <img
-        src="/12y-section.webp"
+        src="/images/12y-section.webp"
         alt=""
         aria-hidden
         className="absolute inset-0 h-full w-full object-cover opacity-60"

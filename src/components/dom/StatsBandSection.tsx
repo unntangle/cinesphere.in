@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useInView } from 'framer-motion';
+import { motion, useInView, type Variants } from 'framer-motion';
 import { STATS } from '@/lib/constants';
 import { useExperience } from '@/store/useExperience';
 
@@ -17,6 +17,33 @@ import { useExperience } from '@/store/useExperience';
 
 /** Equalizer meter — five bars riffing on the site's .soundbar pulse. */
 const BAR_DELAYS = [0, 0.35, 0.18, 0.5, 0.08];
+
+/* Entrance reveal variants (annotated so the ease tuples type-check). */
+const REVEAL_CONTAINER: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+};
+const REVEAL_ITEM: Variants = {
+  hidden: { opacity: 0, y: 24, filter: 'blur(6px)' },
+  show: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+  },
+};
+const STAT_CONTAINER: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.2 } },
+};
+const STAT_ITEM: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+  },
+};
 
 function EqualizerMeter({ paused }: { paused: boolean }) {
   return (
@@ -109,15 +136,34 @@ export function StatsBandSection() {
       />
 
       <div className="relative mx-auto max-w-7xl px-[7vw] lg:px-12">
-        <p className="eyebrow">Why Cinesphere</p>
-        <h2 className="display mt-2 text-2xl text-ivory md:text-3xl lg:text-4xl">
-          Numbers that sound right.
-        </h2>
+        <motion.div
+          initial={still ? undefined : 'hidden'}
+          whileInView={still ? undefined : 'show'}
+          viewport={{ once: true, margin: '-15%' }}
+          variants={still ? undefined : REVEAL_CONTAINER}
+        >
+          <motion.p variants={still ? undefined : REVEAL_ITEM} className="eyebrow">
+            Why Cinesphere
+          </motion.p>
+          <motion.h2
+            variants={still ? undefined : REVEAL_ITEM}
+            className="display mt-2 text-2xl text-ivory md:text-3xl lg:text-4xl"
+          >
+            Numbers that sound right.
+          </motion.h2>
+        </motion.div>
 
-        <dl className="mt-8 grid grid-cols-2 gap-y-8 md:mt-10 lg:grid-cols-4">
+        <motion.dl
+          initial={still ? undefined : 'hidden'}
+          whileInView={still ? undefined : 'show'}
+          viewport={{ once: true, margin: '-15%' }}
+          variants={still ? undefined : STAT_CONTAINER}
+          className="mt-8 grid grid-cols-2 gap-y-8 md:mt-10 lg:grid-cols-4"
+        >
           {STATS.map((stat) => (
-            <div
+            <motion.div
               key={stat.label}
+              variants={still ? undefined : STAT_ITEM}
               className="border-l border-white/10 pl-6 md:pl-8"
             >
               <EqualizerMeter paused={still} />
@@ -136,9 +182,9 @@ export function StatsBandSection() {
                 )}
               </dt>
               <dd className="eyebrow mt-3 text-ivory-faint">{stat.label}</dd>
-            </div>
+            </motion.div>
           ))}
-        </dl>
+        </motion.dl>
       </div>
     </section>
   );

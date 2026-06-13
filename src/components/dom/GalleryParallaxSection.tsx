@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, type Variants } from 'framer-motion';
 import { useExperience } from '@/store/useExperience';
 import { HOMEPAGE_PROJECTS } from '@/lib/gallery';
 import { Button } from '@/components/ui/Button';
@@ -51,6 +51,36 @@ const COLUMN_DRIFT: [string, string][] = [
   ['1vh', '-6vh'],
 ];
 
+/* Entrance reveal variants. Annotated with `Variants` so the cubic-bezier
+   ease arrays are accepted as tuples. */
+const REVEAL_CONTAINER: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+};
+const REVEAL_ITEM: Variants = {
+  hidden: { opacity: 0, y: 24, filter: 'blur(6px)' },
+  show: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+  },
+};
+/* Per-column orchestrator — staggers its own tiles as the column enters. */
+const TILE_STAGGER: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.15 } },
+};
+const TILE_ITEM: Variants = {
+  hidden: { opacity: 0, y: 50, scale: 0.95 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+  },
+};
+
 export function GalleryParallaxSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const reducedMotion = useExperience((s) => s.reducedMotion);
@@ -75,23 +105,42 @@ export function GalleryParallaxSection() {
       id="projects"
       className="relative z-10 w-full overflow-hidden bg-piano py-14 md:py-20"
     >
-      {/* Header. */}
-      <div className="px-[7vw]">
-        <p className="eyebrow">Gallery</p>
-        <h2 className="display mt-3 text-3xl text-ivory md:text-4xl lg:text-5xl">
+      {/* Header — staggers into view (rising out of a soft blur) as the
+          section first appears. */}
+      <motion.div
+        initial={still ? undefined : 'hidden'}
+        whileInView={still ? undefined : 'show'}
+        viewport={{ once: true, margin: '-20%' }}
+        variants={still ? undefined : REVEAL_CONTAINER}
+        className="px-[7vw]"
+      >
+        <motion.p variants={still ? undefined : REVEAL_ITEM} className="eyebrow">
+          Gallery
+        </motion.p>
+        <motion.h2
+          variants={still ? undefined : REVEAL_ITEM}
+          className="display mt-3 text-3xl text-ivory md:text-4xl lg:text-5xl"
+        >
           Let&apos;s check our latest works.
-        </h2>
-        <p className="mt-4 max-w-xl font-sans text-sm leading-relaxed text-ivory-muted md:text-base">
+        </motion.h2>
+        <motion.p
+          variants={still ? undefined : REVEAL_ITEM}
+          className="mt-4 max-w-xl font-sans text-sm leading-relaxed text-ivory-muted md:text-base"
+        >
           Auditoriums, home theatres, seminar halls and studios — 80+
           projects delivered.
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
 
       {/* The living wall — three columns drifting at different speeds. */}
       <div className="mt-12 grid grid-cols-2 items-start gap-4 px-[7vw] md:mt-16 md:grid-cols-3 md:gap-6">
         {COLUMNS.map((column, c) => (
           <motion.div
             key={c}
+            initial={still ? undefined : 'hidden'}
+            whileInView={still ? undefined : 'show'}
+            viewport={{ once: true, margin: '-10%' }}
+            variants={still ? undefined : TILE_STAGGER}
             style={still ? undefined : { y: columnYs[c] }}
             className={`flex flex-col gap-4 md:gap-6 ${
               c === 2 ? 'hidden md:flex' : ''
@@ -101,38 +150,77 @@ export function GalleryParallaxSection() {
               const project = HOMEPAGE_PROJECTS[index];
               const count = 1 + project.more.length;
               return (
-                <button
+                <motion.button
                   key={project.id}
                   type="button"
+                  variants={still ? undefined : TILE_ITEM}
                   onClick={() =>
                     setSelection({ projectIndex: index, imageIndex: 0 })
                   }
                   aria-label={`Open ${project.label} preview`}
-                  className={`group relative block w-full overflow-hidden rounded-2xl bg-carbon text-left ${aspect}`}
+                  className={`group relative block w-full text-left ${aspect}`}
                 >
-                  <img
-                    src={project.main}
-                    alt={`${project.label} — Cinesphere`}
-                    className={`h-full w-full object-cover brightness-[0.85] saturate-[1.05] transition-transform duration-700 ease-out group-hover:brightness-100 ${
-                      zoom
-                        ? 'scale-[1.3] group-hover:scale-[1.38]'
-                        : 'group-hover:scale-105'
-                    }`}
-                    loading="lazy"
-                    draggable={false}
-                  />
+                  {/* Perspective host — isolates the 3D from the button's
+                      own reveal transform. */}
+                  <div className="h-full w-full [perspective:1200px]">
+                    {/* Flipper — rotates on hover to reveal the back face. */}
+                    <div
+                      className={`relative h-full w-full rounded-2xl shadow-[0_10px_34px_-14px_rgba(0,0,0,0.7)] [transform-style:preserve-3d] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                        still ? '' : 'group-hover:[transform:rotateY(180deg)]'
+                      }`}
+                    >
+                      {/* FRONT — the project photo. */}
+                      <div className="absolute inset-0 overflow-hidden rounded-2xl bg-carbon [backface-visibility:hidden]">
+                        <img
+                          src={project.main}
+                          alt={`${project.label} — Cinesphere`}
+                          className={`h-full w-full object-cover brightness-[0.9] saturate-[1.05] ${
+                            zoom ? 'scale-[1.3]' : ''
+                          }`}
+                          loading="lazy"
+                          draggable={false}
+                        />
 
-                  {count > 1 && (
-                    <span className="absolute right-3 top-3 rounded-full bg-black/55 px-2.5 py-1 font-sans text-[11px] font-medium text-ivory backdrop-blur-sm">
-                      {count} photos
-                    </span>
-                  )}
+                        {count > 1 && (
+                          <span className="absolute right-3 top-3 rounded-full bg-black/55 px-2.5 py-1 font-sans text-[11px] font-medium text-ivory backdrop-blur-sm">
+                            {count} photos
+                          </span>
+                        )}
 
-                  {/* Caption — slides up on hover. */}
-                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-                    <span className="eyebrow">{project.label}</span>
-                  </span>
-                </button>
+                        {/* Label resting at the foot of the card. */}
+                        <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                          <span className="eyebrow">{project.label}</span>
+                        </span>
+                      </div>
+
+                      {/* BACK — a mirror of the front so the flip only ever
+                          shows the same photo (no separate back content); it
+                          rolls back to the front when the hover ends. */}
+                      <div className="absolute inset-0 overflow-hidden rounded-2xl bg-carbon [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                        <img
+                          src={project.main}
+                          alt=""
+                          aria-hidden
+                          className={`h-full w-full object-cover brightness-[0.9] saturate-[1.05] ${
+                            zoom ? 'scale-[1.3]' : ''
+                          }`}
+                          loading="lazy"
+                          draggable={false}
+                        />
+
+                        {count > 1 && (
+                          <span className="absolute right-3 top-3 rounded-full bg-black/55 px-2.5 py-1 font-sans text-[11px] font-medium text-ivory backdrop-blur-sm">
+                            {count} photos
+                          </span>
+                        )}
+
+                        <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                          <span className="eyebrow">{project.label}</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.button>
               );
             })}
           </motion.div>
