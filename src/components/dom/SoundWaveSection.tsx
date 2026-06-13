@@ -2,154 +2,264 @@
 
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import * as THREE from 'three';
 import { useExperience } from '@/store/useExperience';
 
 /**
  * SoundWaveSection — "The Shape of Sound"
  * ---------------------------------------
- * A dotted TUNNEL / wormhole you fly through. Each dot rides a spiral from a
- * central vanishing point outward to the screen edge with exponential
- * perspective (rings bunch near the centre, spread near the rim) — so it
- * reads as travelling *into* the tunnel. The whole thing rotates slowly and
- * the vanishing point eases toward the cursor. Honours reduced-motion.
+ * A true 3D particle WORMHOLE you fly through. Thousands of glowing white
+ * points are arranged as a mathematically even grid of rings (perfect
+ * angular spacing) wrapped around a tube. A custom GLSL shader streams them
+ * toward the camera (a seamless forward dolly), spirals them with depth,
+ * bends the tunnel's centreline into a snaking wormhole, and morphs the
+ * cross-section between circular, oval and asymmetric shapes over time.
  *
- * Pure <canvas> 2D. Each particle = fixed angle + fixed phase offset; only a
- * shared clock animates it, so there's no per-frame state to drift.
+ * Pure black background, bright white additive points only — high contrast,
+ * soft round glow, no bloom overload. Perspective gives true depth: near
+ * points are large and bright, far points converge to the vanishing point
+ * and fade in softly, so the loop is invisible. The vanishing direction
+ * eases toward the cursor for a subtle sense of steering. Honours
+ * reduced-motion by rendering a single still frame.
  */
+
+const VERT = /* glsl */ `
+  uniform float uTime;
+  uniform float uPixelRatio;
+  uniform float uSize;
+  uniform float uRadius;
+  uniform float uLength;
+  uniform float uTwist;
+  uniform float uFocal;
+  uniform float uSpeed;
+  uniform vec2  uPointer;
+
+  attribute float aAngle;
+  attribute float aDepth;
+  attribute float aSeed;
+
+  varying float vBright;
+
+  const float TAU = 6.28318530718;
+
+  void main() {
+    float t = uTime;
+
+    // Travel phase: far (p ~ 1) -> near (p ~ 0) as time advances, so the
+    // particles approach the camera = forward dolly. Wraps seamlessly.
+    float p = fract(aDepth - t * uSpeed);
+    float worldZ = -uLength * p;            // 0 (at camera) .. -uLength (far)
+
+    // Spiral: twist deepens with distance + a slow global spin.
+    float ang = aAngle + t * 0.12 + (1.0 - p) * uTwist;
+
+    // Breathing radius + cross-section morph (circle <-> oval <-> asymmetric).
+    float breathe = 1.0 + 0.16 * sin(worldZ * 0.35 + t * 0.40);
+    float e1 = 0.14 * sin(t * 0.23 + worldZ * 0.05);          // 2-fold (oval)
+    float e2 = 0.09 * sin(t * 0.17 - worldZ * 0.07 + 1.7);    // 3-fold (asym)
+    float morph = 1.0 + e1 * sin(2.0 * ang) + e2 * sin(3.0 * ang + 0.6);
+    float R = uRadius * breathe * morph;
+
+    // Bending centreline -> the tunnel snakes through space.
+    float cx = 2.4 * sin(worldZ * 0.08 + t * 0.25) + 1.2 * cos(worldZ * 0.15 - t * 0.18);
+    float cy = 2.2 * cos(worldZ * 0.10 - t * 0.22) + 1.1 * sin(worldZ * 0.13 + t * 0.20);
+
+    // Steer the near field gently toward the pointer.
+    float steer = smoothstep(0.55, 0.0, p);
+    cx += uPointer.x * 2.0 * steer;
+    cy += uPointer.y * 2.0 * steer;
+
+    vec3 pos = vec3(cx + cos(ang) * R, cy + sin(ang) * R, worldZ);
+
+    vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+    gl_Position = projectionMatrix * mv;
+
+    float dist = max(-mv.z, 0.1);
+    float size = uSize * uPixelRatio * (uFocal / dist);
+    gl_PointSize = clamp(size, 1.0, 26.0 * uPixelRatio);
+
+    // Soft appear at the far end, fade out as it sweeps past the camera,
+    // depth dimming, plus a subtle per-particle brightness pulse.
+    float fadeFar  = smoothstep(1.0, 0.90, p);
+    float fadeNear = smoothstep(0.0, 0.07, p);
+    float depthDim = mix(0.45, 1.0, 1.0 - p);
+    float pulse    = 0.70 + 0.30 * sin(t * 1.6 + aSeed * TAU);
+    vBright = fadeFar * fadeNear * depthDim * pulse;
+  }
+`;
+
+const FRAG = /* glsl */ `
+  precision highp float;
+  varying float vBright;
+
+  void main() {
+    vec2 uv = gl_PointCoord - 0.5;
+    float d = length(uv);
+    if (d > 0.5) discard;
+    float core = smoothstep(0.5, 0.0, d);   // soft round falloff
+    float glow = core * core;                // tighter bright centre
+    float a = (0.35 * core + 0.65 * glow) * vBright;
+
+    // Subtle glowing gold: a warm light-champagne hot centre easing out to
+    // a deeper champagne-gold at the edges of each point.
+    vec3 goldCore = vec3(0.97, 0.90, 0.74);  // light champagne (#f7e6bd-ish)
+    vec3 goldEdge = vec3(0.80, 0.63, 0.33);  // deep champagne gold (#cca054-ish)
+    vec3 color = mix(goldEdge, goldCore, glow);
+
+    gl_FragColor = vec4(color, a);           // gold, additive glow
+  }
+`;
 
 function TunnelCanvas({ paused }: { paused: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const pointer = useRef({ x: 0, y: 0, active: false });
+  const pointerTarget = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
 
-    let raf = 0;
-    let w = 0;
-    let h = 0;
-    let cx = 0;
-    let cy = 0;
-    let voidR = 0;
-    let lnScale = 1;
-    let last = performance.now();
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: true,
+        powerPreference: 'high-performance',
+      });
+    } catch {
+      // No WebGL — leave the section black; the copy still reads fine.
+      return;
+    }
 
-    // Per-particle: fixed angle `a`, fixed phase `p0`, brightness var `k`.
-    let A: Float32Array = new Float32Array(0);
-    let P0: Float32Array = new Float32Array(0);
-    let K: Float32Array = new Float32Array(0);
+    renderer.setClearColor(0x000000, 0); // transparent over the black section
 
-    const TWIST = 3.2; // spiral winding from centre → rim
-    const SPIN = 0.12; // global rotation (rad/sec)
-    const SPEED = 0.14; // how fast you travel down the tunnel (phase/sec)
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(70, 1, 0.1, 240);
+    camera.position.set(0, 0, 0);
 
-    const build = () => {
-      const n = Math.max(1600, Math.min(4200, Math.round((w * h) / 800)));
-      A = new Float32Array(n);
-      P0 = new Float32Array(n);
-      K = new Float32Array(n);
-      for (let i = 0; i < n; i++) {
-        A[i] = Math.random() * Math.PI * 2;
-        P0[i] = Math.random();
-        K[i] = 0.7 + Math.random() * 0.55;
+    const uniforms: Record<string, THREE.IUniform> = {
+      uTime: { value: 0 },
+      uPixelRatio: { value: 1 },
+      uSize: { value: 2.0 },
+      uRadius: { value: 6.5 },
+      uLength: { value: 60.0 },
+      uTwist: { value: 2.2 },
+      uFocal: { value: 80.0 },
+      uSpeed: { value: 0.055 },
+      uPointer: { value: new THREE.Vector2(0, 0) },
+    };
+
+    const material = new THREE.ShaderMaterial({
+      uniforms,
+      vertexShader: VERT,
+      fragmentShader: FRAG,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+
+    let geometry = new THREE.BufferGeometry();
+    const points = new THREE.Points(geometry, material);
+    points.frustumCulled = false;
+    scene.add(points);
+
+    const TAU = Math.PI * 2;
+
+    const buildGeometry = (width: number) => {
+      // Mathematically even grid: `rings` rings, each with `perRing`
+      // equally-spaced points; alternate rings are half-step staggered.
+      const small = width < 760;
+      const rings = small ? 100 : 150;
+      const perRing = small ? 40 : 56;
+      const n = rings * perRing;
+
+      const pos = new Float32Array(n * 3); // dummy positions drive the count
+      const aAngle = new Float32Array(n);
+      const aDepth = new Float32Array(n);
+      const aSeed = new Float32Array(n);
+
+      let k = 0;
+      for (let i = 0; i < rings; i++) {
+        const depth = i / rings;
+        const stagger = (i % 2) * (Math.PI / perRing);
+        for (let j = 0; j < perRing; j++) {
+          aAngle[k] = (j / perRing) * TAU + stagger;
+          aDepth[k] = depth;
+          aSeed[k] = Math.random();
+          k++;
+        }
       }
+
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      g.setAttribute('aAngle', new THREE.BufferAttribute(aAngle, 1));
+      g.setAttribute('aDepth', new THREE.BufferAttribute(aDepth, 1));
+      g.setAttribute('aSeed', new THREE.BufferAttribute(aSeed, 1));
+      return g;
     };
 
-    const setup = () => {
+    const resize = () => {
+      const w = canvas.clientWidth || canvas.parentElement?.clientWidth || 1;
+      const h = canvas.clientHeight || canvas.parentElement?.clientHeight || 1;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      w = canvas.clientWidth;
-      h = canvas.clientHeight;
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      cx = w / 2;
-      cy = h / 2;
-      const m = Math.min(w, h);
-      voidR = m * 0.06; // vanishing point
-      const Rmax = Math.hypot(w, h) * 0.6; // overshoot the corners
-      lnScale = Math.log(Rmax / voidR);
-      build();
+      renderer.setPixelRatio(dpr);
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      uniforms.uPixelRatio.value = dpr;
+
+      const next = buildGeometry(w);
+      points.geometry = next;
+      geometry.dispose();
+      geometry = next;
     };
-    setup();
-    window.addEventListener('resize', setup);
+    resize();
+    window.addEventListener('resize', resize);
 
     const onMove = (e: PointerEvent) => {
       const r = canvas.getBoundingClientRect();
-      pointer.current = {
-        x: e.clientX - r.left,
-        y: e.clientY - r.top,
-        active: true,
+      // Normalised pointer in [-1, 1], y flipped to match world up.
+      pointerTarget.current = {
+        x: ((e.clientX - r.left) / r.width) * 2 - 1,
+        y: -(((e.clientY - r.top) / r.height) * 2 - 1),
       };
     };
     const onLeave = () => {
-      pointer.current.active = false;
-    };
-    canvas.addEventListener('pointermove', onMove);
-    canvas.addEventListener('pointerleave', onLeave);
-
-    const smooth = (e0: number, e1: number, x: number) => {
-      let t = (x - e0) / (e1 - e0);
-      if (t < 0) t = 0;
-      else if (t > 1) t = 1;
-      return t * t * (3 - 2 * t);
+      pointerTarget.current = { x: 0, y: 0 };
     };
 
-    const render = (t: number) => {
-      ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = 'rgb(238,233,220)';
-
-      const spin = t * SPIN;
-      const flow = t * SPEED;
-
-      for (let i = 0; i < A.length; i++) {
-        // Phase 0 (centre) → 1 (rim), wrapping for endless travel.
-        let p = P0[i] + flow;
-        p -= Math.floor(p);
-
-        const radius = voidR * Math.exp(p * lnScale);
-        const ang = A[i] + p * TWIST + spin;
-
-        const x = cx + Math.cos(ang) * radius;
-        const y = cy + Math.sin(ang) * radius;
-
-        // Fade in as it leaves the void, fade out as it exits the rim.
-        const fade = smooth(0, 0.1, p) * (1 - smooth(0.82, 1, p));
-        let b = 0.9 * fade * K[i];
-        if (b <= 0.012) continue;
-        if (b > 1) b = 1;
-
-        ctx.globalAlpha = b;
-        const s = 0.6 + p * 2.6;
-        ctx.fillRect(x, y, s, s);
-      }
-      ctx.globalAlpha = 1;
-    };
+    let raf = 0;
+    const ptr = uniforms.uPointer.value as THREE.Vector2;
 
     if (paused) {
-      render(3);
+      // Single still frame for reduced-motion / low-power.
+      uniforms.uTime.value = 6.0;
+      renderer.render(scene, camera);
     } else {
+      canvas.addEventListener('pointermove', onMove);
+      canvas.addEventListener('pointerleave', onLeave);
+
+      const start = performance.now();
       const loop = (now: number) => {
         raf = requestAnimationFrame(loop);
-        last = now;
-        // Ease the vanishing point toward the pointer (or back to centre).
-        const px = pointer.current;
-        const tx = px.active ? px.x : w / 2;
-        const ty = px.active ? px.y : h / 2;
-        cx += (tx - cx) * 0.05;
-        cy += (ty - cy) * 0.05;
-        render(now / 1000);
+        uniforms.uTime.value = (now - start) / 1000;
+        // Ease the steering pointer for buttery, shake-free motion.
+        ptr.x += (pointerTarget.current.x - ptr.x) * 0.04;
+        ptr.y += (pointerTarget.current.y - ptr.y) * 0.04;
+        renderer.render(scene, camera);
       };
       raf = requestAnimationFrame(loop);
     }
 
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener('resize', setup);
+      window.removeEventListener('resize', resize);
       canvas.removeEventListener('pointermove', onMove);
       canvas.removeEventListener('pointerleave', onLeave);
-      void last;
+      geometry.dispose();
+      material.dispose();
+      renderer.dispose();
     };
   }, [paused]);
 
