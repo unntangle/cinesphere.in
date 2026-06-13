@@ -36,6 +36,11 @@ export const metadata: Metadata = {
     'training and seminar hall AV',
   ],
   metadataBase: new URL('https://cinesphere.in'),
+  icons: {
+    icon: [{ url: '/images/fav-icon.webp', type: 'image/webp' }],
+    shortcut: '/images/fav-icon.webp',
+    apple: '/images/fav-icon.webp',
+  },
   openGraph: {
     title: `${BRAND.name} — ${BRAND.tagline}`,
     description:
