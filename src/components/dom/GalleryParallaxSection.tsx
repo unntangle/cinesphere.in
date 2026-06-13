@@ -1,96 +1,60 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useExperience } from '@/store/useExperience';
+import { HOMEPAGE_PROJECTS } from '@/lib/gallery';
+import { Button } from '@/components/ui/Button';
+import {
+  GalleryLightbox,
+  type LightboxSelection,
+} from './GalleryLightbox';
 
 /**
- * GalleryParallaxSection — "Latest Works" living wall
- * ----------------------------------------------------
- * A unique gallery: three columns of project tiles drift vertically at
- * DIFFERENT speeds as the section scrolls through the viewport — a
- * living mosaic rather than a static grid. Each tile zooms softly on
- * hover and reveals a champagne caption.
+ * GalleryParallaxSection — "Latest Works" living wall (homepage teaser)
+ * --------------------------------------------------------------------
+ * A curated handful of real projects in three columns that drift vertically
+ * at DIFFERENT speeds as the section scrolls — a living mosaic rather than a
+ * static grid. Each tile zooms softly on hover, reveals a champagne caption,
+ * and — on click — opens the shared full-screen preview (which walks across
+ * the featured projects). An "Explore the full gallery" button links to the
+ * dedicated /gallery page.
  *
- * Images are Unsplash placeholders (sound / cinema themed) — replace
- * the `src` values in GALLERY_COLUMNS with real project photos
- * (drop files in /public and use '/your-photo.webp').
+ * Featured projects come from HOMEPAGE_PROJECTS in src/lib/gallery.ts.
  */
 
-interface GalleryItem {
-  src: string;
-  label: string;
-  /** Tailwind aspect class — varied per tile for the mosaic rhythm. */
-  aspect: string;
-}
-
-const u = (id: string) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=70`;
-
-const GALLERY_COLUMNS: GalleryItem[][] = [
+/* Three columns of two tiles each; each tile references a featured project by
+   its index. Aspect classes vary per tile to give the mosaic its rhythm.
+   `zoom` slightly enlarges + crops a cover image to hide baked-in borders
+   (e.g. Project 1's source photo has white bands top/bottom). */
+const COLUMNS: { index: number; aspect: string; zoom?: boolean }[][] = [
   [
-    {
-      src: u('photo-1489599849927-2ee91cede3ba'),
-      label: 'Private Cinema · Chennai',
-      aspect: 'aspect-[3/4]',
-    },
-    {
-      src: u('photo-1478720568477-152d9b164e26'),
-      label: 'Projection Suite',
-      aspect: 'aspect-square',
-    },
-    {
-      src: u('photo-1520523839897-bd0b52f945a0'),
-      label: 'Studio Control Room',
-      aspect: 'aspect-[4/5]',
-    },
+    { index: 0, aspect: 'aspect-[3/4]', zoom: true },
+    { index: 3, aspect: 'aspect-square' },
   ],
   [
-    {
-      src: u('photo-1517604931442-7e0c8ed2963c'),
-      label: 'Auditorium AV',
-      aspect: 'aspect-[4/5]',
-    },
-    {
-      src: u('photo-1598488035139-bdbb2231ce04'),
-      label: 'Home Theatre Build',
-      aspect: 'aspect-[3/4]',
-    },
-    {
-      src: u('photo-1493225457124-a3eb161ffa5f'),
-      label: 'Stage & Lighting',
-      aspect: 'aspect-square',
-    },
+    { index: 1, aspect: 'aspect-square' },
+    { index: 4, aspect: 'aspect-[4/5]' },
   ],
   [
-    {
-      src: u('photo-1470225620780-dba8ba36b745'),
-      label: 'Live Mixing Desk',
-      aspect: 'aspect-square',
-    },
-    {
-      src: u('photo-1583394838336-acd977736f90'),
-      label: 'Listening Room',
-      aspect: 'aspect-[3/4]',
-    },
-    {
-      src: u('photo-1558618666-fcd25c85cd64'),
-      label: 'Multi-Room Audio',
-      aspect: 'aspect-[4/5]',
-    },
+    { index: 2, aspect: 'aspect-[4/5]' },
+    { index: 5, aspect: 'aspect-[3/4]' },
   ],
 ];
 
-/** Per-column drift: [start, end] vertical offsets across the scroll. */
+/** Per-column drift: [start, end] vertical offsets across the scroll.
+ *  Kept gentle so the columns don't leave large empty gaps below them. */
 const COLUMN_DRIFT: [string, string][] = [
-  ['6vh', '-8vh'],
-  ['14vh', '-2vh'],
-  ['2vh', '-12vh'],
+  ['3vh', '-4vh'],
+  ['7vh', '-1vh'],
+  ['1vh', '-6vh'],
 ];
 
 export function GalleryParallaxSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const reducedMotion = useExperience((s) => s.reducedMotion);
+  const [selection, setSelection] = useState<LightboxSelection | null>(null);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -109,7 +73,7 @@ export function GalleryParallaxSection() {
     <section
       ref={sectionRef}
       id="projects"
-      className="relative z-10 w-full overflow-hidden bg-piano py-20 md:py-28"
+      className="relative z-10 w-full overflow-hidden bg-piano py-14 md:py-20"
     >
       {/* Header. */}
       <div className="px-[7vw]">
@@ -125,7 +89,7 @@ export function GalleryParallaxSection() {
 
       {/* The living wall — three columns drifting at different speeds. */}
       <div className="mt-12 grid grid-cols-2 items-start gap-4 px-[7vw] md:mt-16 md:grid-cols-3 md:gap-6">
-        {GALLERY_COLUMNS.map((column, c) => (
+        {COLUMNS.map((column, c) => (
           <motion.div
             key={c}
             style={still ? undefined : { y: columnYs[c] }}
@@ -133,27 +97,69 @@ export function GalleryParallaxSection() {
               c === 2 ? 'hidden md:flex' : ''
             }`}
           >
-            {column.map((item) => (
-              <figure
-                key={item.label}
-                className={`group relative w-full overflow-hidden rounded-2xl bg-carbon ${item.aspect}`}
-              >
-                <img
-                  src={item.src}
-                  alt={item.label}
-                  className="h-full w-full object-cover brightness-[0.85] saturate-[1.05] transition-transform duration-700 ease-out group-hover:scale-105 group-hover:brightness-100"
-                  loading="lazy"
-                  draggable={false}
-                />
-                {/* Caption — slides up on hover. */}
-                <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-                  <span className="eyebrow">{item.label}</span>
-                </figcaption>
-              </figure>
-            ))}
+            {column.map(({ index, aspect, zoom }) => {
+              const project = HOMEPAGE_PROJECTS[index];
+              const count = 1 + project.more.length;
+              return (
+                <button
+                  key={project.id}
+                  type="button"
+                  onClick={() =>
+                    setSelection({ projectIndex: index, imageIndex: 0 })
+                  }
+                  aria-label={`Open ${project.label} preview`}
+                  className={`group relative block w-full overflow-hidden rounded-2xl bg-carbon text-left ${aspect}`}
+                >
+                  <img
+                    src={project.main}
+                    alt={`${project.label} — Cinesphere`}
+                    className={`h-full w-full object-cover brightness-[0.85] saturate-[1.05] transition-transform duration-700 ease-out group-hover:brightness-100 ${
+                      zoom
+                        ? 'scale-[1.3] group-hover:scale-[1.38]'
+                        : 'group-hover:scale-105'
+                    }`}
+                    loading="lazy"
+                    draggable={false}
+                  />
+
+                  {count > 1 && (
+                    <span className="absolute right-3 top-3 rounded-full bg-black/55 px-2.5 py-1 font-sans text-[11px] font-medium text-ivory backdrop-blur-sm">
+                      {count} photos
+                    </span>
+                  )}
+
+                  {/* Caption — slides up on hover. */}
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                    <span className="eyebrow">{project.label}</span>
+                  </span>
+                </button>
+              );
+            })}
           </motion.div>
         ))}
       </div>
+
+      {/* Explore — through to the dedicated full gallery page. */}
+      <div className="mt-8 flex justify-center px-[7vw] md:mt-10">
+        <Link href="/gallery" aria-label="Explore the full gallery">
+          <Button variant="ghost">
+            Explore the full gallery
+            <span
+              aria-hidden
+              className="ml-2 inline-block transition-transform duration-300 group-hover:translate-x-1"
+            >
+              →
+            </span>
+          </Button>
+        </Link>
+      </div>
+
+      {/* Shared full-screen preview — walks across the featured projects. */}
+      <GalleryLightbox
+        projects={HOMEPAGE_PROJECTS}
+        selection={selection}
+        onClose={() => setSelection(null)}
+      />
     </section>
   );
 }

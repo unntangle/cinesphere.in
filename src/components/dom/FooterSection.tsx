@@ -1,6 +1,7 @@
 'use client';
 
 import { BRAND, SOLUTIONS } from '@/lib/constants';
+import Link from 'next/link';
 
 /**
  * FooterSection — Apple-style sitemap footer
@@ -15,17 +16,17 @@ const COMMERCIAL_SOLUTIONS = SOLUTIONS.slice(0, 5);
 const MORE_SOLUTIONS = SOLUTIONS.slice(5);
 
 const COMPANY_LINKS = [
-  { label: 'About Us', href: '#home-theatre' },
-  { label: 'Our Solutions', href: '#dolby-atmos' },
-  { label: 'Our Clients', href: '#brand-vault' },
-  { label: 'Gallery', href: '#projects' },
-  { label: 'Testimonials', href: '#testimonials' },
-  { label: 'Contact Us', href: '#contact' },
+  { label: 'About Us', href: '/#home-theatre' },
+  { label: 'Our Solutions', href: '/#dolby-atmos' },
+  { label: 'Our Clients', href: '/#brand-vault' },
+  { label: 'Gallery', href: '/gallery' },
+  { label: 'Testimonials', href: '/#testimonials' },
+  { label: 'Contact Us', href: '/#contact' },
 ] as const;
 
 const PARTNER_LINKS = [
-  { label: 'Certified Focal Partner', href: '#sound-evolution' },
-  { label: 'Harman Kardon Authorized Dealer', href: '#harman-kardon' },
+  { label: 'Certified Focal Partner', href: '/#sound-evolution' },
+  { label: 'Harman Kardon Authorized Dealer', href: '/#harman-kardon' },
 ] as const;
 
 function FooterColumn({
@@ -48,12 +49,12 @@ function FooterColumn({
 function FooterLink({ href, label }: { href: string; label: string }) {
   return (
     <li>
-      <a
+      <Link
         href={href}
         className="font-sans text-xs text-ivory-muted transition-colors hover:text-carbon hover:underline"
       >
         {label}
-      </a>
+      </Link>
     </li>
   );
 }
@@ -85,13 +86,13 @@ export function FooterSection() {
         <div className="grid grid-cols-2 gap-x-8 gap-y-10 pt-8 md:grid-cols-3 lg:grid-cols-5">
           <FooterColumn heading="Solutions">
             {COMMERCIAL_SOLUTIONS.map((s) => (
-              <FooterLink key={s} href="#dolby-atmos" label={s} />
+              <FooterLink key={s} href="/#dolby-atmos" label={s} />
             ))}
           </FooterColumn>
 
           <FooterColumn heading="More Solutions">
             {MORE_SOLUTIONS.map((s) => (
-              <FooterLink key={s} href="#dolby-atmos" label={s} />
+              <FooterLink key={s} href="/#dolby-atmos" label={s} />
             ))}
           </FooterColumn>
 

@@ -13,6 +13,7 @@ import { StatsBandSection } from './StatsBandSection';
 import { GalleryParallaxSection } from './GalleryParallaxSection';
 import { TestimonialsSection } from './TestimonialsSection';
 import { ClientsMarqueeSection } from './ClientsMarqueeSection';
+import { SoundWaveSection } from './SoundWaveSection';
 import { FooterSection } from './FooterSection';
 import { AboutSoundSection } from './AboutSoundSection';
 import { Button } from '@/components/ui/Button';
@@ -59,7 +60,7 @@ export function Overlay() {
               <SolutionsCarouselSection scene={scene} />
               <GalleryParallaxSection />
               <TestimonialsSection />
-              <StatsBandSection />
+              <SoundWaveSection />
             </div>
           );
         }
@@ -78,7 +79,12 @@ export function Overlay() {
         // NOTE: the "Get in Touch" ContactCTASection is hidden for now —
         // re-add <ContactCTASection /> below the marquee to restore it.
         if (scene.id === 'brand-vault') {
-          return <ClientsMarqueeSection key={scene.id} scene={scene} />;
+          return (
+            <div key={scene.id}>
+              <ClientsMarqueeSection scene={scene} />
+              <StatsBandSection />
+            </div>
+          );
         }
 
         if (scene.id === 'why-us') {

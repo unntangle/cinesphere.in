@@ -38,7 +38,8 @@ const SOLUTION_CARDS: SolutionCard[] = [
     title: 'Audio / Video Display Solutions',
     lead: 'High-impact displays with immersive audio,',
     rest: 'tuned for clarity and presence in any environment.',
-    image: '/conference-room.webp',
+    image:
+      'https://images.unsplash.com/photo-1635788798247-92a15f830a3b?auto=format&fit=crop&w=1600&q=80',
   },
   {
     title: 'Conference, Boardroom & Tele-Conference Studios',
@@ -50,43 +51,50 @@ const SOLUTION_CARDS: SolutionCard[] = [
     title: 'E-Class Rooms & Seminar Halls',
     lead: 'Cutting-edge learning spaces',
     rest: 'with technology built for dynamic teaching, training and presentations.',
-    image: '/conference-room.webp',
+    image:
+      'https://images.unsplash.com/photo-1755995286639-0164e827640a?auto=format&fit=crop&w=1600&q=80',
   },
   {
     title: 'Home Theatre Solutions',
     lead: 'Cinema-grade sound and picture,',
     rest: 'designed and calibrated around your space.',
-    image: '/conference-room.webp',
+    image:
+      'https://images.unsplash.com/photo-1776303054657-4d21e2a6ef18?auto=format&fit=crop&w=1600&q=80',
   },
   {
     title: 'Multi-Room Audio & Background Music',
     lead: 'Music in every room,',
     rest: 'beautifully synchronised — with paging and background music for business spaces.',
-    image: '/conference-room.webp',
+    image:
+      'https://images.unsplash.com/photo-1711127093141-caea1718c784?auto=format&fit=crop&w=1600&q=80',
   },
   {
     title: 'Auditoriums AV',
     lead: 'Large-venue sound, vision and control,',
     rest: 'engineered for auditoriums where every seat deserves the best.',
-    image: '/conference-room.webp',
+    image:
+      'https://images.unsplash.com/photo-1722321974501-059dff03e970?auto=format&fit=crop&w=1600&q=80',
   },
   {
     title: 'Digital Signage & LED Video Wall',
     lead: 'Engaging content at any scale,',
     rest: 'from single displays to seamless LED video walls.',
-    image: '/conference-room.webp',
+    image:
+      'https://images.unsplash.com/photo-1562342918-28657524a992?auto=format&fit=crop&w=1600&q=80',
   },
   {
     title: 'Intelligent Solutions & Stage Lighting',
     lead: 'Smart automation and dramatic lighting,',
     rest: 'bringing rooms and stages to life at the touch of a button.',
-    image: '/conference-room.webp',
+    image:
+      'https://images.unsplash.com/photo-1626220777023-61ac837f0871?auto=format&fit=crop&w=1600&q=80',
   },
   {
     title: 'Surveillance Solutions',
     lead: 'Round-the-clock protection,',
     rest: 'with surveillance systems that integrate cleanly into your AV setup.',
-    image: '/conference-room.webp',
+    image:
+      'https://images.unsplash.com/photo-1496368077930-c1e31b4e5b44?auto=format&fit=crop&w=1600&q=80',
   },
 ];
 
@@ -155,6 +163,14 @@ export function SolutionsCarouselSection({ scene }: { scene: SceneDef }) {
                         ? 'object-contain p-8'
                         : 'object-cover'
                     }`}
+                    style={
+                      card.image === '/conference-room.webp'
+                        ? undefined
+                        : {
+                            filter:
+                              'sepia(0.5) saturate(1.45) hue-rotate(-12deg) brightness(0.9) contrast(1.05)',
+                          }
+                    }
                     draggable={false}
                     loading="lazy"
                   />

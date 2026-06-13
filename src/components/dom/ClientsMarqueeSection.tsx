@@ -7,38 +7,82 @@ import type { SceneDef } from '@/lib/constants';
  * -----------------------------------------------
  * A seamless infinite logo carousel on the light editorial theme:
  * rounded white cards glide right → left in a continuous loop (two
- * copies of the deck, CSS-animated by -50%), pausing on hover. Clients
- * whose logo file exists in /public/clients-logo render the image;
- * the rest render an elegant wordmark card until their logo is added —
- * just set the `logo` field.
+ * copies of the deck, CSS-animated by -50%), pausing on hover. Each
+ * card shows the client's logo (WebP, from /public/clients-logo); a
+ * client without a `logo` falls back to an elegant wordmark card.
+ *
+ * The WebP files are produced from the source PNG/JPG logos by
+ * scripts/convert-logos.mjs (run: `npm i -D sharp && node
+ * scripts/convert-logos.mjs`). To add a client, drop its logo in
+ * /public/clients-logo, re-run the script, and add an entry below.
  */
 
 interface Client {
   name: string;
   /** Path under /public — omit to render a wordmark card. */
   logo?: string;
+  /** Optional card background — set to match a logo that has a baked-in
+   *  colour panel, so the card fills with that colour instead of white. */
+  bg?: string;
+  /** Object-fit for a `bg` (filled) card: 'cover' fills edge-to-edge (may
+   *  crop the panel), 'contain' shows the whole logo centred on `bg`
+   *  (no crop). Defaults to 'cover'. */
+  fit?: 'cover' | 'contain';
 }
 
 const CLIENTS: Client[] = [
-  // TODO: swap in each client's own logo file when available — the CAT
-  // logo is a stand-in across all cards for now.
   { name: 'CAT', logo: '/clients-logo/CAT-logo.webp' },
-  { name: 'Thales', logo: '/clients-logo/CAT-logo.webp' },
-  { name: 'A² Square', logo: '/clients-logo/CAT-logo.webp' },
-  { name: 'Starwood Hotels & Resorts', logo: '/clients-logo/CAT-logo.webp' },
-  { name: 'Cauvery College', logo: '/clients-logo/CAT-logo.webp' },
-  { name: 'Jeppiaar', logo: '/clients-logo/CAT-logo.webp' },
-  { name: 'The Residency', logo: '/clients-logo/CAT-logo.webp' },
+  { name: 'Thales', logo: '/clients-logo/thales.webp' },
+  { name: 'A² Square', logo: '/clients-logo/a-square.webp' },
+  { name: 'Akshaya', logo: '/clients-logo/akshaya.webp' },
+  { name: 'Amarprakash', logo: '/clients-logo/amarprakash.webp' },
+  { name: 'Auryaj', logo: '/clients-logo/auryaj.webp' },
+  { name: 'Cauvery College', logo: '/clients-logo/cauvery-college.webp' },
+  { name: 'GRT Hotels', logo: '/clients-logo/grt-hotels.webp' },
+  { name: 'Hexaware Technologies', logo: '/clients-logo/hexaware-technologies.webp' },
+  { name: 'IIT Madras', logo: '/clients-logo/IIT-madras.webp' },
+  { name: 'Indian Maritime University', logo: '/clients-logo/IMU_Logo.webp' },
+  { name: 'ITC Hotels', logo: '/clients-logo/itc_hotels.webp' },
+  { name: 'JEC', logo: '/clients-logo/JEC.webp' },
+  { name: 'Jeppiaar', logo: '/clients-logo/jeppiaar.webp' },
+  { name: 'Loyola College', logo: '/clients-logo/loyola-college.webp' },
+  { name: 'University of Madras', logo: '/clients-logo/madras-university.webp' },
+  { name: 'Meenakshi University', logo: '/clients-logo/meenakshi-university.webp' },
+  { name: 'Starwood Hotels & Resorts', logo: '/clients-logo/starwood.webp' },
+  { name: 'Tagore Group', logo: '/clients-logo/tagore-groups.webp' },
+  { name: 'Taj', logo: '/clients-logo/taj.webp', bg: '#ab9054' },
+  { name: 'The Posh', logo: '/clients-logo/the-posh.webp' },
+  { name: 'The Residency', logo: '/clients-logo/the-residency.webp', bg: '#4b1133', fit: 'contain' },
+  { name: 'The Savera', logo: '/clients-logo/the-savera.webp' },
+  { name: 'VELS', logo: '/clients-logo/vels.webp' },
+  { name: 'VGP', logo: '/clients-logo/vgp.webp' },
+  { name: 'VIT', logo: '/clients-logo/VIT.webp' },
+  { name: 'Volvo', logo: '/clients-logo/volvo.webp' },
 ];
 
 function LogoCard({ client }: { client: Client }) {
+  // Logos with a baked-in colour panel (e.g. Taj, The Residency) fill the
+  // whole card; 'cover' goes edge-to-edge (may crop), 'contain' shows the
+  // whole logo on the matching colour. The rest sit padded on a white card.
+  const filled = Boolean(client.bg);
+  const filledFit =
+    (client.fit ?? 'cover') === 'contain' ? 'object-contain' : 'object-cover';
   return (
-    <div className="flex h-24 w-52 flex-none items-center justify-center rounded-2xl border border-black/[0.06] bg-white px-8 shadow-[0_4px_24px_-10px_rgba(0,0,0,0.15)] transition-transform duration-300 hover:-translate-y-1 md:h-28 md:w-60">
+    <div
+      className={`group/card relative flex h-28 w-56 flex-none items-center justify-center overflow-hidden rounded-2xl border border-black/[0.06] shadow-[0_4px_24px_-10px_rgba(0,0,0,0.15)] transition-transform duration-300 hover:-translate-y-1 md:h-32 md:w-64 ${
+        filled ? 'p-0' : 'px-4 py-3'
+      }`}
+      style={{ backgroundColor: client.bg ?? '#ffffff' }}
+    >
       {client.logo ? (
         <img
           src={client.logo}
           alt={client.name}
-          className="max-h-12 w-auto max-w-full object-contain md:max-h-14"
+          className={
+            filled
+              ? `h-full w-full ${filledFit}`
+              : 'max-h-full max-w-full object-contain'
+          }
           loading="lazy"
           draggable={false}
         />
@@ -47,6 +91,13 @@ function LogoCard({ client }: { client: Client }) {
           {client.name}
         </span>
       )}
+
+      {/* Client name — revealed on hover. */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/70 px-3 text-center opacity-0 transition-opacity duration-300 group-hover/card:opacity-100">
+        <span className="font-sans text-sm font-medium text-white md:text-base">
+          {client.name}
+        </span>
+      </div>
     </div>
   );
 }

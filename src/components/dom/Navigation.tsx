@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import {
   AnimatePresence,
   motion,
@@ -56,32 +57,32 @@ export function Navigation() {
       transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       className="fixed inset-x-4 top-4 z-30 mx-auto flex max-w-7xl items-center justify-between rounded-full bg-black/55 px-5 py-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.35),0_0_46px_-6px_rgba(205,178,133,0.22),inset_0_1px_0_rgba(238,220,181,0.08)] backdrop-blur-xl backdrop-saturate-150 md:inset-x-10 md:px-8"
     >
-      <a href="#top" aria-label={BRAND.name} className="flex items-center">
+      <Link href="/#top" aria-label={BRAND.name} className="flex items-center">
         <img
           src="/cs-logo-color.webp"
           alt={BRAND.name}
           className="h-7 w-auto object-contain md:h-8"
           draggable={false}
         />
-      </a>
+      </Link>
 
       {/* Desktop menu */}
       <nav className="hidden items-center gap-8 lg:flex">
         {NAV_LINKS.map((link) => (
-          <a
+          <Link
             key={link.href}
             href={link.href}
             className="font-sans text-xs text-ivory/80 transition-colors hover:text-ivory"
           >
             {link.label}
-          </a>
+          </Link>
         ))}
-        <a
-          href="#contact"
+        <Link
+          href="/#contact"
           className="rounded-full bg-champagne-deep px-4 py-1.5 font-sans text-xs font-medium text-white transition-colors hover:bg-champagne"
         >
           Quick Enquiry
-        </a>
+        </Link>
       </nav>
 
       {/* Mobile hamburger */}
@@ -120,22 +121,22 @@ export function Navigation() {
             className="absolute left-4 right-4 top-full mt-2 flex flex-col gap-1 rounded-2xl border border-white/10 bg-[rgba(22,22,23,0.92)] p-4 backdrop-blur-xl lg:hidden"
           >
             {NAV_LINKS.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
                 className="rounded-lg px-3 py-2.5 font-sans text-sm text-ivory/80 transition-colors hover:bg-white/5 hover:text-ivory"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
-            <a
-              href="#contact"
+            <Link
+              href="/#contact"
               onClick={() => setOpen(false)}
               className="mt-2 rounded-full bg-champagne-deep px-4 py-2.5 text-center font-sans text-sm font-medium text-white transition-colors hover:bg-champagne"
             >
               Quick Enquiry
-            </a>
+            </Link>
           </motion.nav>
         )}
       </AnimatePresence>

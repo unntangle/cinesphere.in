@@ -210,14 +210,16 @@ export const SOLUTIONS = [
   'Surveillance Solutions',
 ] as const;
 
-/** Top navigation — anchors map to scene section ids in the scroll journey. */
+/** Top navigation — absolute links so the menu works from any route
+ *  (e.g. the dedicated /gallery page). Hash links jump to homepage
+ *  sections; Gallery points to its own dedicated page. */
 export const NAV_LINKS = [
-  { label: 'Home', href: '#top' },
-  { label: 'About Us', href: '#home-theatre' },
-  { label: 'Our Solutions', href: '#dolby-atmos' },
-  { label: 'Our Clients', href: '#brand-vault' },
-  { label: 'Gallery', href: '#projects' },
-  { label: 'Contact Us', href: '#contact' },
+  { label: 'Home', href: '/#top' },
+  { label: 'About Us', href: '/#home-theatre' },
+  { label: 'Our Solutions', href: '/#dolby-atmos' },
+  { label: 'Our Clients', href: '/#brand-vault' },
+  { label: 'Gallery', href: '/gallery' },
+  { label: 'Contact Us', href: '/#contact' },
 ] as const;
 
 /** Client testimonials — Scene 09. */
