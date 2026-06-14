@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import type { SceneDef } from '@/lib/constants';
 import { useExperience } from '@/store/useExperience';
@@ -108,6 +108,63 @@ const TRACK_VW =
   SOLUTION_CARDS.length * CARD_VW + (SOLUTION_CARDS.length - 1) * GAP_VW;
 const TRACK_END_PCT = -(((TRACK_VW - (100 - 2 * PAD_VW)) / TRACK_VW) * 100);
 
+/**
+ * One solution card — the media tile (image + serial number + title) and
+ * its caption beneath. Shared by the desktop scrub track and the mobile
+ * stacked list so both stay identical.
+ */
+function SolutionCardView({
+  card,
+  index,
+}: {
+  card: SolutionCard;
+  index: number;
+}) {
+  return (
+    <>
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-carbon md:aspect-auto md:h-[52vh]">
+        {card.image ? (
+          <img
+            src={card.image}
+            alt={card.title}
+            className={`h-full w-full ${
+              card.fit === 'contain' ? 'object-contain p-8' : 'object-cover'
+            }`}
+            style={
+              card.image === '/images/conference-room.webp'
+                ? undefined
+                : {
+                    filter:
+                      'sepia(0.5) saturate(1.45) hue-rotate(-12deg) brightness(0.9) contrast(1.05)',
+                  }
+            }
+            draggable={false}
+            loading="lazy"
+          />
+        ) : (
+          <div className="h-full w-full bg-piano-fade" />
+        )}
+
+        {/* Legibility scrim + serial number & title overlay. `!` overrides
+            the .section-light .display/.eyebrow colour rules. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
+          <span className="eyebrow !text-champagne">
+            {String(index + 1).padStart(2, '0')}
+          </span>
+          <h3 className="display mt-2 text-lg !text-ivory md:text-xl lg:text-2xl">
+            {card.title}
+          </h3>
+        </div>
+      </div>
+      <p className="mt-5 max-w-xl font-sans text-base leading-relaxed text-ivory-muted md:text-lg">
+        <span className="font-semibold text-carbon">{card.lead}</span>{' '}
+        {card.rest}
+      </p>
+    </>
+  );
+}
+
 export function SolutionsCarouselSection({ scene }: { scene: SceneDef }) {
   const sectionRef = useRef<HTMLElement>(null);
   const reducedMotion = useExperience((s) => s.reducedMotion);
@@ -125,8 +182,92 @@ export function SolutionsCarouselSection({ scene }: { scene: SceneDef }) {
     ['0%', `${TRACK_END_PCT.toFixed(2)}%`],
   );
 
-  const still = reducedMotion;
+  // Desktop drives the pinned horizontal scrub. On mobile that pattern is
+  // awkward and the scrub maths assume desktop card widths; reduced motion
+  // shouldn't pin at all — both fall back to a simple vertical stack.
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const sync = () => setIsDesktop(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
+  const carousel = isDesktop && !reducedMotion;
+
+  // Shared header (animates only in the desktop scrub).
+  const header = (
+    <motion.div
+      initial={carousel ? 'hidden' : undefined}
+      whileInView={carousel ? 'show' : undefined}
+      viewport={{ once: true, margin: '-20%' }}
+      variants={{
+        hidden: {},
+        show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+      }}
+      className="px-[7vw] pb-10 md:pb-14"
+    >
+      <motion.p
+        variants={{
+          hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
+          show: {
+            opacity: 1,
+            y: 0,
+            filter: 'blur(0px)',
+            transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+          },
+        }}
+        className="eyebrow"
+      >
+        {scene.copy.eyebrow}
+      </motion.p>
+      <motion.h2
+        variants={{
+          hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
+          show: {
+            opacity: 1,
+            y: 0,
+            filter: 'blur(0px)',
+            transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+          },
+        }}
+        className="display mt-3 text-3xl sm:text-4xl md:text-5xl lg:text-6xl"
+      >
+        Solutions for every space.
+      </motion.h2>
+    </motion.div>
+  );
+
+  // MOBILE / reduced motion — a clean vertical stack of the same cards.
+  if (!carousel) {
+    return (
+      <section
+        ref={sectionRef}
+        id={scene.id}
+        data-scene={scene.index}
+        className="section-light relative z-10 w-full py-16 md:py-20"
+      >
+        {header}
+        <div className="flex flex-col gap-12 px-[7vw]">
+          {SOLUTION_CARDS.map((card, index) => (
+            <motion.div
+              key={card.title}
+              initial={reducedMotion ? undefined : { opacity: 0, y: 40 }}
+              whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-10%' }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <SolutionCardView card={card} index={index} />
+            </motion.div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  // DESKTOP — the pinned horizontal scrub. Card width now matches CARD_VW
+  // so the scrub endpoint lands the last card neatly at the right edge.
   return (
     <section
       ref={sectionRef}
@@ -136,127 +277,39 @@ export function SolutionsCarouselSection({ scene }: { scene: SceneDef }) {
       style={{ height: `${CAROUSEL_SCREENS * 100}vh` }}
     >
       <div className="sticky top-0 flex h-screen w-full flex-col justify-center overflow-hidden">
-        {/* Header — eyebrow + display title. Staggers into view (rising
-            out of a soft blur) the first time the section appears. */}
-        <motion.div
-          initial={still ? undefined : 'hidden'}
-          whileInView={still ? undefined : 'show'}
-          viewport={{ once: true, margin: '-20%' }}
-          variants={{
-            hidden: {},
-            show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
-          }}
-          className="px-[7vw] pb-10 md:pb-14"
-        >
-          <motion.p
-            variants={{
-              hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
-              show: {
-                opacity: 1,
-                y: 0,
-                filter: 'blur(0px)',
-                transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
-              },
-            }}
-            className="eyebrow"
-          >
-            {scene.copy.eyebrow}
-          </motion.p>
-          <motion.h2
-            variants={{
-              hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
-              show: {
-                opacity: 1,
-                y: 0,
-                filter: 'blur(0px)',
-                transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
-              },
-            }}
-            className="display mt-3 text-4xl md:text-5xl lg:text-6xl"
-          >
-            Solutions for every space.
-          </motion.h2>
-        </motion.div>
+        {header}
 
-        {/* The horizontal track — large media cards with captions.
-            Orchestrates a staggered reveal: each card lifts + fades up
-            in sequence the first time the section enters the viewport. */}
         <motion.div
-          initial={still ? undefined : 'hidden'}
-          whileInView={still ? undefined : 'show'}
+          initial="hidden"
+          whileInView="show"
           viewport={{ once: true, margin: '-15%' }}
           variants={{
             hidden: {},
             show: { transition: { staggerChildren: 0.14, delayChildren: 0.1 } },
           }}
         >
-        <motion.div
-          style={still ? undefined : { x: trackX }}
-          className="flex w-max items-start gap-[4vw] pl-[7vw] pr-[7vw]"
-        >
-          {SOLUTION_CARDS.map((card, index) => (
-            <motion.div
-              key={card.title}
-              variants={
-                still
-                  ? undefined
-                  : {
-                      hidden: { opacity: 0, y: 60, scale: 0.94 },
-                      show: {
-                        opacity: 1,
-                        y: 0,
-                        scale: 1,
-                        transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
-                      },
-                    }
-              }
-              className="w-[78vw] flex-none md:w-[54vw]"
-            >
-              <div className="relative h-[42vh] w-full overflow-hidden rounded-3xl bg-carbon md:h-[52vh]">
-                {card.image ? (
-                  <img
-                    src={card.image}
-                    alt={card.title}
-                    className={`h-full w-full ${
-                      card.fit === 'contain'
-                        ? 'object-contain p-8'
-                        : 'object-cover'
-                    }`}
-                    style={
-                      card.image === '/images/conference-room.webp'
-                        ? undefined
-                        : {
-                            filter:
-                              'sepia(0.5) saturate(1.45) hue-rotate(-12deg) brightness(0.9) contrast(1.05)',
-                          }
-                    }
-                    draggable={false}
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="h-full w-full bg-piano-fade" />
-                )}
-
-                {/* Legibility scrim + serial number & title overlay.
-                    `!` overrides the .section-light .display/.eyebrow
-                    colour rules, which would otherwise paint these dark. */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
-                  <span className="eyebrow !text-champagne">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <h3 className="display mt-2 text-lg !text-ivory md:text-xl lg:text-2xl">
-                    {card.title}
-                  </h3>
-                </div>
-              </div>
-              <p className="mt-5 max-w-xl font-sans text-base leading-relaxed text-ivory-muted md:text-lg">
-                <span className="font-semibold text-carbon">{card.lead}</span>{' '}
-                {card.rest}
-              </p>
-            </motion.div>
-          ))}
-        </motion.div>
+          <motion.div
+            style={{ x: trackX }}
+            className="flex w-max items-start gap-[4vw] pl-[7vw] pr-[7vw]"
+          >
+            {SOLUTION_CARDS.map((card, index) => (
+              <motion.div
+                key={card.title}
+                variants={{
+                  hidden: { opacity: 0, y: 60, scale: 0.94 },
+                  show: {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+                  },
+                }}
+                className="w-[54vw] flex-none"
+              >
+                <SolutionCardView card={card} index={index} />
+              </motion.div>
+            ))}
+          </motion.div>
         </motion.div>
       </div>
     </section>
