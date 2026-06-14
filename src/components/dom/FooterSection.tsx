@@ -21,7 +21,7 @@ const COMPANY_LINKS = [
   { label: 'Our Clients', href: '/clients' },
   { label: 'Gallery', href: '/gallery' },
   { label: 'Testimonials', href: '/#testimonials' },
-  { label: 'Contact Us', href: '/#contact' },
+  { label: 'Contact Us', href: '/contact' },
 ] as const;
 
 const PARTNER_LINKS = [

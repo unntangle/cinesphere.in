@@ -511,7 +511,7 @@ export function Navigation() {
           ),
         )}
         <Link
-          href="/#contact"
+          href="/contact"
           className="rounded-full bg-champagne-deep px-4 py-1.5 font-sans text-xs font-medium text-white transition-colors hover:bg-champagne"
         >
           Let&apos;s Talk
@@ -644,7 +644,7 @@ export function Navigation() {
               ),
             )}
             <Link
-              href="/#contact"
+              href="/contact"
               onClick={closeAll}
               className="mt-2 rounded-full bg-champagne-deep px-4 py-2.5 text-center font-sans text-sm font-medium text-white transition-colors hover:bg-champagne"
             >

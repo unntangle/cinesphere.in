@@ -219,7 +219,7 @@ export const NAV_LINKS = [
   { label: 'Our Solutions', href: '/#dolby-atmos' },
   { label: 'Our Clients', href: '/clients' },
   { label: 'Gallery', href: '/gallery' },
-  { label: 'Contact Us', href: '/#contact' },
+  { label: 'Contact Us', href: '/contact' },
 ] as const;
 
 /** Client testimonials — Scene 09. */

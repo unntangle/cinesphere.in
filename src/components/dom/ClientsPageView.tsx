@@ -560,7 +560,7 @@ export function ClientsPageView() {
             </motion.p>
             <motion.div variants={itemV} className="mt-8">
               <Link
-                href="/#contact"
+                href="/contact"
                 className="inline-flex items-center gap-2 rounded-full bg-champagne-deep px-7 py-3 font-sans text-sm font-medium text-white transition-colors hover:bg-champagne"
               >
                 Start a project
