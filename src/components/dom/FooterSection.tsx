@@ -151,13 +151,14 @@ export function FooterSection() {
         {/* Breadcrumb row — wordmark + tagline. */}
         <div className="flex items-center gap-3 border-b border-black/10 pb-4">
           <span className="relative inline-flex items-center">
-            {/* soft champagne glow so the logo reads on the ivory panel */}
+            {/* soft champagne-gold spotlight so the wordmark reads warmly
+                against the light ivory panel */}
             <span
               aria-hidden
-              className="pointer-events-none absolute left-1/2 top-1/2 -z-0 h-14 w-[210px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl"
+              className="pointer-events-none absolute left-1/2 top-1/2 -z-0 h-12 w-[230px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-lg"
               style={{
                 background:
-                  'radial-gradient(ellipse, rgba(205,178,133,0.55), rgba(255,255,255,0.3) 45%, transparent 72%)',
+                  'radial-gradient(ellipse, rgba(205,178,133,0.6) 0%, rgba(154,127,84,0.3) 48%, transparent 74%)',
               }}
             />
             <img
@@ -167,9 +168,7 @@ export function FooterSection() {
               draggable={false}
             />
           </span>
-          <span aria-hidden className="text-ivory-muted">
-            ›
-          </span>
+          <span aria-hidden className="h-6 w-px bg-black/20" />
           <span className="font-sans text-xs text-ivory-muted">
             {BRAND.tagline}
           </span>

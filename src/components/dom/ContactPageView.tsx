@@ -505,28 +505,6 @@ export function ContactPageView() {
                 Tell us about your space and how you want it to sound. Our team
                 replies within one working day.
               </motion.p>
-
-              {/* quick contact chips */}
-              <motion.div variants={itemV} className="mt-8 flex flex-wrap gap-3">
-                <a
-                  href={`mailto:${BRAND.email}`}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/30 px-4 py-2 font-sans text-sm text-ivory/90 backdrop-blur-sm transition-colors hover:border-champagne hover:bg-champagne/10"
-                >
-                  <span className="text-champagne">
-                    <MailIcon />
-                  </span>
-                  {BRAND.email}
-                </a>
-                <a
-                  href={phoneTel}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/30 px-4 py-2 font-sans text-sm text-ivory/90 backdrop-blur-sm transition-colors hover:border-champagne hover:bg-champagne/10"
-                >
-                  <span className="text-champagne">
-                    <PhoneIcon />
-                  </span>
-                  {BRAND.phone}
-                </a>
-              </motion.div>
             </motion.div>
           </div>
         </section>
