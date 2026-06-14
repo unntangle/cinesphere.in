@@ -67,10 +67,13 @@ function LogoCard({ client }: { client: Client }) {
   const filled = Boolean(client.bg);
   const filledFit =
     (client.fit ?? 'cover') === 'contain' ? 'object-contain' : 'object-cover';
+  // A filled card whose logo is 'contain' (e.g. The Residency) gets padding so
+  // the logo sits smaller and centred; the matching bg colour fills the rest.
+  const isContainFill = filled && (client.fit ?? 'cover') === 'contain';
   return (
     <div
       className={`group/card relative flex h-28 w-56 flex-none items-center justify-center overflow-hidden rounded-2xl border border-black/[0.06] shadow-[0_4px_24px_-10px_rgba(0,0,0,0.15)] transition-transform duration-300 hover:-translate-y-1 md:h-32 md:w-64 ${
-        filled ? 'p-0' : 'px-4 py-3'
+        filled ? (isContainFill ? 'p-5 md:p-6' : 'p-0') : 'px-7 py-5 md:px-9 md:py-6'
       }`}
       style={{ backgroundColor: client.bg ?? '#ffffff' }}
     >
