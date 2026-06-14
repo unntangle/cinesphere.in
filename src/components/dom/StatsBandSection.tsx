@@ -166,7 +166,7 @@ export function StatsBandSection() {
               variants={still ? undefined : STAT_ITEM}
               className="border-l border-white/10 pl-6 md:pl-8"
             >
-              <EqualizerMeter paused={still} />
+              <EqualizerMeter paused={still || !inView} />
               <dt className="text-gold display mt-3 text-4xl md:text-5xl">
                 {still ? (
                   <>

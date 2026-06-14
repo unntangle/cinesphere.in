@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, type Variants } from 'framer-motion';
 import { useExperience } from '@/store/useExperience';
@@ -80,11 +80,33 @@ const TILE_ITEM: Variants = {
     transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
   },
 };
+/* Mobile-only entrance — a zigzag slide: the left column's tiles glide in
+   from the left, the right column's from the right (desktop keeps TILE_ITEM
+   above). overflow-hidden on the section clips the horizontal travel. */
+const MOBILE_TILE_ITEM = (fromLeft: boolean): Variants => ({
+  hidden: { opacity: 0, x: fromLeft ? -56 : 56 },
+  show: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+  },
+});
 
 export function GalleryParallaxSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const reducedMotion = useExperience((s) => s.reducedMotion);
   const [selection, setSelection] = useState<LightboxSelection | null>(null);
+
+  // Mobile gets a distinct zigzag tile entrance; desktop keeps its existing
+  // fade-up + scale reveal. Tracked the same way as the Solutions section.
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const sync = () => setIsDesktop(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -153,7 +175,13 @@ export function GalleryParallaxSection() {
                 <motion.button
                   key={project.id}
                   type="button"
-                  variants={still ? undefined : TILE_ITEM}
+                  variants={
+                    still
+                      ? undefined
+                      : isDesktop
+                        ? TILE_ITEM
+                        : MOBILE_TILE_ITEM(c % 2 === 0)
+                  }
                   onClick={() =>
                     setSelection({ projectIndex: index, imageIndex: 0 })
                   }

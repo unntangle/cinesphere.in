@@ -231,15 +231,6 @@ export function AboutSoundSection({ scene }: { scene: SceneDef }) {
     hidden: {},
     show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
   };
-  // Eyebrow: letters breathe IN from wide tracking, like a film title card.
-  const eyebrowV = {
-    hidden: { opacity: 0, letterSpacing: '0.6em' },
-    show: {
-      opacity: 1,
-      letterSpacing: '0.02em',
-      transition: { duration: 1.1, ease: [0.16, 1, 0.3, 1] },
-    },
-  };
   // Title words: rise out of blur one by one — a focus pull per word.
   const wordV = {
     hidden: { opacity: 0, y: '0.6em', filter: 'blur(10px)' },
@@ -325,12 +316,6 @@ export function AboutSoundSection({ scene }: { scene: SceneDef }) {
         viewport={{ once: true, margin: '-20%' }}
         className="relative z-10 max-w-3xl px-6 text-center"
       >
-        {copy.eyebrow && (
-          <motion.p variants={eyebrowV} className="eyebrow">
-            {copy.eyebrow}
-          </motion.p>
-        )}
-
         {/* Title — each word pulls into focus in sequence. */}
         <h2 className="display mt-4 text-xl md:text-2xl">
           {titleWords.map((word, i) => (
@@ -348,7 +333,7 @@ export function AboutSoundSection({ scene }: { scene: SceneDef }) {
         {/* The highlight — racks into focus, then counts up + sheen sweep. */}
         <motion.p
           variants={goldV}
-          className="text-gold text-gold-sweep display mt-6 text-3xl will-change-transform md:mt-8 md:text-5xl"
+          className="text-rainbow text-rainbow-sweep display mt-6 text-3xl will-change-transform md:mt-8 md:text-5xl"
         >
           <CountUp to={12} paused={reducedMotion} />+ Years of Experience
         </motion.p>

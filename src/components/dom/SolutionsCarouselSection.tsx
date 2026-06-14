@@ -249,14 +249,21 @@ export function SolutionsCarouselSection({ scene }: { scene: SceneDef }) {
         className="section-light relative z-10 w-full py-16 md:py-20"
       >
         {header}
-        <div className="flex flex-col gap-12 px-[7vw]">
+        {/* Zigzag entrance — odd cards slide in from the left, even from the
+            right, each as it scrolls into view. overflow-hidden keeps the
+            horizontal travel from ever spilling past the viewport edge. */}
+        <div className="flex flex-col gap-12 overflow-hidden px-[7vw]">
           {SOLUTION_CARDS.map((card, index) => (
             <motion.div
               key={card.title}
-              initial={reducedMotion ? undefined : { opacity: 0, y: 40 }}
-              whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+              initial={
+                reducedMotion
+                  ? undefined
+                  : { opacity: 0, x: index % 2 === 0 ? -64 : 64 }
+              }
+              whileInView={reducedMotion ? undefined : { opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-10%' }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             >
               <SolutionCardView card={card} index={index} />
             </motion.div>
