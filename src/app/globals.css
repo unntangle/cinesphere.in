@@ -6,7 +6,7 @@
   --piano: #000000;
   --champagne: #cdb285;
   --ivory: #f5f5f7;
-  --light-surface: #f5f5f7;
+  --light-surface: #f7f2e8;
   --light-text: #1d1d1f;
 }
 
@@ -79,7 +79,7 @@ body {
     background-size: 200% auto;
   }
 
-  /* Light editorial section — Apple's #f5f5f7 panels over the dark canvas. */
+  /* Light editorial section — warm ivory panels over the dark canvas. */
   .section-light {
     background: var(--light-surface);
     color: var(--light-text);

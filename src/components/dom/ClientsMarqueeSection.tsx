@@ -72,7 +72,7 @@ function LogoCard({ client }: { client: Client }) {
   const isContainFill = filled && (client.fit ?? 'cover') === 'contain';
   return (
     <div
-      className={`group/card relative flex h-28 w-56 flex-none items-center justify-center overflow-hidden rounded-2xl border border-black/[0.06] shadow-[0_4px_24px_-10px_rgba(0,0,0,0.15)] transition-transform duration-300 hover:-translate-y-1 md:h-32 md:w-64 ${
+      className={`group/card relative flex h-28 w-56 flex-none items-center justify-center overflow-hidden rounded-2xl border border-black/[0.06] shadow-[0_4px_24px_-10px_rgba(0,0,0,0.15)] transition-all duration-300 hover:-translate-y-1.5 hover:border-champagne/50 hover:shadow-[0_16px_44px_-14px_rgba(205,178,133,0.5)] md:h-32 md:w-64 ${
         filled ? (isContainFill ? 'p-5 md:p-6' : 'p-0') : 'px-7 py-5 md:px-9 md:py-6'
       }`}
       style={{ backgroundColor: client.bg ?? '#ffffff' }}
@@ -95,11 +95,21 @@ function LogoCard({ client }: { client: Client }) {
         </span>
       )}
 
-      {/* Client name — revealed on hover. */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/70 px-3 text-center opacity-0 transition-opacity duration-300 group-hover/card:opacity-100">
-        <span className="font-sans text-sm font-medium text-white md:text-base">
+      {/* Client name — an editorial reveal: on hover the logo frosts over
+          and the name appears in champagne, framed by two gold rules that
+          draw outward from the centre. */}
+      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 bg-white/80 px-4 text-center opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover/card:opacity-100">
+        <span
+          aria-hidden
+          className="h-px w-0 bg-champagne-deep/60 transition-[width] duration-500 ease-out group-hover/card:w-10"
+        />
+        <span className="font-sans text-sm font-semibold tracking-wide text-champagne-deep md:text-base">
           {client.name}
         </span>
+        <span
+          aria-hidden
+          className="h-px w-0 bg-champagne-deep/60 transition-[width] duration-500 ease-out group-hover/card:w-10"
+        />
       </div>
     </div>
   );
@@ -123,9 +133,13 @@ export function ClientsMarqueeSection({ scene }: { scene: SceneDef }) {
       </div>
 
       {/* The loop — group enables pause-on-hover; edge fades melt the
-          cards into the panel at both sides. */}
+          cards into the panel at both sides. The section itself is
+          overflow-hidden, so it clips the track horizontally at the
+          viewport edges; we deliberately DON'T clip here, so the cards'
+          drop shadows (and the gold hover glow) fade out cleanly instead
+          of being cut into a hard seam. */}
       <div className="group relative mt-12 md:mt-16">
-        <div className="flex overflow-hidden">
+        <div className="flex">
           <div className="marquee-track flex w-max gap-5 pr-5 group-hover:[animation-play-state:paused] md:gap-7 md:pr-7">
             {[...CLIENTS, ...CLIENTS].map((client, i) => (
               <LogoCard key={`${client.name}-${i}`} client={client} />
@@ -136,11 +150,11 @@ export function ClientsMarqueeSection({ scene }: { scene: SceneDef }) {
         {/* Edge fades. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[#f5f5f7] to-transparent md:w-40"
+          className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[#f7f2e8] to-transparent md:w-40"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[#f5f5f7] to-transparent md:w-40"
+          className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[#f7f2e8] to-transparent md:w-40"
         />
       </div>
     </section>
