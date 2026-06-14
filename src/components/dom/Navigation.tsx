@@ -2,58 +2,100 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import {
-  AnimatePresence,
-  motion,
-  useMotionValueEvent,
-  useScroll,
-} from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { BRAND, NAV_LINKS } from '@/lib/constants';
 import { useExperience } from '@/store/useExperience';
 
 /**
  * Fixed top navigation — wordmark, full menu (eGlu-style horizontal links
- * on desktop, hamburger sheet on mobile) and a single CTA.
- * Fades in only after the preloader completes.
- *
- * Scroll behaviour: once the page is scrolled past 10% of the viewport,
- * scrolling DOWN slides the header up out of view; scrolling UP slides
- * it back down immediately. Always visible near the top or while the
- * mobile menu sheet is open.
+ * on desktop, hamburger sheet on mobile) and a single CTA. Fades in only
+ * after the preloader completes, then stays pinned at the top.
  */
+/**
+ * NavWave — a live multicolour audio-spectrum brand mark beside the
+ * wordmark: a faint full-width hairline baseline with a row of thin bars
+ * across it, each coloured along the rainbow (electric blue → cyan → green
+ * → yellow → orange → red → magenta) and bouncing like a frequency meter.
+ * A gentle height envelope + a travelling animation delay make the activity
+ * ripple across the line. Pure CSS (.soundbar); frozen for reduced motion.
+ */
+const SPECTRUM_BARS = 64;
+const SPECTRUM_STOPS = [
+  '#1f7bff',
+  '#19c8ff',
+  '#27d36e',
+  '#ffd23f',
+  '#ff7a2f',
+  '#ff2d55',
+  '#ff4db8',
+];
+
+function hexToRgb(hex: string) {
+  const n = parseInt(hex.slice(1), 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+
+function spectrumColor(t: number) {
+  const seg = t * (SPECTRUM_STOPS.length - 1);
+  const i = Math.min(SPECTRUM_STOPS.length - 2, Math.floor(seg));
+  const f = seg - i;
+  const a = hexToRgb(SPECTRUM_STOPS[i]);
+  const b = hexToRgb(SPECTRUM_STOPS[i + 1]);
+  const ch = (k: 'r' | 'g' | 'b') => Math.round(a[k] + (b[k] - a[k]) * f);
+  return `rgb(${ch('r')}, ${ch('g')}, ${ch('b')})`;
+}
+
+const SPECTRUM = Array.from({ length: SPECTRUM_BARS }, (_, i) => {
+  const t = i / (SPECTRUM_BARS - 1);
+  // Wide, slightly left-of-centre envelope + per-bar spikiness gives a
+  // frequency-spectrum silhouette; near-flat (tiny) bars at the edges.
+  const env = Math.exp(-(((t - 0.42) / 0.34) ** 2));
+  const spike = 0.45 + 0.55 * Math.abs(Math.sin(i * 1.7 + 0.6));
+  return {
+    color: spectrumColor(t),
+    height: 2 + 13 * env * spike,
+    delay: (i / SPECTRUM_BARS) * 1.1, // travelling ripple across the bars
+    duration: 0.8 + (i % 5) * 0.13,
+  };
+});
+
+function NavWave({ animate }: { animate: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className="relative hidden h-8 w-[280px] shrink-0 sm:block md:w-[360px]"
+    >
+      {/* Baseline — a faint full-width multicolour hairline, faded at ends. */}
+      <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[linear-gradient(90deg,#1f7bff,#27d36e,#ffd23f,#ff7a2f,#ff4db8)] opacity-30 [mask-image:linear-gradient(to_right,transparent,#000_12%,#000_88%,transparent)]" />
+
+      {/* Bars — centred on the baseline, bouncing like a spectrum. */}
+      <span className="absolute inset-0 flex items-center justify-between">
+        {SPECTRUM.map((bar, i) => (
+          <span
+            key={i}
+            className={`w-[2px] rounded-full md:w-[3px] ${animate ? 'soundbar' : ''}`}
+            style={{
+              height: `${bar.height}px`,
+              backgroundColor: bar.color,
+              animationDelay: `${bar.delay}s`,
+              animationDuration: `${bar.duration}s`,
+            }}
+          />
+        ))}
+      </span>
+    </span>
+  );
+}
+
 export function Navigation() {
   const ready = useExperience((s) => s.ready);
+  const reducedMotion = useExperience((s) => s.reducedMotion);
   const [open, setOpen] = useState(false);
-  const [hidden, setHidden] = useState(false);
-
-  const { scrollY } = useScroll();
-  useMotionValueEvent(scrollY, 'change', (latest) => {
-    const previous = scrollY.getPrevious() ?? 0;
-    const threshold =
-      typeof window !== 'undefined' ? window.innerHeight * 0.1 : 80;
-
-    if (open || latest <= threshold) {
-      // Near the top (or menu open) — always shown.
-      setHidden(false);
-    } else if (latest > previous) {
-      // Scrolling down past the threshold — slide up away.
-      setHidden(true);
-    } else if (latest < previous) {
-      // Scrolling up — slide back down.
-      setHidden(false);
-    }
-  });
 
   return (
     <motion.header
       initial={{ opacity: 0, y: -12 }}
-      animate={
-        ready
-          ? hidden
-            ? { opacity: 1, y: '-150%' }
-            : { opacity: 1, y: 0 }
-          : {}
-      }
+      animate={ready ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       className="fixed inset-x-4 top-4 z-30 mx-auto flex max-w-7xl items-center justify-between rounded-full bg-black/55 px-5 py-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.35),0_0_46px_-6px_rgba(205,178,133,0.22),inset_0_1px_0_rgba(238,220,181,0.08)] backdrop-blur-xl backdrop-saturate-150 md:inset-x-10 md:px-8"
     >
@@ -65,6 +107,10 @@ export function Navigation() {
           draggable={false}
         />
       </Link>
+
+      {/* Live multi-colour audio-frequency waveform — sits in the gap
+          between the wordmark and the menu. */}
+      <NavWave animate={!reducedMotion} />
 
       {/* Desktop menu */}
       <nav className="hidden items-center gap-8 lg:flex">
