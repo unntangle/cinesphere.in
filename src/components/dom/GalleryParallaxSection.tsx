@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { motion, type Variants } from 'framer-motion';
 import { useExperience } from '@/store/useExperience';
@@ -15,19 +15,17 @@ import {
  * GalleryParallaxSection — "Latest Works" wall (homepage teaser)
  * --------------------------------------------------------------
  * A curated handful of real projects in a uniform, top-aligned grid
- * (2 columns on mobile, 3 on desktop). Each tile zooms softly on hover,
- * flips to a mirror of itself, reveals a champagne caption, and — on
- * click — opens the shared full-screen preview (which walks across the
- * featured projects). An "Explore the full gallery" button links to the
- * dedicated /gallery page.
+ * (2 columns on mobile, 3 on desktop). Every tile is an equal 4/3 cell of a
+ * single CSS grid, so rows and columns always line up. Each tile zooms /
+ * flips softly on hover, reveals a champagne caption, and — on click — opens
+ * the shared full-screen preview.
  *
  * Featured projects come from HOMEPAGE_PROJECTS in src/lib/gallery.ts.
  */
 
-/* Six featured projects, rendered as equal cells of one grid so every row
-   and column always lines up. `zoom` slightly enlarges + crops a cover image
-   to hide baked-in borders (e.g. Project 1's source photo has white bands
-   top/bottom). All tiles share a 4/3 aspect ratio (set on the tile itself). */
+/* Six featured projects, rendered as equal cells of one grid. `zoom` slightly
+   enlarges + crops a cover image to hide baked-in borders (e.g. Project 1's
+   source photo has white bands top/bottom). All tiles share a 4/3 ratio. */
 const TILES: { index: number; zoom?: boolean }[] = [
   { index: 0, zoom: true },
   { index: 1 },
@@ -37,8 +35,9 @@ const TILES: { index: number; zoom?: boolean }[] = [
   { index: 5 },
 ];
 
-/* Entrance reveal variants. Annotated with `Variants` so the cubic-bezier
-   ease arrays are accepted as tuples. */
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+/* Header entrance — rises out of a soft blur. */
 const REVEAL_CONTAINER: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
@@ -49,57 +48,28 @@ const REVEAL_ITEM: Variants = {
     opacity: 1,
     y: 0,
     filter: 'blur(0px)',
-    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.7, ease: EASE },
   },
 };
-/* Desktop tile entrance — a soft fade-up + scale. */
+
+/* Tile entrance — a pure opacity fade. No scale / slide, so every tile always
+   fills its full grid cell: the wall can never look uneven mid-animation. */
 const TILE_ITEM: Variants = {
-  hidden: { opacity: 0, y: 50, scale: 0.95 },
-  show: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
-  },
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: 0.6, ease: EASE } },
 };
-/* Mobile tile entrance — a zigzag slide: left-column tiles glide in from the
-   left, right-column tiles from the right. overflow-hidden on the section
-   clips the horizontal travel. */
-const MOBILE_TILE_ITEM = (fromLeft: boolean): Variants => ({
-  hidden: { opacity: 0, x: fromLeft ? -56 : 56 },
-  show: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
-  },
-});
 
 export function GalleryParallaxSection() {
-  const sectionRef = useRef<HTMLElement>(null);
   const reducedMotion = useExperience((s) => s.reducedMotion);
   const [selection, setSelection] = useState<LightboxSelection | null>(null);
-
-  // Mobile gets a distinct zigzag tile entrance; desktop keeps its fade-up +
-  // scale reveal. Tracked the same way as the Solutions section.
-  const [isDesktop, setIsDesktop] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 768px)');
-    const sync = () => setIsDesktop(mq.matches);
-    sync();
-    mq.addEventListener('change', sync);
-    return () => mq.removeEventListener('change', sync);
-  }, []);
-
   const still = reducedMotion;
 
   return (
     <section
-      ref={sectionRef}
       id="projects"
       className="relative z-10 w-full overflow-hidden bg-piano py-14 md:py-20"
     >
-      {/* Header — staggers into view (rising out of a soft blur) as the
-          section first appears. */}
+      {/* Header — staggers into view as the section first appears. */}
       <motion.div
         initial={still ? undefined : 'hidden'}
         whileInView={still ? undefined : 'show'}
@@ -126,9 +96,9 @@ export function GalleryParallaxSection() {
       </motion.div>
 
       {/* The wall — one uniform grid: 2 columns on mobile, 3 on desktop.
-          Every tile is an equal cell, so rows and columns always align. */}
-      <div className="mt-12 grid grid-cols-2 gap-4 px-[7vw] md:mt-16 md:grid-cols-3 md:gap-6">
-        {TILES.map(({ index, zoom }, i) => {
+          `items-start` + equal 4/3 cells keep every row and column aligned. */}
+      <div className="mt-12 grid grid-cols-2 items-start gap-4 px-[7vw] md:mt-16 md:grid-cols-3 md:gap-6">
+        {TILES.map(({ index, zoom }) => {
           const project = HOMEPAGE_PROJECTS[index];
           const count = 1 + project.more.length;
           return (
@@ -138,21 +108,14 @@ export function GalleryParallaxSection() {
               initial={still ? undefined : 'hidden'}
               whileInView={still ? undefined : 'show'}
               viewport={{ once: true, margin: '-10%' }}
-              variants={
-                still
-                  ? undefined
-                  : isDesktop
-                    ? TILE_ITEM
-                    : MOBILE_TILE_ITEM(i % 2 === 0)
-              }
+              variants={still ? undefined : TILE_ITEM}
               onClick={() =>
                 setSelection({ projectIndex: index, imageIndex: 0 })
               }
               aria-label={`Open ${project.label} preview`}
               className="group relative block aspect-[4/3] w-full text-left"
             >
-              {/* Perspective host — isolates the 3D from the button's own
-                  reveal transform. */}
+              {/* Perspective host — isolates the 3D flip from layout. */}
               <div className="h-full w-full [perspective:1200px]">
                 {/* Flipper — rotates on hover to reveal the back face. */}
                 <div
