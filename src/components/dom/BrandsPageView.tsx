@@ -308,7 +308,7 @@ export function BrandsPageView() {
             initial={reducedMotion ? false : 'hidden'}
             whileInView={reducedMotion ? undefined : 'show'}
             viewport={{ once: true, margin: '-15%' }}
-            className="relative overflow-hidden rounded-[2rem] bg-[#0c0c0e] px-8 py-12 md:px-14 md:py-16"
+            className="relative overflow-hidden rounded-[2rem] bg-[#0c0c0e] px-6 py-10 sm:px-8 sm:py-12 md:px-14 md:py-16"
           >
             {/* champagne glow + oversized brand watermark */}
             <div
@@ -338,7 +338,7 @@ export function BrandsPageView() {
                 </motion.p>
                 <motion.h2
                   variants={itemV}
-                  className="mt-5 font-display text-5xl font-semibold leading-none text-ivory md:text-6xl"
+                  className="mt-5 font-display text-4xl font-semibold leading-none text-ivory sm:text-5xl md:text-6xl"
                 >
                   {featured.name}
                 </motion.h2>
@@ -386,7 +386,12 @@ export function BrandsPageView() {
                 variants={itemV}
                 className="relative flex items-center justify-center py-4"
               >
-                <div className="relative h-[320px] w-[320px] shrink-0">
+                {/* responsive sizing wrapper: the dial uses fixed-px bars, so
+                    we scale the whole 320px ring down on small screens and
+                    size the layout box to match (no overflow on phones). */}
+                <div className="relative h-[256px] w-[256px] sm:h-[300px] sm:w-[300px] md:h-[320px] md:w-[320px]">
+                  <div className="absolute left-1/2 top-1/2 origin-center -translate-x-1/2 -translate-y-1/2 scale-[0.8] sm:scale-[0.9375] md:scale-100">
+                    <div className="relative h-[320px] w-[320px]">
                   {/* soft glow behind the logo */}
                   <div
                     aria-hidden
@@ -434,6 +439,8 @@ export function BrandsPageView() {
                     />
                   </div>
                 </div>
+                  </div>
+                  </div>
               </motion.div>
             </div>
           </motion.div>
