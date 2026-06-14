@@ -129,6 +129,24 @@ body {
       opacity: 1;
     }
   }
+  /* Equalizer bar — like .soundbar but anchored at the baseline, so bars
+     grow up from the floor. Used by the footer's frequency spectrum and the
+     per-link hover equalizers. */
+  .eq-bar {
+    transform-origin: bottom;
+    animation: eqbar 1.4s ease-in-out infinite;
+  }
+  @keyframes eqbar {
+    0%,
+    100% {
+      transform: scaleY(0.28);
+      opacity: 0.45;
+    }
+    50% {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
   /* Circular sound ripple — used by the Harman Kardon reveal: a
      champagne ring expanding from centre and dissolving, like a
      pulse of sound. The centring translate lives INSIDE the keyframes

@@ -51,11 +51,63 @@ function FooterLink({ href, label }: { href: string; label: string }) {
     <li>
       <Link
         href={href}
-        className="font-sans text-xs text-ivory-muted transition-colors hover:text-carbon hover:underline"
+        className="group/fl inline-flex items-center font-sans text-xs text-ivory-muted transition-colors hover:text-carbon"
       >
+        {/* A tiny 3-bar equalizer ticks to life as the link is hovered —
+            it grows in from zero width and nudges the label across. */}
+        <span
+          aria-hidden
+          className="flex h-3 w-0 items-end gap-[2px] overflow-hidden opacity-0 transition-all duration-300 group-hover/fl:mr-2 group-hover/fl:w-3 group-hover/fl:opacity-100"
+        >
+          {[0, 0.18, 0.36].map((d, i) => (
+            <span
+              key={i}
+              className="eq-bar w-[2px] rounded-full bg-champagne-deep"
+              style={{ height: `${50 + i * 22}%`, animationDelay: `${d}s` }}
+            />
+          ))}
+        </span>
         {label}
       </Link>
     </li>
+  );
+}
+
+/**
+ * EqualizerStrip — a continuous frequency spectrum that ripples across the
+ * footer in champagne, the brand's sound signature. Pure CSS (.eq-bar): two
+ * overlaid sines shape an organic spectrum and a stepped animation-delay
+ * sends a travelling wave rolling across the bars. Masked to fade out at
+ * both ends so it melts into the panel.
+ */
+const STRIP_BARS = 48;
+
+function EqualizerStrip() {
+  return (
+    <div
+      aria-hidden
+      className="flex h-9 items-end justify-center gap-[3px] [mask-image:linear-gradient(to_right,transparent,#000_14%,#000_86%,transparent)] md:h-11 md:gap-1.5"
+    >
+      {Array.from({ length: STRIP_BARS }).map((_, i) => {
+        const height =
+          26 +
+          60 *
+            Math.abs(Math.sin(i * 0.5) * 0.6 + Math.sin(i * 0.17 + 1.3) * 0.4);
+        const delay = (i % 14) * 0.06;
+        const duration = 1.1 + (i % 5) * 0.16;
+        return (
+          <span
+            key={i}
+            className="eq-bar w-[2px] rounded-full bg-gradient-to-t from-champagne-deep/30 via-champagne/70 to-champagne md:w-[3px]"
+            style={{
+              height: `${height}%`,
+              animationDelay: `${delay}s`,
+              animationDuration: `${duration}s`,
+            }}
+          />
+        );
+      })}
+    </div>
   );
 }
 
@@ -63,7 +115,7 @@ export function FooterSection() {
   return (
     <footer
       id="footer"
-      className="section-light relative z-10 w-full py-10 md:py-12"
+      className="section-light relative z-10 w-full pt-10 pb-4 md:pt-12 md:pb-5"
     >
       <div className="mx-auto max-w-7xl px-[7vw] lg:px-12">
         {/* Breadcrumb row — wordmark + tagline. */}
@@ -138,8 +190,14 @@ export function FooterSection() {
           </FooterColumn>
         </div>
 
+        {/* Equalizer signature — a champagne frequency spectrum that
+            ripples across the footer, standing in for a plain divider. */}
+        <div className="mt-12">
+          <EqualizerStrip />
+        </div>
+
         {/* Legal bottom bar — copyright only, centred. */}
-        <div className="mt-10 border-t border-black/10 pt-5">
+        <div className="mt-4">
           <p className="text-center font-sans text-xs text-ivory-muted">
             Copyright © {new Date().getFullYear()} {BRAND.name}. All rights
             reserved.
