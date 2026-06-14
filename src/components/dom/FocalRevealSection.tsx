@@ -276,18 +276,30 @@ export function FocalRevealSection({ scene }: { scene: SceneDef }) {
           </motion.div>
         </div>
 
-        {/* Mobile — compact centred lockup above the speaker. */}
+        {/* Mobile — a clean poster: brand + headline up top, the speaker as
+            the hero, and a small product nameplate at the foot. md:hidden, so
+            the desktop side-column layout above is left completely untouched. */}
         <motion.div
           style={still ? undefined : { opacity: colOpacity }}
-          className="pointer-events-none absolute inset-x-6 top-[14%] z-10 flex flex-col items-center gap-4 text-center md:hidden"
+          className="pointer-events-none absolute inset-x-6 top-[10%] z-10 flex flex-col items-center gap-3 text-center md:hidden"
         >
           <img
             src="/images/focal-logo.webp"
             alt="FOCAL — The Spirit of Sound"
-            className="h-10 w-auto object-contain brightness-[0.98] sepia-[0.85] saturate-[1.4]"
+            className="h-9 w-auto object-contain brightness-[0.98] sepia-[0.85] saturate-[1.4]"
             draggable={false}
           />
-          <p className="eyebrow">We are Certified Partner</p>
+          <h2 className="display text-gold text-6xl leading-none">Partner</h2>
+          <p className="eyebrow">We are a Certified Focal Partner</p>
+        </motion.div>
+
+        {/* Mobile — product nameplate at the foot of the stage (over the
+            bottom fade), in place of the desktop spec block. md:hidden. */}
+        <motion.div
+          style={still ? undefined : { opacity: copyOpacity }}
+          className="pointer-events-none absolute inset-x-0 bottom-[3vh] z-40 text-center md:hidden"
+        >
+          <span className="eyebrow text-champagne/90">Focal · Utopia Evo</span>
         </motion.div>
 
         {/* The speaker — rises from the bottom of the frame.
@@ -300,7 +312,7 @@ export function FocalRevealSection({ scene }: { scene: SceneDef }) {
           src="/images/G_Utopia_Evo.webp"
           alt="Focal Utopia Evo loudspeaker"
           style={still ? { x: '-50%' } : { y: speakerY, x: '-50%' }}
-          className="absolute bottom-[7vh] left-1/2 z-20 h-[80vh] max-w-[80vw] object-contain object-bottom brightness-[0.82] contrast-[1.06] sepia-[0.28] saturate-[1.2] hue-rotate-[-6deg] drop-shadow-[0_-10px_90px_rgba(205,178,133,0.25)] md:max-w-[36vw]"
+          className="absolute bottom-[7vh] left-1/2 z-20 h-[64vh] max-w-[82vw] object-contain object-bottom brightness-[0.82] contrast-[1.06] sepia-[0.28] saturate-[1.2] hue-rotate-[-6deg] drop-shadow-[0_-10px_90px_rgba(205,178,133,0.25)] md:h-[80vh] md:max-w-[36vw]"
           draggable={false}
         />
 

@@ -284,13 +284,24 @@ export function AboutSoundSection({ scene }: { scene: SceneDef }) {
         src="/images/12y-section.webp"
         alt=""
         aria-hidden
-        className="absolute inset-0 h-full w-full object-cover opacity-60"
+        className="absolute inset-0 h-full w-full object-cover opacity-90 md:opacity-60"
         draggable={false}
       />
-      {/* Cinematic grade: vignette + centre clarity for the copy. */}
+      {/* Cinematic grade: vignette + centre clarity for the copy.
+          MOBILE-ONLY: the wide background gets cropped to a narrow strip on
+          phones, so it uses a lighter wash to stay visible. Desktop keeps
+          its original, deeper grade unchanged. */}
       <div
         aria-hidden
-        className="absolute inset-0"
+        className="absolute inset-0 md:hidden"
+        style={{
+          background:
+            'radial-gradient(ellipse at center, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.72) 100%)',
+        }}
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 hidden md:block"
         style={{
           background:
             'radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.75) 60%, rgba(0,0,0,0.92) 100%)',

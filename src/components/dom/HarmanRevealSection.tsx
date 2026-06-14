@@ -85,16 +85,34 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
     ['calc(-50% + 0vw)', 'calc(-50% + 26vw)'],
   );
 
-  // Mobile split distances (tighter stage).
+  // Mobile split distances — on phones the towers don't settle into a
+  // parted pair, they keep gliding ALL THE WAY off the sides (±70vw)
+  // over a slightly longer runway, clearing the stage so the branding
+  // reads on its own. Desktop (leftX / rightX, ±26vw) is untouched.
   const leftXm = useTransform(
     scrollYProgress,
-    [0.08, 0.45],
-    ['calc(-50% - 0vw)', 'calc(-50% - 30vw)'],
+    [0.08, 0.5],
+    ['calc(-50% - 0vw)', 'calc(-50% - 70vw)'],
   );
   const rightXm = useTransform(
     scrollYProgress,
-    [0.08, 0.45],
-    ['calc(-50% + 0vw)', 'calc(-50% + 30vw)'],
+    [0.08, 0.5],
+    ['calc(-50% + 0vw)', 'calc(-50% + 70vw)'],
+  );
+
+  // Mobile speaker opacities — fade in as they appear, hold, then fade
+  // OUT as they slide off, so the towers actually leave the section
+  // instead of lingering at the edges. Kept separate from the desktop
+  // speakerFade / mirrorOpacity, which hold their towers in place.
+  const speakerFadeMobile = useTransform(
+    scrollYProgress,
+    [0.0, 0.1, 0.36, 0.5],
+    [0, 1, 1, 0],
+  );
+  const mirrorOpacityMobile = useTransform(
+    scrollYProgress,
+    [0.08, 0.16, 0.36, 0.5],
+    [0, 1, 1, 0],
   );
 
   // Centre lockup — revealed strictly BETWEEN the speakers: the clip
@@ -165,7 +183,7 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
             speakers; opens outward from the centre with the split.
             Nudged below true centre (pt) to match the speakers, which
             sit low in the stage to minimise the black band beneath. */}
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center pt-[10vh]">
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center md:pt-[10vh]">
           <motion.div
             style={still ? undefined : { clipPath: centerClip }}
             className="flex w-full flex-col items-center px-6 text-center"
@@ -192,11 +210,28 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
               draggable={false}
             />
 
+            {/* Mobile-only series caption — the full spec block below is
+                desktop-only so it never overlaps the speakers on phones. */}
+            <p className="eyebrow mt-4 md:hidden">Citation Series</p>
+
+            {/* Mobile-only description — lives INSIDE the centered column so
+                the heading, logo, caption and copy read as one block in the
+                middle of the stage once the speakers glide away. md:hidden. */}
+            <motion.p
+              style={still ? undefined : { opacity: descOpacity, y: descY }}
+              className="mt-6 max-w-sm font-sans text-[13px] leading-relaxed text-ivory-muted md:hidden"
+            >
+              Beautiful sound, beautifully made — since 1953. As an authorized
+              Harman Kardon dealer, Cinesphere brings genuine systems, expert
+              calibration and seamless installation, backed by full manufacturer
+              warranty.
+            </motion.p>
+
             {/* Supporting copy — spec block in the Focal section's
                 voice: eyebrow + hairline rule + muted body text. */}
             <motion.div
               style={still ? undefined : { opacity: descOpacity, y: descY }}
-              className="mt-10 w-full max-w-xl md:mt-12"
+              className="mt-10 hidden w-full max-w-xl md:mt-12 md:block"
             >
               <div className="flex items-baseline justify-between border-b border-white/15 pb-2">
                 <span className="eyebrow">HARMAN KARDON</span>
@@ -252,9 +287,9 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
           style={
             still
               ? { x: 'calc(-50% - 30vw)', scaleY: -1, opacity: 0.45 }
-              : { x: leftXm, scaleY: -1, opacity: reflectionFadeL }
+              : { x: leftXm, scaleY: -1, opacity: speakerFadeMobile }
           }
-          className="absolute left-1/2 top-[calc(55%_+_14.2vh)] z-[29] h-[46vh] max-w-[52vw] object-contain object-center brightness-[0.85] contrast-[1.06] sepia-[0.24] saturate-[1.15] hue-rotate-[-6deg] blur-[1.5px] [mask-image:linear-gradient(to_bottom,transparent_9%,rgba(0,0,0,0.5)_11%,rgba(0,0,0,0.14)_19%,transparent_28%)] md:hidden"
+          className="absolute left-1/2 top-[calc(46%_+_27.2vh)] z-[29] h-[88vh] max-w-[120vw] object-contain object-center brightness-[0.85] contrast-[1.06] sepia-[0.24] saturate-[1.15] hue-rotate-[-6deg] blur-[1.5px] [mask-image:linear-gradient(to_bottom,transparent_9%,rgba(0,0,0,0.5)_11%,rgba(0,0,0,0.14)_19%,transparent_28%)] md:hidden"
           draggable={false}
         />
         <motion.img
@@ -264,9 +299,9 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
           style={
             still
               ? { x: 'calc(-50% + 30vw)', scaleY: -1, scaleX: -1, opacity: 0.45 }
-              : { x: rightXm, scaleY: -1, scaleX: -1, opacity: reflectionFadeR }
+              : { x: rightXm, scaleY: -1, scaleX: -1, opacity: mirrorOpacityMobile }
           }
-          className="absolute left-1/2 top-[calc(55%_+_14.2vh)] z-[29] h-[46vh] max-w-[52vw] object-contain object-center brightness-[0.85] contrast-[1.06] sepia-[0.24] saturate-[1.15] hue-rotate-[-6deg] blur-[1.5px] [mask-image:linear-gradient(to_bottom,transparent_9%,rgba(0,0,0,0.5)_11%,rgba(0,0,0,0.14)_19%,transparent_28%)] md:hidden"
+          className="absolute left-1/2 top-[calc(46%_+_27.2vh)] z-[29] h-[88vh] max-w-[120vw] object-contain object-center brightness-[0.85] contrast-[1.06] sepia-[0.24] saturate-[1.15] hue-rotate-[-6deg] blur-[1.5px] [mask-image:linear-gradient(to_bottom,transparent_9%,rgba(0,0,0,0.5)_11%,rgba(0,0,0,0.14)_19%,transparent_28%)] md:hidden"
           draggable={false}
         />
 
@@ -303,9 +338,9 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
           style={
             still
               ? { x: 'calc(-50% - 30vw)' }
-              : { x: leftXm, opacity: reflectionFadeL }
+              : { x: leftXm, opacity: speakerFadeMobile }
           }
-          className="absolute left-1/2 top-[calc(55%_+_18.2vh)] z-30 h-[4.5vh] w-[34vw] md:hidden"
+          className="absolute left-1/2 top-[calc(46%_+_34.8vh)] z-30 h-[5vh] w-[52vw] md:hidden"
         >
           <div className="absolute inset-0 rounded-[100%] bg-[radial-gradient(ellipse_at_center,rgba(205,178,133,0.1),rgba(205,178,133,0.03)_55%,transparent_72%)] blur-lg" />
           <div className="absolute left-1/2 top-[6%] h-[30%] w-[44%] -translate-x-1/2 rounded-[100%] bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.65),rgba(0,0,0,0.22)_55%,transparent_78%)] blur-[4px]" />
@@ -315,9 +350,9 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
           style={
             still
               ? { x: 'calc(-50% + 30vw)' }
-              : { x: rightXm, opacity: reflectionFadeR }
+              : { x: rightXm, opacity: mirrorOpacityMobile }
           }
-          className="absolute left-1/2 top-[calc(55%_+_18.2vh)] z-30 h-[4.5vh] w-[34vw] md:hidden"
+          className="absolute left-1/2 top-[calc(46%_+_34.8vh)] z-30 h-[5vh] w-[52vw] md:hidden"
         >
           <div className="absolute inset-0 rounded-[100%] bg-[radial-gradient(ellipse_at_center,rgba(205,178,133,0.1),rgba(205,178,133,0.03)_55%,transparent_72%)] blur-lg" />
           <div className="absolute left-1/2 top-[6%] h-[30%] w-[44%] -translate-x-1/2 rounded-[100%] bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.65),rgba(0,0,0,0.22)_55%,transparent_78%)] blur-[4px]" />
@@ -360,9 +395,9 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
           style={
             still
               ? { x: 'calc(-50% - 30vw)', y: '-50%' }
-              : { x: leftXm, y: '-50%', opacity: speakerFade }
+              : { x: leftXm, y: '-50%', opacity: speakerFadeMobile }
           }
-          className="absolute left-1/2 top-[55%] z-20 h-[46vh] max-w-[52vw] object-contain object-center brightness-[0.85] contrast-[1.06] sepia-[0.24] saturate-[1.15] hue-rotate-[-6deg] drop-shadow-[0_0_50px_rgba(205,178,133,0.2)] md:hidden"
+          className="absolute left-1/2 top-[46%] z-20 h-[88vh] max-w-[120vw] object-contain object-center brightness-[0.85] contrast-[1.06] sepia-[0.24] saturate-[1.15] hue-rotate-[-6deg] drop-shadow-[0_0_70px_rgba(205,178,133,0.22)] md:hidden"
           draggable={false}
         />
         <motion.img
@@ -372,9 +407,9 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
           style={
             still
               ? { x: 'calc(-50% + 30vw)', y: '-50%', scaleX: -1 }
-              : { x: rightXm, y: '-50%', scaleX: -1, opacity: mirrorOpacity }
+              : { x: rightXm, y: '-50%', scaleX: -1, opacity: mirrorOpacityMobile }
           }
-          className="absolute left-1/2 top-[55%] z-20 h-[46vh] max-w-[52vw] object-contain object-center brightness-[0.85] contrast-[1.06] sepia-[0.24] saturate-[1.15] hue-rotate-[-6deg] drop-shadow-[0_0_50px_rgba(205,178,133,0.2)] md:hidden"
+          className="absolute left-1/2 top-[46%] z-20 h-[88vh] max-w-[120vw] object-contain object-center brightness-[0.85] contrast-[1.06] sepia-[0.24] saturate-[1.15] hue-rotate-[-6deg] drop-shadow-[0_0_70px_rgba(205,178,133,0.22)] md:hidden"
           draggable={false}
         />
       </div>

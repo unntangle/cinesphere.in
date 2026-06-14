@@ -63,7 +63,7 @@ function NavWave({ animate }: { animate: boolean }) {
   return (
     <span
       aria-hidden
-      className="relative hidden h-8 w-[280px] shrink-0 sm:block md:w-[360px]"
+      className="relative block h-6 w-[120px] shrink-0 sm:h-8 sm:w-[280px] md:w-[360px]"
     >
       {/* Baseline — a faint full-width multicolour hairline, faded at ends. */}
       <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[linear-gradient(90deg,#1f7bff,#27d36e,#ffd23f,#ff7a2f,#ff4db8)] opacity-30 [mask-image:linear-gradient(to_right,transparent,#000_12%,#000_88%,transparent)]" />
@@ -73,7 +73,7 @@ function NavWave({ animate }: { animate: boolean }) {
         {SPECTRUM.map((bar, i) => (
           <span
             key={i}
-            className={`w-[2px] rounded-full md:w-[3px] ${animate ? 'soundbar' : ''}`}
+            className={`w-[1.5px] rounded-full sm:w-[2px] md:w-[3px] ${animate ? 'soundbar' : ''}`}
             style={{
               height: `${bar.height}px`,
               backgroundColor: bar.color,
