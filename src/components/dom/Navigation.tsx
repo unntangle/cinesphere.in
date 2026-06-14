@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BRAND, SOLUTIONS } from '@/lib/constants';
+import { BRANDS as BRAND_ITEMS } from '@/lib/brands';
+import { SOLUTION_CARDS } from './SolutionsCarouselSection';
 import { useExperience } from '@/store/useExperience';
 
 /**
@@ -106,122 +108,242 @@ const MENU: MenuItem[] = [
   { label: 'Home', href: '/#top' },
   { label: 'About Us', href: '/#home-theatre' },
   { label: 'Our Solutions', dropdown: 'solutions' },
-  { label: 'Brands', dropdown: 'brands' },
+  { label: 'Brands', dropdown: 'brands', href: '/brands' },
   { label: 'Our Clients', href: '/#brand-vault' },
   { label: 'Gallery', href: '/gallery' },
   { label: 'Contact Us', href: '/#contact' },
 ];
 
-/** Audio brands Cinesphere carries — each links to its homepage reveal. */
-const BRAND_ITEMS = [
-  {
-    name: 'Focal',
-    tag: 'Certified Partner',
-    href: '/#sound-evolution',
-    logo: '/images/focal-logo.webp',
-    filter: 'brightness-[0.98] sepia-[0.85] saturate-[1.4]',
-  },
-  {
-    name: 'Harman Kardon',
-    tag: 'Authorized Dealer',
-    href: '/#harman-kardon',
-    logo: '/images/Harman_kardon_Logo.webp',
-    filter: 'brightness-110',
-  },
-];
+/* The brand roster lives in src/lib/brands.ts (shared with the dedicated
+   /brands page) and is imported above as BRAND_ITEMS. */
 
-/* Shared panel chrome — dark frosted glass with a champagne top hairline,
-   matching the header's own glassmorphism. */
+/* The dropdown's media pane reuses the exact images from the Solutions
+   section cards (SOLUTION_CARDS, same order as SOLUTIONS), so the photo
+   shown for each service always matches its card and the two never drift. */
+const SOLUTION_MEDIA = SOLUTION_CARDS.map((c) => c.image ?? '');
+
+/* The same warm grade the cards apply, so the dropdown matches their look.
+   (The local conference-room shot is shown ungraded, exactly as on its card.) */
+const SOLUTION_MEDIA_FILTER =
+  'sepia(0.5) saturate(1.45) hue-rotate(-12deg) brightness(0.9) contrast(1.05)';
+
+/* Shared panel chrome — the site's warm ivory editorial surface (same as
+   the Solutions / Clients light sections), so the dropdown reads as part of
+   the theme rather than a dark floating box. Dark text, champagne accents. */
 const PANEL_SHELL =
-  'overflow-hidden rounded-2xl border border-white/10 bg-[rgba(14,14,16,0.96)] shadow-[0_24px_70px_-16px_rgba(0,0,0,0.75),0_0_42px_-12px_rgba(205,178,133,0.3)] backdrop-blur-2xl';
+  'overflow-hidden rounded-2xl border border-black/[0.07] bg-[#f7f2e8] shadow-[0_26px_70px_-18px_rgba(0,0,0,0.45)] ring-1 ring-champagne/20';
 
-function SolutionsPanel({ close }: { close: () => void }) {
+/* Stagger config for the solutions list entrance. */
+const LIST_STAGGER = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.035, delayChildren: 0.06 } },
+};
+const LIST_ITEM = {
+  hidden: { opacity: 0, x: -10 },
+  show: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const },
+  },
+};
+
+function SolutionsPanel({
+  close,
+  reducedMotion,
+}: {
+  close: () => void;
+  reducedMotion: boolean;
+}) {
+  const [active, setActive] = useState(0);
+
+  // Warm the image cache when the panel opens so hover crossfades are smooth.
+  useEffect(() => {
+    SOLUTION_MEDIA.forEach((src) => {
+      const img = new window.Image();
+      img.src = src;
+    });
+  }, []);
+
   return (
-    <div className={`w-[min(94vw,600px)] ${PANEL_SHELL}`}>
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-champagne/70 to-transparent" />
-      <div className="p-3">
-        <div className="mb-1 flex items-center justify-between px-3 pt-1.5">
-          <span className="eyebrow">Our Solutions</span>
-          <span className="font-sans text-[11px] tracking-wide text-ivory/40">
-            9 services
-          </span>
+    <div className={`w-[min(96vw,760px)] ${PANEL_SHELL}`}>
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-champagne-deep/50 to-transparent" />
+      <div className="flex">
+        {/* Left — solutions list */}
+        <div className="flex-1 p-3">
+          <div className="mb-1 px-3 pt-1.5">
+            <span className="font-sans text-xs font-semibold uppercase tracking-wide text-champagne-deep">
+              Our Solutions
+            </span>
+          </div>
+          <motion.ul
+            className="flex flex-col"
+            variants={reducedMotion ? undefined : LIST_STAGGER}
+            initial={reducedMotion ? false : 'hidden'}
+            animate={reducedMotion ? undefined : 'show'}
+          >
+            {SOLUTIONS.map((s, i) => (
+              <motion.li key={s} variants={reducedMotion ? undefined : LIST_ITEM}>
+                <Link
+                  href="/#dolby-atmos"
+                  onClick={close}
+                  onMouseEnter={() => setActive(i)}
+                  onFocus={() => setActive(i)}
+                  className="flex items-center gap-3 rounded-xl px-3 py-2"
+                >
+                  <span
+                    className={`w-5 flex-none font-sans text-[11px] font-semibold tabular-nums transition-colors ${
+                      active === i
+                        ? 'text-champagne-deep'
+                        : 'text-champagne-deep/55'
+                    }`}
+                  >
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span
+                    className={`flex-1 font-sans text-[13px] leading-snug transition-colors ${
+                      active === i
+                        ? 'text-champagne-deep'
+                        : 'text-[#1d1d1f]/85'
+                    }`}
+                  >
+                    {s}
+                  </span>
+                </Link>
+              </motion.li>
+            ))}
+          </motion.ul>
         </div>
-        <div className="grid grid-cols-2 gap-0.5">
-          {SOLUTIONS.map((s, i) => (
-            <Link
-              key={s}
-              href="/#dolby-atmos"
-              onClick={close}
-              className="group/item flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-white/[0.05]"
+
+        {/* Right — media pane: crossfades + slowly zooms the active solution's
+            photo, with a champagne label that fades up. */}
+        <div className="relative m-3 ml-0 w-[42%] flex-none self-stretch overflow-hidden rounded-xl bg-[#141416]">
+          <AnimatePresence>
+            <motion.div
+              key={active}
+              className="absolute inset-0"
+              initial={reducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             >
-              <span className="w-5 flex-none font-sans text-[11px] font-semibold tabular-nums text-champagne/55 transition-colors group-hover/item:text-champagne">
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              <span className="flex-1 font-sans text-[13px] leading-snug text-ivory/75 transition-colors group-hover/item:text-ivory">
-                {s}
-              </span>
-              <span
-                aria-hidden
-                className="-translate-x-1 text-champagne opacity-0 transition-all duration-200 group-hover/item:translate-x-0 group-hover/item:opacity-100"
+              <motion.img
+                src={SOLUTION_MEDIA[active]}
+                alt={SOLUTIONS[active]}
+                className="h-full w-full object-cover"
+                draggable={false}
+                style={
+                  SOLUTION_MEDIA[active] === '/images/conference-room.webp'
+                    ? undefined
+                    : { filter: SOLUTION_MEDIA_FILTER }
+                }
+                initial={reducedMotion ? false : { scale: 1 }}
+                animate={reducedMotion ? undefined : { scale: 1.08 }}
+                transition={{ duration: 7, ease: 'linear' }}
+              />
+              {/* legibility gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+              {/* label */}
+              <motion.div
+                className="absolute inset-x-0 bottom-0 p-4"
+                initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.45,
+                  ease: [0.16, 1, 0.3, 1],
+                  delay: 0.06,
+                }}
               >
-                →
-              </span>
-            </Link>
-          ))}
+                <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.18em] text-champagne">
+                  Solution
+                </span>
+                <span className="mt-1 block font-sans text-sm font-medium leading-snug text-white">
+                  {SOLUTIONS[active]}
+                </span>
+              </motion.div>
+            </motion.div>
+          </AnimatePresence>
         </div>
-        <Link
-          href="/#dolby-atmos"
-          onClick={close}
-          className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-champagne-deep px-4 py-2.5 font-sans text-[13px] font-semibold text-white transition-colors hover:bg-champagne"
-        >
-          Explore all solutions
-          <span aria-hidden>→</span>
-        </Link>
       </div>
     </div>
   );
 }
 
-function BrandsPanel({ close }: { close: () => void }) {
+function BrandsPanel({
+  close,
+  reducedMotion,
+}: {
+  close: () => void;
+  reducedMotion: boolean;
+}) {
   return (
-    <div className={`w-[min(92vw,340px)] ${PANEL_SHELL}`}>
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-champagne/60 to-transparent" />
+    <div className={`w-[min(96vw,680px)] ${PANEL_SHELL}`}>
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-champagne-deep/50 to-transparent" />
       <div className="p-4">
-        <div className="mb-2 px-1">
-          <span className="eyebrow">Brands We Carry</span>
+        <div className="mb-3 px-1">
+          <span className="font-sans text-xs font-semibold uppercase tracking-wide text-champagne-deep">
+            Brands We Carry
+          </span>
         </div>
-        <div className="flex flex-col gap-2">
+        {/* Logo wall — each tile links through to the full /brands page. */}
+        <motion.div
+          className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+          variants={reducedMotion ? undefined : LIST_STAGGER}
+          initial={reducedMotion ? false : 'hidden'}
+          animate={reducedMotion ? undefined : 'show'}
+        >
           {BRAND_ITEMS.map((b) => (
-            <Link
+            <motion.div
               key={b.name}
-              href={b.href}
-              onClick={close}
-              className="group flex items-center gap-4 rounded-xl border border-white/[0.07] bg-white/[0.03] px-4 py-3 transition-colors hover:border-champagne/40 hover:bg-white/[0.06]"
+              variants={reducedMotion ? undefined : LIST_ITEM}
             >
-              <span className="flex h-8 w-16 flex-none items-center justify-center">
-                <img
-                  src={b.logo}
-                  alt={b.name}
-                  className={`max-h-6 w-auto max-w-full object-contain ${b.filter}`}
-                  draggable={false}
-                />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block font-sans text-sm font-medium text-ivory">
+              <Link
+                href="/brands"
+                onClick={close}
+                className="group flex h-full flex-col items-center gap-2.5 rounded-2xl border border-champagne/20 bg-champagne/[0.04] p-3 transition-all duration-300 hover:border-champagne-deep/30 hover:bg-champagne/[0.09]"
+              >
+                {/* Squared logo chip — white for dark marks, dark for light
+                    marks; keeps every logo legible. */}
+                <span
+                  className={`flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl ${
+                    b.chip === 'dark'
+                      ? 'bg-[#141416]'
+                      : 'bg-white ring-1 ring-black/[0.04]'
+                  }`}
+                >
+                  <img
+                    src={b.logo}
+                    alt={b.name}
+                    loading="lazy"
+                    decoding="async"
+                    className={`max-h-[58%] w-auto max-w-[74%] object-contain transition-transform duration-300 group-hover:scale-[1.06] ${
+                      b.filter ?? ''
+                    }`}
+                    draggable={false}
+                  />
+                </span>
+                <span className="text-center font-sans text-[12.5px] font-medium leading-tight text-[#1d1d1f]">
                   {b.name}
                 </span>
-                <span className="block font-sans text-[11px] text-champagne/90">
-                  {b.tag}
-                </span>
-              </span>
-              <span
-                aria-hidden
-                className="text-ivory/35 transition-all group-hover:translate-x-0.5 group-hover:text-champagne"
-              >
-                →
-              </span>
-            </Link>
+              </Link>
+            </motion.div>
           ))}
+        </motion.div>
+
+        {/* Explore all brands → /brands (right-aligned text button) */}
+        <div className="mt-4 flex justify-end">
+          <Link
+            href="/brands"
+            onClick={close}
+            className="group inline-flex items-center gap-1.5 font-sans text-xs font-semibold uppercase tracking-wide text-champagne-deep transition-colors hover:text-champagne"
+          >
+            Explore all brands
+            <span
+              aria-hidden
+              className="transition-transform duration-300 group-hover:translate-x-0.5"
+            >
+              →
+            </span>
+          </Link>
         </div>
       </div>
     </div>
@@ -271,11 +393,24 @@ export function Navigation() {
       transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       className="fixed inset-x-4 top-4 z-30 mx-auto flex max-w-7xl items-center justify-between rounded-full bg-black/55 px-5 py-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.35),0_0_46px_-6px_rgba(205,178,133,0.22),inset_0_1px_0_rgba(238,220,181,0.08)] backdrop-blur-xl backdrop-saturate-150 md:inset-x-10 md:px-8"
     >
-      <Link href="/#top" aria-label={BRAND.name} className="flex items-center">
+      <Link
+        href="/#top"
+        aria-label={BRAND.name}
+        className="relative flex items-center"
+      >
+        {/* soft glow behind the logo for legibility on the translucent bar */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-1/2 -z-0 h-12 w-[180px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl"
+          style={{
+            background:
+              'radial-gradient(ellipse, rgba(205,178,133,0.5), rgba(255,255,255,0.22) 45%, transparent 72%)',
+          }}
+        />
         <img
-          src="/images/cs-logo-color.webp"
+          src="/images/cinesphere-logo.webp"
           alt={BRAND.name}
-          className="h-7 w-auto object-contain md:h-8"
+          className="relative z-10 h-7 w-auto object-contain md:h-8"
           draggable={false}
         />
       </Link>
@@ -299,39 +434,68 @@ export function Navigation() {
                   setOpenMenu(null);
               }}
             >
-              <button
-                type="button"
-                aria-haspopup="true"
-                aria-expanded={openMenu === item.dropdown}
-                onFocus={() => setOpenMenu(item.dropdown!)}
-                onClick={() =>
-                  setOpenMenu(
-                    openMenu === item.dropdown ? null : item.dropdown!,
-                  )
-                }
-                className={`flex items-center gap-1 font-sans text-xs transition-colors ${
-                  openMenu === item.dropdown
-                    ? 'text-ivory'
-                    : 'text-ivory/80 hover:text-ivory'
-                }`}
-              >
-                {item.label}
-                <Chevron open={openMenu === item.dropdown} />
-              </button>
+              {item.href ? (
+                <Link
+                  href={item.href}
+                  onFocus={() => setOpenMenu(item.dropdown!)}
+                  className={`flex items-center gap-1 font-sans text-xs transition-colors ${
+                    openMenu === item.dropdown
+                      ? 'text-ivory'
+                      : 'text-ivory/80 hover:text-ivory'
+                  }`}
+                >
+                  {item.label}
+                  <Chevron open={openMenu === item.dropdown} />
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  aria-haspopup="true"
+                  aria-expanded={openMenu === item.dropdown}
+                  onFocus={() => setOpenMenu(item.dropdown!)}
+                  onClick={() =>
+                    setOpenMenu(
+                      openMenu === item.dropdown ? null : item.dropdown!,
+                    )
+                  }
+                  className={`flex items-center gap-1 font-sans text-xs transition-colors ${
+                    openMenu === item.dropdown
+                      ? 'text-ivory'
+                      : 'text-ivory/80 hover:text-ivory'
+                  }`}
+                >
+                  {item.label}
+                  <Chevron open={openMenu === item.dropdown} />
+                </button>
+              )}
 
               <AnimatePresence>
                 {openMenu === item.dropdown && (
                   <motion.div
-                    initial={reducedMotion ? false : { opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
+                    initial={
+                      reducedMotion
+                        ? { x: '-50%' }
+                        : { opacity: 0, y: 8, x: '-50%' }
+                    }
+                    animate={{ opacity: 1, y: 0, x: '-50%' }}
+                    exit={
+                      reducedMotion
+                        ? { opacity: 0, x: '-50%' }
+                        : { opacity: 0, y: 8, x: '-50%' }
+                    }
                     transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                    className="absolute right-0 top-full z-40 pt-3"
+                    className="absolute left-1/2 top-full z-40 pt-3"
                   >
                     {item.dropdown === 'solutions' ? (
-                      <SolutionsPanel close={() => setOpenMenu(null)} />
+                      <SolutionsPanel
+                        close={() => setOpenMenu(null)}
+                        reducedMotion={reducedMotion}
+                      />
                     ) : (
-                      <BrandsPanel close={() => setOpenMenu(null)} />
+                      <BrandsPanel
+                        close={() => setOpenMenu(null)}
+                        reducedMotion={reducedMotion}
+                      />
                     )}
                   </motion.div>
                 )}
@@ -391,7 +555,7 @@ export function Navigation() {
             className="absolute left-4 right-4 top-full mt-2 flex max-h-[78vh] flex-col gap-1 overflow-y-auto rounded-2xl border border-white/10 bg-[rgba(22,22,23,0.92)] p-4 backdrop-blur-xl lg:hidden"
           >
             {MENU.map((item) =>
-              item.dropdown ? (
+              item.dropdown && !item.href ? (
                 <div key={item.label}>
                   <button
                     type="button"
@@ -432,19 +596,37 @@ export function Navigation() {
                                 </Link>
                               ))
                             : BRAND_ITEMS.map((b) => (
-                                <Link
+                                <div
                                   key={b.name}
-                                  href={b.href}
-                                  onClick={closeAll}
-                                  className="flex items-center justify-between rounded-md px-3 py-2 transition-colors hover:bg-white/5"
+                                  className="flex items-center gap-3 rounded-md px-3 py-2"
                                 >
-                                  <span className="font-sans text-[13px] text-ivory/80">
+                                  <span
+                                    className={`flex h-7 w-11 flex-none items-center justify-center overflow-hidden rounded-md ${
+                                      b.chip === 'dark'
+                                        ? 'bg-[#141416]'
+                                        : 'bg-white'
+                                    }`}
+                                  >
+                                    <img
+                                      src={b.logo}
+                                      alt={b.name}
+                                      loading="lazy"
+                                      decoding="async"
+                                      className={`max-h-4 w-auto max-w-[82%] object-contain ${
+                                        b.filter ?? ''
+                                      }`}
+                                      draggable={false}
+                                    />
+                                  </span>
+                                  <span className="flex-1 font-sans text-[13px] text-ivory/80">
                                     {b.name}
                                   </span>
-                                  <span className="font-sans text-[11px] text-champagne/80">
-                                    {b.tag}
-                                  </span>
-                                </Link>
+                                  {b.featured && (
+                                    <span className="font-sans text-[10px] font-semibold uppercase tracking-wider text-champagne/80">
+                                      Featured
+                                    </span>
+                                  )}
+                                </div>
                               ))}
                         </div>
                       </motion.div>

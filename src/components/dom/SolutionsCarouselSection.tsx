@@ -33,7 +33,7 @@ interface SolutionCard {
   fit?: 'cover' | 'contain';
 }
 
-const SOLUTION_CARDS: SolutionCard[] = [
+export const SOLUTION_CARDS: SolutionCard[] = [
   {
     title: 'Audio / Video Display Solutions',
     lead: 'High-impact displays with immersive audio,',

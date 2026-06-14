@@ -82,6 +82,34 @@ function FooterLink({ href, label }: { href: string; label: string }) {
  */
 const STRIP_BARS = 48;
 
+/* Header-style spectrum sweep (blue → cyan → violet → magenta → champagne →
+   orange → red), sampled across the strip so the bars read as multicolour
+   like the hero/nav waveform. Champagne stands in for the hero's white
+   centre so it stays visible on the light footer. */
+const SPECTRUM: [number, number, number][] = [
+  [0, 180, 255],
+  [53, 224, 232],
+  [124, 92, 255],
+  [255, 61, 203],
+  [205, 178, 133],
+  [255, 138, 42],
+  [255, 42, 42],
+];
+
+function spectrumColor(t: number) {
+  const clamped = Math.min(1, Math.max(0, t));
+  const seg = clamped * (SPECTRUM.length - 1);
+  const i = Math.min(SPECTRUM.length - 2, Math.floor(seg));
+  const f = seg - i;
+  const [r1, g1, b1] = SPECTRUM[i];
+  const [r2, g2, b2] = SPECTRUM[i + 1];
+  return [
+    Math.round(r1 + (r2 - r1) * f),
+    Math.round(g1 + (g2 - g1) * f),
+    Math.round(b1 + (b2 - b1) * f),
+  ].join(', ');
+}
+
 function EqualizerStrip() {
   return (
     <div
@@ -95,12 +123,14 @@ function EqualizerStrip() {
             Math.abs(Math.sin(i * 0.5) * 0.6 + Math.sin(i * 0.17 + 1.3) * 0.4);
         const delay = (i % 14) * 0.06;
         const duration = 1.1 + (i % 5) * 0.16;
+        const color = spectrumColor(i / (STRIP_BARS - 1));
         return (
           <span
             key={i}
-            className="eq-bar w-[2px] rounded-full bg-gradient-to-t from-champagne-deep/30 via-champagne/70 to-champagne md:w-[3px]"
+            className="eq-bar w-[2px] rounded-full md:w-[3px]"
             style={{
               height: `${height}%`,
+              background: `linear-gradient(to top, rgba(${color}, 0.25), rgb(${color}))`,
               animationDelay: `${delay}s`,
               animationDuration: `${duration}s`,
             }}
@@ -120,12 +150,23 @@ export function FooterSection() {
       <div className="mx-auto max-w-7xl px-[7vw] lg:px-12">
         {/* Breadcrumb row — wordmark + tagline. */}
         <div className="flex items-center gap-3 border-b border-black/10 pb-4">
-          <img
-            src="/images/cs-logo-color.webp"
-            alt={BRAND.name}
-            className="h-6 w-auto object-contain"
-            draggable={false}
-          />
+          <span className="relative inline-flex items-center">
+            {/* soft champagne glow so the logo reads on the ivory panel */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-1/2 -z-0 h-14 w-[210px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl"
+              style={{
+                background:
+                  'radial-gradient(ellipse, rgba(205,178,133,0.55), rgba(255,255,255,0.3) 45%, transparent 72%)',
+              }}
+            />
+            <img
+              src="/images/cinesphere-logo.webp"
+              alt={BRAND.name}
+              className="relative z-10 h-9 w-auto object-contain"
+              draggable={false}
+            />
+          </span>
           <span aria-hidden className="text-ivory-muted">
             ›
           </span>
@@ -190,18 +231,18 @@ export function FooterSection() {
           </FooterColumn>
         </div>
 
-        {/* Equalizer signature — a champagne frequency spectrum that
-            ripples across the footer, standing in for a plain divider. */}
-        <div className="mt-12">
-          <EqualizerStrip />
-        </div>
-
         {/* Legal bottom bar — copyright only, centred. */}
-        <div className="mt-4">
+        <div className="mt-12">
           <p className="text-center font-sans text-xs text-ivory-muted">
             Copyright © {new Date().getFullYear()} {BRAND.name}. All rights
             reserved.
           </p>
+        </div>
+
+        {/* Equalizer signature — a champagne frequency spectrum that
+            ripples across the footer, standing in for a plain divider. */}
+        <div className="mt-4">
+          <EqualizerStrip />
         </div>
       </div>
     </footer>
