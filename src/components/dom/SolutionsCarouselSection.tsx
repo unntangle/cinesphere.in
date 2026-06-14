@@ -232,7 +232,7 @@ export function SolutionsCarouselSection({ scene }: { scene: SceneDef }) {
             transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
           },
         }}
-        className="display mt-3 text-3xl sm:text-4xl md:text-5xl lg:text-6xl"
+        className="display mt-3 text-3xl md:text-4xl lg:text-5xl"
       >
         Solutions for every space.
       </motion.h2>
