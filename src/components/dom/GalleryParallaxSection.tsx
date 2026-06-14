@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { motion, useScroll, useTransform, type Variants } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { useExperience } from '@/store/useExperience';
 import { HOMEPAGE_PROJECTS } from '@/lib/gallery';
 import { Button } from '@/components/ui/Button';
@@ -12,43 +12,29 @@ import {
 } from './GalleryLightbox';
 
 /**
- * GalleryParallaxSection — "Latest Works" living wall (homepage teaser)
- * --------------------------------------------------------------------
- * A curated handful of real projects in three columns that drift vertically
- * at DIFFERENT speeds as the section scrolls — a living mosaic rather than a
- * static grid. Each tile zooms softly on hover, reveals a champagne caption,
- * and — on click — opens the shared full-screen preview (which walks across
- * the featured projects). An "Explore the full gallery" button links to the
+ * GalleryParallaxSection — "Latest Works" wall (homepage teaser)
+ * --------------------------------------------------------------
+ * A curated handful of real projects in a uniform, top-aligned grid
+ * (2 columns on mobile, 3 on desktop). Each tile zooms softly on hover,
+ * flips to a mirror of itself, reveals a champagne caption, and — on
+ * click — opens the shared full-screen preview (which walks across the
+ * featured projects). An "Explore the full gallery" button links to the
  * dedicated /gallery page.
  *
  * Featured projects come from HOMEPAGE_PROJECTS in src/lib/gallery.ts.
  */
 
-/* Three columns of two tiles each; each tile references a featured project by
-   its index. Aspect classes vary per tile to give the mosaic its rhythm.
-   `zoom` slightly enlarges + crops a cover image to hide baked-in borders
-   (e.g. Project 1's source photo has white bands top/bottom). */
-const COLUMNS: { index: number; aspect: string; zoom?: boolean }[][] = [
-  [
-    { index: 0, aspect: 'aspect-[3/4]', zoom: true },
-    { index: 3, aspect: 'aspect-square' },
-  ],
-  [
-    { index: 1, aspect: 'aspect-square' },
-    { index: 4, aspect: 'aspect-[4/5]' },
-  ],
-  [
-    { index: 2, aspect: 'aspect-[4/5]' },
-    { index: 5, aspect: 'aspect-[3/4]' },
-  ],
-];
-
-/** Per-column drift: [start, end] vertical offsets across the scroll.
- *  Kept gentle so the columns don't leave large empty gaps below them. */
-const COLUMN_DRIFT: [string, string][] = [
-  ['3vh', '-4vh'],
-  ['7vh', '-1vh'],
-  ['1vh', '-6vh'],
+/* Six featured projects, rendered as equal cells of one grid so every row
+   and column always lines up. `zoom` slightly enlarges + crops a cover image
+   to hide baked-in borders (e.g. Project 1's source photo has white bands
+   top/bottom). All tiles share a 4/3 aspect ratio (set on the tile itself). */
+const TILES: { index: number; zoom?: boolean }[] = [
+  { index: 0, zoom: true },
+  { index: 1 },
+  { index: 2 },
+  { index: 3 },
+  { index: 4 },
+  { index: 5 },
 ];
 
 /* Entrance reveal variants. Annotated with `Variants` so the cubic-bezier
@@ -66,11 +52,7 @@ const REVEAL_ITEM: Variants = {
     transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
   },
 };
-/* Per-column orchestrator — staggers its own tiles as the column enters. */
-const TILE_STAGGER: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.15 } },
-};
+/* Desktop tile entrance — a soft fade-up + scale. */
 const TILE_ITEM: Variants = {
   hidden: { opacity: 0, y: 50, scale: 0.95 },
   show: {
@@ -80,9 +62,9 @@ const TILE_ITEM: Variants = {
     transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
   },
 };
-/* Mobile-only entrance — a zigzag slide: the left column's tiles glide in
-   from the left, the right column's from the right (desktop keeps TILE_ITEM
-   above). overflow-hidden on the section clips the horizontal travel. */
+/* Mobile tile entrance — a zigzag slide: left-column tiles glide in from the
+   left, right-column tiles from the right. overflow-hidden on the section
+   clips the horizontal travel. */
 const MOBILE_TILE_ITEM = (fromLeft: boolean): Variants => ({
   hidden: { opacity: 0, x: fromLeft ? -56 : 56 },
   show: {
@@ -97,8 +79,8 @@ export function GalleryParallaxSection() {
   const reducedMotion = useExperience((s) => s.reducedMotion);
   const [selection, setSelection] = useState<LightboxSelection | null>(null);
 
-  // Mobile gets a distinct zigzag tile entrance; desktop keeps its existing
-  // fade-up + scale reveal. Tracked the same way as the Solutions section.
+  // Mobile gets a distinct zigzag tile entrance; desktop keeps its fade-up +
+  // scale reveal. Tracked the same way as the Solutions section.
   const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 768px)');
@@ -107,17 +89,6 @@ export function GalleryParallaxSection() {
     mq.addEventListener('change', sync);
     return () => mq.removeEventListener('change', sync);
   }, []);
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start end', 'end start'],
-  });
-
-  // One transform per column — hooks called unconditionally, in order.
-  const col0Y = useTransform(scrollYProgress, [0, 1], COLUMN_DRIFT[0]);
-  const col1Y = useTransform(scrollYProgress, [0, 1], COLUMN_DRIFT[1]);
-  const col2Y = useTransform(scrollYProgress, [0, 1], COLUMN_DRIFT[2]);
-  const columnYs = [col0Y, col1Y, col2Y];
 
   const still = reducedMotion;
 
@@ -154,112 +125,101 @@ export function GalleryParallaxSection() {
         </motion.p>
       </motion.div>
 
-      {/* The living wall — three columns drifting at different speeds. */}
-      <div className="mt-12 grid grid-cols-2 items-start gap-4 px-[7vw] md:mt-16 md:grid-cols-3 md:gap-6">
-        {COLUMNS.map((column, c) => (
-          <motion.div
-            key={c}
-            initial={still ? undefined : 'hidden'}
-            whileInView={still ? undefined : 'show'}
-            viewport={{ once: true, margin: '-10%' }}
-            variants={still ? undefined : TILE_STAGGER}
-            style={still ? undefined : { y: columnYs[c] }}
-            className={`flex flex-col gap-4 md:gap-6 ${
-              c === 2 ? 'hidden md:flex' : ''
-            }`}
-          >
-            {column.map(({ index, aspect, zoom }) => {
-              const project = HOMEPAGE_PROJECTS[index];
-              const count = 1 + project.more.length;
-              return (
-                <motion.button
-                  key={project.id}
-                  type="button"
-                  variants={
-                    still
-                      ? undefined
-                      : isDesktop
-                        ? TILE_ITEM
-                        : MOBILE_TILE_ITEM(c % 2 === 0)
-                  }
-                  onClick={() =>
-                    setSelection({ projectIndex: index, imageIndex: 0 })
-                  }
-                  aria-label={`Open ${project.label} preview`}
-                  className={`group relative block w-full text-left ${aspect}`}
+      {/* The wall — one uniform grid: 2 columns on mobile, 3 on desktop.
+          Every tile is an equal cell, so rows and columns always align. */}
+      <div className="mt-12 grid grid-cols-2 gap-4 px-[7vw] md:mt-16 md:grid-cols-3 md:gap-6">
+        {TILES.map(({ index, zoom }, i) => {
+          const project = HOMEPAGE_PROJECTS[index];
+          const count = 1 + project.more.length;
+          return (
+            <motion.button
+              key={project.id}
+              type="button"
+              initial={still ? undefined : 'hidden'}
+              whileInView={still ? undefined : 'show'}
+              viewport={{ once: true, margin: '-10%' }}
+              variants={
+                still
+                  ? undefined
+                  : isDesktop
+                    ? TILE_ITEM
+                    : MOBILE_TILE_ITEM(i % 2 === 0)
+              }
+              onClick={() =>
+                setSelection({ projectIndex: index, imageIndex: 0 })
+              }
+              aria-label={`Open ${project.label} preview`}
+              className="group relative block aspect-[4/3] w-full text-left"
+            >
+              {/* Perspective host — isolates the 3D from the button's own
+                  reveal transform. */}
+              <div className="h-full w-full [perspective:1200px]">
+                {/* Flipper — rotates on hover to reveal the back face. */}
+                <div
+                  className={`relative h-full w-full rounded-2xl shadow-[0_10px_34px_-14px_rgba(0,0,0,0.7)] [transform-style:preserve-3d] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                    still ? '' : 'group-hover:[transform:rotateY(180deg)]'
+                  }`}
                 >
-                  {/* Perspective host — isolates the 3D from the button's
-                      own reveal transform. */}
-                  <div className="h-full w-full [perspective:1200px]">
-                    {/* Flipper — rotates on hover to reveal the back face. */}
-                    <div
-                      className={`relative h-full w-full rounded-2xl shadow-[0_10px_34px_-14px_rgba(0,0,0,0.7)] [transform-style:preserve-3d] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                        still ? '' : 'group-hover:[transform:rotateY(180deg)]'
+                  {/* FRONT — the project photo. */}
+                  <div className="absolute inset-0 overflow-hidden rounded-2xl bg-carbon [backface-visibility:hidden]">
+                    <img
+                      src={project.main}
+                      alt={`${project.label} — Cinesphere`}
+                      className={`h-full w-full object-cover brightness-[0.9] saturate-[1.05] ${
+                        zoom ? 'scale-[1.3]' : ''
                       }`}
-                    >
-                      {/* FRONT — the project photo. */}
-                      <div className="absolute inset-0 overflow-hidden rounded-2xl bg-carbon [backface-visibility:hidden]">
-                        <img
-                          src={project.main}
-                          alt={`${project.label} — Cinesphere`}
-                          className={`h-full w-full object-cover brightness-[0.9] saturate-[1.05] ${
-                            zoom ? 'scale-[1.3]' : ''
-                          }`}
-                          loading="lazy"
-                          draggable={false}
-                        />
+                      loading="lazy"
+                      draggable={false}
+                    />
 
-                        {count > 1 && (
-                          <span className="absolute right-3 top-3 rounded-full bg-black/55 px-2.5 py-1 font-sans text-[11px] font-medium text-ivory backdrop-blur-sm">
-                            {count} photos
-                          </span>
-                        )}
+                    {count > 1 && (
+                      <span className="absolute right-3 top-3 rounded-full bg-black/55 px-2.5 py-1 font-sans text-[11px] font-medium text-ivory backdrop-blur-sm">
+                        {count} photos
+                      </span>
+                    )}
 
-                        {/* Label resting at the foot of the card. */}
-                        <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                          <span className="eyebrow">{project.label}</span>
-                        </span>
-                      </div>
-
-                      {/* BACK — a mirror of the front so the flip only ever
-                          shows the same photo (no separate back content); it
-                          rolls back to the front when the hover ends. */}
-                      <div className="absolute inset-0 overflow-hidden rounded-2xl bg-carbon [backface-visibility:hidden] [transform:rotateY(180deg)]">
-                        <img
-                          src={project.main}
-                          alt=""
-                          aria-hidden
-                          className={`h-full w-full object-cover brightness-[0.9] saturate-[1.05] ${
-                            zoom ? 'scale-[1.3]' : ''
-                          }`}
-                          loading="lazy"
-                          draggable={false}
-                        />
-
-                        {count > 1 && (
-                          <span className="absolute right-3 top-3 rounded-full bg-black/55 px-2.5 py-1 font-sans text-[11px] font-medium text-ivory backdrop-blur-sm">
-                            {count} photos
-                          </span>
-                        )}
-
-                        <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                          <span className="eyebrow">{project.label}</span>
-                        </span>
-                      </div>
-                    </div>
+                    {/* Label resting at the foot of the card. */}
+                    <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                      <span className="eyebrow">{project.label}</span>
+                    </span>
                   </div>
-                </motion.button>
-              );
-            })}
-          </motion.div>
-        ))}
+
+                  {/* BACK — a mirror of the front so the flip only ever shows
+                      the same photo; it rolls back when the hover ends. */}
+                  <div className="absolute inset-0 overflow-hidden rounded-2xl bg-carbon [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                    <img
+                      src={project.main}
+                      alt=""
+                      aria-hidden
+                      className={`h-full w-full object-cover brightness-[0.9] saturate-[1.05] ${
+                        zoom ? 'scale-[1.3]' : ''
+                      }`}
+                      loading="lazy"
+                      draggable={false}
+                    />
+
+                    {count > 1 && (
+                      <span className="absolute right-3 top-3 rounded-full bg-black/55 px-2.5 py-1 font-sans text-[11px] font-medium text-ivory backdrop-blur-sm">
+                        {count} photos
+                      </span>
+                    )}
+
+                    <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                      <span className="eyebrow">{project.label}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </motion.button>
+          );
+        })}
       </div>
 
       {/* Explore — through to the dedicated full gallery page. */}
       <div className="mt-8 flex justify-center px-[7vw] md:mt-10">
-        <Link href="/gallery" aria-label="Explore the full gallery">
+        <Link href="/gallery" aria-label="View more projects">
           <Button variant="ghost">
-            Explore the full gallery
+            View More
             <span
               aria-hidden
               className="ml-2 inline-block transition-transform duration-300 group-hover:translate-x-1"

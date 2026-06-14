@@ -322,7 +322,7 @@ export function AboutSoundSection({ scene }: { scene: SceneDef }) {
             <motion.span
               key={`${word}-${i}`}
               variants={wordV}
-              className="inline-block will-change-transform"
+              className="text-gold inline-block will-change-transform"
             >
               {word}
               {i < titleWords.length - 1 ? '\u00A0' : ''}
