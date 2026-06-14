@@ -217,7 +217,7 @@ export const NAV_LINKS = [
   { label: 'Home', href: '/#top' },
   { label: 'About Us', href: '/#home-theatre' },
   { label: 'Our Solutions', href: '/#dolby-atmos' },
-  { label: 'Our Clients', href: '/#brand-vault' },
+  { label: 'Our Clients', href: '/clients' },
   { label: 'Gallery', href: '/gallery' },
   { label: 'Contact Us', href: '/#contact' },
 ] as const;

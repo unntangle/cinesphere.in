@@ -18,7 +18,7 @@ const MORE_SOLUTIONS = SOLUTIONS.slice(5);
 const COMPANY_LINKS = [
   { label: 'About Us', href: '/#home-theatre' },
   { label: 'Our Solutions', href: '/#dolby-atmos' },
-  { label: 'Our Clients', href: '/#brand-vault' },
+  { label: 'Our Clients', href: '/clients' },
   { label: 'Gallery', href: '/gallery' },
   { label: 'Testimonials', href: '/#testimonials' },
   { label: 'Contact Us', href: '/#contact' },
@@ -129,10 +129,10 @@ function EqualizerStrip() {
             key={i}
             className="eq-bar w-[2px] rounded-full md:w-[3px]"
             style={{
-              height: `${height}%`,
+              height: `${height.toFixed(3)}%`,
               background: `linear-gradient(to top, rgba(${color}, 0.25), rgb(${color}))`,
-              animationDelay: `${delay}s`,
-              animationDuration: `${duration}s`,
+              animationDelay: `${delay.toFixed(3)}s`,
+              animationDuration: `${duration.toFixed(3)}s`,
             }}
           />
         );

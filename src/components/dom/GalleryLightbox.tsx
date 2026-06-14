@@ -117,20 +117,52 @@ export function GalleryLightbox({
             </button>
           </div>
 
-          {/* Stage — current image + prev/next. */}
+          {/* Fixed prev/next arrows — pinned to the viewport edges and
+              vertically centred, so they never shift with the image size. */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              advance(-1);
+            }}
+            aria-label="Previous image"
+            className="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-ivory transition-colors hover:bg-white/20 md:left-6"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path
+                d="M15 6L9 12L15 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              advance(1);
+            }}
+            aria-label="Next image"
+            className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-ivory transition-colors hover:bg-white/20 md:right-6"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path
+                d="M9 6L15 12L9 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+
+          {/* Stage — current image. */}
           <div
             className="relative flex flex-1 items-center justify-center overflow-hidden px-4 md:px-16"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              type="button"
-              onClick={() => advance(-1)}
-              aria-label="Previous image"
-              className="absolute left-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-ivory transition-colors hover:bg-white/20 md:left-6"
-            >
-              <span className="text-2xl leading-none">‹</span>
-            </button>
-
             <AnimatePresence mode="wait">
               <motion.img
                 key={images[current]}
@@ -144,15 +176,6 @@ export function GalleryLightbox({
                 draggable={false}
               />
             </AnimatePresence>
-
-            <button
-              type="button"
-              onClick={() => advance(1)}
-              aria-label="Next image"
-              className="absolute right-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-ivory transition-colors hover:bg-white/20 md:right-6"
-            >
-              <span className="text-2xl leading-none">›</span>
-            </button>
           </div>
 
           {/* Thumbnail strip — current project's images. */}

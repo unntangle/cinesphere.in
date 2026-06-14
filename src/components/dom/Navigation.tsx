@@ -81,10 +81,10 @@ function NavWave({ animate }: { animate: boolean }) {
             key={i}
             className={`w-[1.5px] rounded-full sm:w-[2px] md:w-[3px] ${animate ? 'soundbar' : ''}`}
             style={{
-              height: `${bar.height}px`,
+              height: `${bar.height.toFixed(3)}px`,
               backgroundColor: bar.color,
-              animationDelay: `${bar.delay}s`,
-              animationDuration: `${bar.duration}s`,
+              animationDelay: `${bar.delay.toFixed(3)}s`,
+              animationDuration: `${bar.duration.toFixed(3)}s`,
             }}
           />
         ))}
@@ -109,9 +109,8 @@ const MENU: MenuItem[] = [
   { label: 'About Us', href: '/#home-theatre' },
   { label: 'Our Solutions', dropdown: 'solutions' },
   { label: 'Brands', dropdown: 'brands', href: '/brands' },
-  { label: 'Our Clients', href: '/#brand-vault' },
+  { label: 'Our Clients', href: '/clients' },
   { label: 'Gallery', href: '/gallery' },
-  { label: 'Contact Us', href: '/#contact' },
 ];
 
 /* The brand roster lives in src/lib/brands.ts (shared with the dedicated
