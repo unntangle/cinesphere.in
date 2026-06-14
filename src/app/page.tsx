@@ -2,7 +2,6 @@
 
 import { SmoothScroll } from '@/components/dom/SmoothScroll';
 import { Navigation } from '@/components/dom/Navigation';
-import { ScrollProgress } from '@/components/dom/ScrollProgress';
 import { Overlay } from '@/components/dom/Overlay';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 
@@ -21,7 +20,6 @@ export default function Home() {
     <SmoothScroll>
       {/* Fixed DOM chrome. */}
       <Navigation />
-      <ScrollProgress />
 
       {/* Scrolling copy overlay — defines scroll height, drives the journey. */}
       <div>
