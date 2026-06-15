@@ -44,6 +44,15 @@ export function Overlay() {
 
   return (
     <main id="top" className="relative z-10">
+      {/* Primary page heading — visually hidden so the cinematic scroll hero
+          stays uncluttered, but present in the DOM for search engines and
+          screen readers (the scroll-scrubbed hero canvas carries no text of
+          its own, so without this the homepage would have no H1). */}
+      <h1 className="sr-only">
+        Cinesphere — Finest Audio Artistry. Home theatre, conference &amp;
+        boardroom, auditorium, e-class room and digital signage audio-video
+        solutions in Chennai.
+      </h1>
       {SCENES.map((scene) => {
         // Scene 01 — scroll-scrubbed hero (canvas frame sequence; falls
         // back to the <video> hero automatically if no frames exist yet).

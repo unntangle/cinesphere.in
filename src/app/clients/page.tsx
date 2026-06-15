@@ -13,6 +13,15 @@ export const metadata: Metadata = {
   title: `Our Clients — ${BRAND.name}`,
   description:
     'The organisations Cinesphere has delivered for — Taj, ITC, GRT and Starwood hotels; IIT Madras, University of Madras, VIT and Loyola; Thales, Hexaware, Volvo and Caterpillar; and leading developers across South India.',
+  alternates: { canonical: '/clients' },
+  openGraph: {
+    type: 'website',
+    url: '/clients',
+    siteName: BRAND.name,
+    title: `Our Clients — ${BRAND.name}`,
+    description:
+      'The organisations Cinesphere has delivered for — Taj, ITC, GRT and Starwood hotels; IIT Madras, University of Madras, VIT and Loyola; Thales, Hexaware, Volvo and Caterpillar; and leading developers across South India.',
+  },
 };
 
 export default function ClientsPage() {

@@ -12,6 +12,15 @@ export const metadata: Metadata = {
   title: `Brands — ${BRAND.name}`,
   description:
     'The audio brands Cinesphere carries — Focal, Bang & Olufsen, JBL Synthesis, Bowers & Wilkins, M&K Sound, Sonus faber, Klipsch and QSC.',
+  alternates: { canonical: '/brands' },
+  openGraph: {
+    type: 'website',
+    url: '/brands',
+    siteName: BRAND.name,
+    title: `Brands — ${BRAND.name}`,
+    description:
+      'The audio brands Cinesphere carries — Focal, Bang & Olufsen, JBL Synthesis, Bowers & Wilkins, M&K Sound, Sonus faber, Klipsch and QSC.',
+  },
 };
 
 export default function BrandsPage() {

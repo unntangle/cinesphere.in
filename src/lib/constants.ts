@@ -256,6 +256,19 @@ export const BRAND = {
   maps: 'https://share.google/FxqpEtxcAzB79G8Pq',
   email: 'info@cinesphere.in',
   phone: '+91 98841 80066',
+  /** Canonical production origin — single source for metadata, the sitemap,
+   *  robots.txt and structured data. Update here if the domain changes. */
+  url: 'https://cinesphere.in',
+  /** Structured postal address — powers the LocalBusiness JSON-LD. Mirrors
+   *  the human-readable `city` string above, split into schema.org parts. */
+  address: {
+    street:
+      '1st Floor, Sri Govind Towers, W582, School Rd, W Block, Anna Nagar West Extension',
+    locality: 'Chennai',
+    region: 'Tamil Nadu',
+    postalCode: '600101',
+    country: 'IN',
+  },
 } as const;
 
 /** Given global scroll progress 0–1, return the active scene index. */

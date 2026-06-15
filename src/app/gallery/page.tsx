@@ -12,6 +12,15 @@ export const metadata: Metadata = {
   title: `Gallery — ${BRAND.name}`,
   description:
     'Browse Cinesphere project photography — auditoriums, home theatres, seminar halls and studios delivered across Chennai.',
+  alternates: { canonical: '/gallery' },
+  openGraph: {
+    type: 'website',
+    url: '/gallery',
+    siteName: BRAND.name,
+    title: `Gallery — ${BRAND.name}`,
+    description:
+      'Browse Cinesphere project photography — auditoriums, home theatres, seminar halls and studios delivered across Chennai.',
+  },
 };
 
 export default function GalleryPage() {
