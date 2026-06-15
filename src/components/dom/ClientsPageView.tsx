@@ -12,6 +12,7 @@ import {
   type ClientSector,
 } from '@/lib/clients';
 import { useExperience } from '@/store/useExperience';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 /**
  * ClientsPageView — the dedicated /clients page.
@@ -78,19 +79,18 @@ const itemV = {
     transition: { duration: 0.8, ease: EASE },
   },
 };
-/* Roster / sector grid — a tighter stagger so cards ripple in. */
-const cardsV = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.05, delayChildren: 0.04 } },
-};
+/* Roster / sector grid — each card reveals as it scrolls into view, with a
+   gentle left-to-right ripple across each row. The delay is keyed to the
+   card's column (index % 5) rather than its absolute position, so the ripple
+   resets every row instead of accumulating lag down a long grid. */
 const cardV = {
   hidden: { opacity: 0, y: 26, scale: 0.94 },
-  show: {
+  show: (col: number) => ({
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { duration: 0.6, ease: EASE },
-  },
+    transition: { duration: 0.6, ease: EASE, delay: col * 0.06 },
+  }),
 };
 
 /* ----------------------------------------------------------------- */
@@ -128,10 +128,30 @@ function CymaticField({ reducedMotion }: { reducedMotion: boolean }) {
     let raf = 0;
     let W = 0;
     let H = 0;
-    let dpr = 1;
     let tHue = 0; // running time (s) — slowly rotates the colour wheel
 
-    const COUNT = 1600; // grains of sand on the plate
+    // Grain count adapts to the device. A capable desktop reads as a dense
+    // mandala; phones and low-core / data-saver machines get a far lighter
+    // field so the per-grain simulation never competes with scrolling.
+    const nav =
+      typeof navigator !== 'undefined'
+        ? (navigator as Navigator & {
+            connection?: { saveData?: boolean };
+            deviceMemory?: number;
+          })
+        : undefined;
+    const lowPower =
+      !!nav &&
+      ((nav.hardwareConcurrency ?? 8) <= 4 ||
+        (nav.deviceMemory ?? 8) <= 4 ||
+        nav.connection?.saveData === true ||
+        (typeof window !== 'undefined' && window.innerWidth < 768));
+    const COUNT = lowPower ? 700 : 1300; // grains of sand on the plate
+    // Decorative, glow-heavy canvas → render the backing store below the
+    // display resolution and let the browser upscale it (the additive bloom
+    // hides it). Per-grain drawing is the main cost, so we also cap device
+    // pixels at 1×. Lower toward ~0.7 if a machine still struggles.
+    const RENDER_SCALE = 0.9;
 
     // Mode sequence for a CIRCULAR plate — (m, n) = (nodal diameters,
     // nodal circles). m sets the petal count (2·m), n the number of rings;
@@ -144,27 +164,57 @@ function CymaticField({ reducedMotion }: { reducedMotion: boolean }) {
     const HOLD = 3.0; // seconds resting on a crisp figure
     const MORPH = 2.2; // seconds tuning to the next figure
     const PERIOD = HOLD + MORPH;
+    const INV_2PI = 1 / (Math.PI * 2);
+
+    // ---- Precomputed colour/size palette --------------------------------
+    // Every grain's colour depends on just two things: its angle on the disc
+    // (→ hue) and how "settled" it is (→ brightness, alpha, size). We quantise
+    // those into bins and precompute the rgba string + size for each bin ONCE.
+    // During draw we bucket grains into these bins and stroke each bucket with
+    // a single fillStyle — removing ~1600 per-frame string allocations and
+    // collapsing thousands of fillStyle changes into a few hundred.
+    const HUE_BINS = 64;
+    const SET_BINS = 8;
+    const NB = HUE_BINS * SET_BINS;
+    const styleLUT: string[] = new Array(NB);
+    const sizeLUT = new Float32Array(NB);
+    const buckets: number[][] = Array.from({ length: NB }, () => []);
+    for (let hb = 0; hb < HUE_BINS; hb++) {
+      const [br, bg, bbv] = spectrumRGB((hb + 0.5) / HUE_BINS);
+      for (let sb = 0; sb < SET_BINS; sb++) {
+        const settled = (sb + 0.5) / SET_BINS;
+        const a = 0.12 + settled * 0.8;
+        const lift = settled * 0.32; // nodal grains lift toward white
+        const rr = (br + (255 - br) * lift) | 0;
+        const gg = (bg + (255 - bg) * lift) | 0;
+        const bb = (bbv + (255 - bbv) * lift) | 0;
+        const idx = hb * SET_BINS + sb;
+        styleLUT[idx] = `rgba(${rr},${gg},${bb},${a.toFixed(3)})`;
+        sizeLUT[idx] = 0.7 + settled * 1.4;
+      }
+    }
 
     // Grains live in plate-local coords centred on the disc: x, y ∈ [-1, 1]
-    // with x² + y² ≤ 1.
-    type Grain = { x: number; y: number; amp: number };
+    // with x² + y² ≤ 1. `theta` is cached each step for the colour lookup.
+    type Grain = { x: number; y: number; amp: number; theta: number };
     let grains: Grain[] = [];
     const seed = () => {
       grains = Array.from({ length: COUNT }, () => {
         const r = Math.sqrt(Math.random()); // uniform over the disc area
         const a = Math.random() * Math.PI * 2;
-        return { x: r * Math.cos(a), y: r * Math.sin(a), amp: 0 };
+        return { x: r * Math.cos(a), y: r * Math.sin(a), amp: 0, theta: a };
       });
     };
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // Cap at the display resolution, then scale down — never up.
+      const scale = Math.min(window.devicePixelRatio || 1, 1) * RENDER_SCALE;
       W = Math.max(1, Math.floor(rect.width));
       H = Math.max(1, Math.floor(rect.height));
-      canvas.width = Math.floor(W * dpr);
-      canvas.height = Math.floor(H * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      canvas.width = Math.max(1, Math.floor(W * scale));
+      canvas.height = Math.max(1, Math.floor(H * scale));
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
     };
     resize();
     seed();
@@ -225,6 +275,7 @@ function CymaticField({ reducedMotion }: { reducedMotion: boolean }) {
           g.x = Math.cos(theta) * rho;
           g.y = Math.sin(theta) * rho;
         }
+        g.theta = Math.atan2(g.y, g.x); // cached for the colour bucket
       }
     };
 
@@ -250,34 +301,33 @@ function CymaticField({ reducedMotion }: { reducedMotion: boolean }) {
       ctx.strokeStyle = 'rgba(205,178,133,0.12)';
       ctx.stroke();
 
-      ctx.globalCompositeOperation = 'lighter';
+      // Bucket every grain into its precomputed colour/size bin …
+      for (let i = 0; i < NB; i++) buckets[i].length = 0;
       for (const g of grains) {
-        // settled ~1 on a nodal line (amp → 0); ~0 in a loud region
         const settled = 1 - Math.min(1, g.amp * 2.4);
-        const a = 0.12 + settled * 0.8;
-        const r = 0.7 + settled * 1.4;
-        // hue by angle around the disc (a colour wheel), drifting slowly
-        const theta = Math.atan2(g.y, g.x);
-        const [sr, sg, sb] = spectrumRGB(theta / (Math.PI * 2) + 0.5 + tHue * 0.02);
-        // grains on a nodal line lift toward white so the lines still pop
-        const lift = settled * 0.32;
-        const rr = (sr + (255 - sr) * lift) | 0;
-        const gg = (sg + (255 - sg) * lift) | 0;
-        const bb = (sb + (255 - sb) * lift) | 0;
-        const px = cx + g.x * radius;
-        const py = cy + g.y * radius;
-        ctx.fillStyle = `rgba(${rr},${gg},${bb},${a.toFixed(3)})`;
-        ctx.fillRect(px, py, r, r);
+        let sb = (settled * SET_BINS) | 0;
+        if (sb >= SET_BINS) sb = SET_BINS - 1;
+        let hv = g.theta * INV_2PI + 0.5 + tHue * 0.02;
+        hv -= Math.floor(hv); // wrap into [0,1)
+        let hb = (hv * HUE_BINS) | 0;
+        if (hb >= HUE_BINS) hb = HUE_BINS - 1;
+        const arr = buckets[hb * SET_BINS + sb];
+        arr.push(cx + g.x * radius, cy + g.y * radius);
+      }
+
+      // … then draw each bucket with a single fillStyle (additive bloom).
+      ctx.globalCompositeOperation = 'lighter';
+      for (let b = 0; b < NB; b++) {
+        const arr = buckets[b];
+        if (arr.length === 0) continue;
+        ctx.fillStyle = styleLUT[b];
+        const sz = sizeLUT[b];
+        for (let k = 0; k < arr.length; k += 2) {
+          ctx.fillRect(arr[k], arr[k + 1], sz, sz);
+        }
       }
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = 'source-over';
-    };
-
-    const loop = (time: number) => {
-      tHue = time * 0.001;
-      step(tHue);
-      draw();
-      raf = requestAnimationFrame(loop);
     };
 
     const settleStill = () => {
@@ -286,19 +336,66 @@ function CymaticField({ reducedMotion }: { reducedMotion: boolean }) {
       draw();
     };
 
+    // ---- Animation loop — paused when offscreen or the tab is hidden ------
+    let running = false;
+    let onScreen = true;
+
+    // Cap the simulation at ~30fps. The figure morphs slowly, so 30fps looks
+    // identical to 60 here, but it hands roughly half of every frame back to
+    // the browser for scrolling and painting — the difference between a hero
+    // that fights the scroll and one the page glides under.
+    const FRAME_MS = 1000 / 30;
+    let lastFrame = 0;
+    const loop = (time: number) => {
+      raf = requestAnimationFrame(loop);
+      if (time - lastFrame < FRAME_MS) return;
+      lastFrame = time;
+      tHue = time * 0.001;
+      step(tHue);
+      draw();
+    };
+    const start = () => {
+      if (running || reducedMotion) return;
+      running = true;
+      raf = requestAnimationFrame(loop);
+    };
+    const stop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+
     const onResize = () => {
       resize();
       seed();
-      if (reducedMotion) settleStill();
+      if (reducedMotion || !running) settleStill();
     };
     window.addEventListener('resize', onResize);
 
+    const onVisibility = () => {
+      if (document.hidden || !onScreen) stop();
+      else start();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    // Only run the simulation while the hero is actually in the viewport.
+    const io = new IntersectionObserver(
+      (entries) => {
+        onScreen = entries[0]?.isIntersecting ?? true;
+        if (onScreen && !document.hidden) start();
+        else stop();
+      },
+      { threshold: 0 },
+    );
+    io.observe(canvas);
+
     if (reducedMotion) settleStill();
-    else raf = requestAnimationFrame(loop);
+    else start();
 
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
+      io.disconnect();
       window.removeEventListener('resize', onResize);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, [reducedMotion]);
 
@@ -342,7 +439,7 @@ function ClientCard({ client }: { client: Client }) {
       />
 
       {/* Editorial name reveal. */}
-      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 bg-white/85 px-4 text-center opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover/card:opacity-100">
+      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 bg-white/85 px-4 text-center opacity-0 backdrop-blur-0 transition-[opacity,backdrop-filter] duration-300 group-hover/card:opacity-100 group-hover/card:backdrop-blur-md">
         <span
           aria-hidden
           className="h-px w-0 bg-champagne-deep/60 transition-[width] duration-500 ease-out group-hover/card:w-10"
@@ -370,6 +467,11 @@ const FILTERS: ('All' | ClientSector)[] = [
 ];
 
 export function ClientsPageView() {
+  // Mirror the OS "reduce motion" preference into the store for this route.
+  // The homepage does this through its experience shell; the standalone
+  // /clients page must do it itself, or reduced-motion users would still get
+  // the fully animated cymatic hero.
+  useReducedMotion();
   const reducedMotion = useExperience((s) => s.reducedMotion);
   const [filter, setFilter] = useState<'All' | ClientSector>('All');
   const visible =
@@ -493,22 +595,27 @@ export function ClientsPageView() {
             </motion.span>
           </motion.div>
 
-          {/* common grid — re-staggers in whenever the filter changes */}
+          {/* common grid — each card reveals on scroll-in (whileInView), and
+              the whole grid re-reveals whenever the filter changes: the keyed
+              container remounts the cards, so those in view animate from
+              hidden again. */}
           <AnimatePresence mode="wait">
             <motion.div
               key={filter}
-              variants={reducedMotion ? undefined : cardsV}
-              initial={reducedMotion ? false : 'hidden'}
-              animate={reducedMotion ? undefined : 'show'}
+              initial={false}
               exit={
                 reducedMotion ? undefined : { opacity: 0, transition: { duration: 0.18 } }
               }
               className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5"
             >
-              {visible.map((client) => (
+              {visible.map((client, i) => (
                 <motion.div
                   key={client.name}
+                  custom={i % 5}
                   variants={reducedMotion ? undefined : cardV}
+                  initial={reducedMotion ? false : 'hidden'}
+                  whileInView={reducedMotion ? undefined : 'show'}
+                  viewport={{ once: true, margin: '0px 0px -12% 0px' }}
                 >
                   <ClientCard client={client} />
                 </motion.div>
@@ -518,7 +625,7 @@ export function ClientsPageView() {
         </section>
 
         {/* ===================== CTA ===================== */}
-        <section className="relative overflow-hidden px-[7vw] py-28 text-center md:py-36">
+        <section className="perf-section relative overflow-hidden px-[7vw] py-28 text-center md:py-36">
           {/* dark premium background image — slow Ken Burns zoom on reveal */}
           <motion.div
             aria-hidden
@@ -531,6 +638,8 @@ export function ClientsPageView() {
             <img
               src={CTA_IMAGE}
               alt=""
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover"
               draggable={false}
             />

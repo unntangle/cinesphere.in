@@ -46,7 +46,7 @@ const itemV = {
     opacity: 1,
     y: 0,
     filter: 'blur(0px)',
-    transition: { duration: 0.8, ease: EASE },
+    transition: { duration: 0.55, ease: EASE },
   },
 };
 /* The Focal panel reveals as a whole (scale + blur), then staggers its copy. */
@@ -58,11 +58,10 @@ const panelV = {
     scale: 1,
     filter: 'blur(0px)',
     transition: {
-      duration: 0.9,
+      duration: 0.55,
       ease: EASE,
-      when: 'beforeChildren',
-      staggerChildren: 0.09,
-      delayChildren: 0.18,
+      staggerChildren: 0.12,
+      delayChildren: 0.2,
     },
   },
 };
@@ -109,22 +108,37 @@ function HeroWave({ reducedMotion }: { reducedMotion: boolean }) {
     let raf = 0;
     let W = 0;
     let H = 0;
-    let dpr = 1;
 
     const LINES = 84; // number of parallel contour lines
     const SPAN = 11; // wave cycles across the frame
     const STEP = 5; // px sampling step
+    // Decorative, glow-heavy canvas — the costly part each frame is additively
+    // blending 84 wide strokes, which is fill-rate (pixel-count) bound, not
+    // CPU bound. So we render the backing store BELOW the display resolution
+    // and let the browser upscale it; the soft bloom hides the difference
+    // entirely. Lower this toward ~0.6 if a machine still struggles; raise it
+    // toward 1 for more crispness.
+    const RENDER_SCALE = 0.85;
 
-    const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      W = Math.max(1, Math.floor(rect.width));
-      H = Math.max(1, Math.floor(rect.height));
-      canvas.width = Math.floor(W * dpr);
-      canvas.height = Math.floor(H * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    resize();
+    // ---- Precomputed, resolution-dependent lookup tables -----------------
+    // Anything that doesn't change frame-to-frame is computed once per resize:
+    // the per-column x positions, the centre envelope, and the sin/cos of each
+    // harmonic at every column. In the loop we then rebuild each sample with
+    // angle addition — sin(x+φ) = sin x·cos φ + cos x·sin φ — so the only trig
+    // we do per frame is a handful of phase constants per line, instead of
+    // ~190k Math.sin / Math.exp calls. That's what keeps the ribbon at 60fps.
+    let cols = 0;
+    let pxArr = new Float32Array(0);
+    let envArr = new Float32Array(0);
+    let s1 = new Float32Array(0);
+    let c1 = new Float32Array(0);
+    let s2 = new Float32Array(0);
+    let c2 = new Float32Array(0);
+    let s3 = new Float32Array(0);
+    let c3 = new Float32Array(0);
+    let s4 = new Float32Array(0);
+    let c4 = new Float32Array(0);
+    let gradient: CanvasGradient | null = null;
 
     const makeGradient = () => {
       const g = ctx.createLinearGradient(0, 0, W, 0);
@@ -139,15 +153,48 @@ function HeroWave({ reducedMotion }: { reducedMotion: boolean }) {
       return g;
     };
 
-    const wave = (u: number, t: number) => {
-      const x = u * SPAN;
-      return (
-        0.8 * Math.sin(x + t) +
-        0.5 * Math.sin(2.3 * x - 0.7 * t) +
-        0.3 * Math.sin(4.7 * x + 1.2 * t) +
-        0.2 * Math.sin(8.1 * x - 2.4 * t)
-      );
+    const buildTables = () => {
+      cols = Math.floor(W / STEP) + 1;
+      pxArr = new Float32Array(cols);
+      envArr = new Float32Array(cols);
+      s1 = new Float32Array(cols);
+      c1 = new Float32Array(cols);
+      s2 = new Float32Array(cols);
+      c2 = new Float32Array(cols);
+      s3 = new Float32Array(cols);
+      c3 = new Float32Array(cols);
+      s4 = new Float32Array(cols);
+      c4 = new Float32Array(cols);
+      for (let k = 0; k < cols; k++) {
+        const px = k * STEP;
+        const u = px / W;
+        const x = u * SPAN;
+        pxArr[k] = px;
+        envArr[k] = Math.exp(-Math.pow((u - 0.5) / 0.33, 2)); // centre emphasis
+        s1[k] = Math.sin(x);
+        c1[k] = Math.cos(x);
+        s2[k] = Math.sin(2.3 * x);
+        c2[k] = Math.cos(2.3 * x);
+        s3[k] = Math.sin(4.7 * x);
+        c3[k] = Math.cos(4.7 * x);
+        s4[k] = Math.sin(8.1 * x);
+        c4[k] = Math.cos(8.1 * x);
+      }
     };
+
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      // Cap at the display resolution, then scale down — never up.
+      const scale = Math.min(window.devicePixelRatio || 1, 1) * RENDER_SCALE;
+      W = Math.max(1, Math.floor(rect.width));
+      H = Math.max(1, Math.floor(rect.height));
+      canvas.width = Math.max(1, Math.floor(W * scale));
+      canvas.height = Math.max(1, Math.floor(H * scale));
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      gradient = makeGradient(); // cache — the colour stops don't change
+      buildTables();
+    };
+    resize();
 
     const renderFrame = (t: number) => {
       ctx.globalCompositeOperation = 'source-over';
@@ -157,7 +204,8 @@ function HeroWave({ reducedMotion }: { reducedMotion: boolean }) {
 
       ctx.globalCompositeOperation = 'lighter';
       ctx.lineWidth = 1.2;
-      ctx.strokeStyle = makeGradient();
+      ctx.strokeStyle = gradient ?? '#fff';
+      ctx.globalAlpha = 0.18;
 
       const cx = H / 2;
       const bandSpread = H * 0.4; // how far the ribbon fans vertically
@@ -166,16 +214,31 @@ function HeroWave({ reducedMotion }: { reducedMotion: boolean }) {
       for (let i = 0; i < LINES; i++) {
         const norm = i / (LINES - 1) - 0.5; // -0.5 .. 0.5
         const lt = t + norm * 1.6; // per-line phase → interference + parallax
-        ctx.globalAlpha = 0.18;
+
+        // Phase constants for this line — computed once, then reused across
+        // every column via angle addition (no per-pixel trig).
+        const a1c = Math.cos(lt);
+        const a1s = Math.sin(lt);
+        const a2c = Math.cos(0.7 * lt);
+        const a2s = Math.sin(0.7 * lt);
+        const a3c = Math.cos(1.2 * lt);
+        const a3s = Math.sin(1.2 * lt);
+        const a4c = Math.cos(2.4 * lt);
+        const a4s = Math.sin(2.4 * lt);
+        const spreadBase = norm * bandSpread;
+
         ctx.beginPath();
-        for (let px = 0; px <= W; px += STEP) {
-          const u = px / W;
-          const env = Math.exp(-Math.pow((u - 0.5) / 0.33, 2)); // centre emphasis
-          const w = wave(u, lt);
-          const spread = norm * bandSpread * (0.5 + env); // fan out in the centre
-          const y = cx + spread + w * ampPx * env;
-          if (px === 0) ctx.moveTo(px, y);
-          else ctx.lineTo(px, y);
+        for (let k = 0; k < cols; k++) {
+          const env = envArr[k];
+          // wave(u, lt) reconstructed from the precomputed basis:
+          const w =
+            0.8 * (s1[k] * a1c + c1[k] * a1s) +
+            0.5 * (s2[k] * a2c - c2[k] * a2s) +
+            0.3 * (s3[k] * a3c + c3[k] * a3s) +
+            0.2 * (s4[k] * a4c - c4[k] * a4s);
+          const y = cx + spreadBase * (0.5 + env) + w * ampPx * env;
+          if (k === 0) ctx.moveTo(pxArr[k], y);
+          else ctx.lineTo(pxArr[k], y);
         }
         ctx.stroke();
       }
@@ -184,23 +247,55 @@ function HeroWave({ reducedMotion }: { reducedMotion: boolean }) {
       ctx.globalCompositeOperation = 'source-over';
     };
 
+    // ---- Animation loop — paused when offscreen or the tab is hidden ------
+    let running = false;
+    let onScreen = true;
+
     const loop = (time: number) => {
       renderFrame(time * 0.0006); // slow, hypnotic time scale
       raf = requestAnimationFrame(loop);
     };
+    const start = () => {
+      if (running || reducedMotion) return;
+      running = true;
+      raf = requestAnimationFrame(loop);
+    };
+    const stop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
 
     const onResize = () => {
       resize();
-      if (reducedMotion) renderFrame(0);
+      if (reducedMotion || !running) renderFrame(0);
     };
     window.addEventListener('resize', onResize);
 
+    const onVisibility = () => {
+      if (document.hidden || !onScreen) stop();
+      else start();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    // Only burn frames while the hero is actually in the viewport.
+    const io = new IntersectionObserver(
+      (entries) => {
+        onScreen = entries[0]?.isIntersecting ?? true;
+        if (onScreen && !document.hidden) start();
+        else stop();
+      },
+      { threshold: 0 },
+    );
+    io.observe(canvas);
+
     if (reducedMotion) renderFrame(0);
-    else raf = requestAnimationFrame(loop);
+    else start();
 
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
+      io.disconnect();
       window.removeEventListener('resize', onResize);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, [reducedMotion]);
 
@@ -302,7 +397,7 @@ export function BrandsPageView() {
         </section>
 
         {/* ===================== FOCAL SPOTLIGHT ===================== */}
-        <section className="px-[7vw] pt-20 pb-12 md:pt-28 md:pb-14">
+        <section className="perf-section px-[7vw] pt-20 pb-12 md:pt-28 md:pb-14">
           <motion.div
             variants={reducedMotion ? undefined : panelV}
             initial={reducedMotion ? false : 'hidden'}
@@ -447,7 +542,7 @@ export function BrandsPageView() {
         </section>
 
         {/* ===================== BRAND ROSTER GRID ===================== */}
-        <section id="roster" className="px-[7vw] pb-28">
+        <section id="roster" className="perf-section px-[7vw] pb-28">
           <motion.div
             variants={reducedMotion ? undefined : groupV}
             initial={reducedMotion ? false : 'hidden'}
@@ -507,7 +602,7 @@ export function BrandsPageView() {
         </section>
 
         {/* ===================== CTA ===================== */}
-        <section className="relative overflow-hidden px-[7vw] py-28 text-center md:py-36">
+        <section className="perf-section relative overflow-hidden px-[7vw] py-28 text-center md:py-36">
           {/* dark premium background image — slow Ken Burns zoom on reveal */}
           <motion.div
             aria-hidden
@@ -520,6 +615,8 @@ export function BrandsPageView() {
             <img
               src={CTA_IMAGE}
               alt=""
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover"
               draggable={false}
             />

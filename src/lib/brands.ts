@@ -43,7 +43,7 @@ export const BRANDS: Brand[] = [
   },
   {
     name: 'Bang & Olufsen',
-    logo: '/brands/B%26O.jpg',
+    logo: '/brands/bo.webp',
     chip: 'light',
     origin: 'Denmark',
     code: 'DK',
@@ -51,7 +51,7 @@ export const BRANDS: Brand[] = [
   },
   {
     name: 'JBL Synthesis',
-    logo: '/brands/JBL.png',
+    logo: '/brands/jbl.webp',
     chip: 'light',
     origin: 'United States',
     code: 'US',
@@ -70,7 +70,7 @@ export const BRANDS: Brand[] = [
   },
   {
     name: 'Bowers & Wilkins',
-    logo: '/brands/B%26W.png',
+    logo: '/brands/bw.webp',
     chip: 'light',
     origin: 'United Kingdom',
     code: 'UK',
@@ -79,7 +79,7 @@ export const BRANDS: Brand[] = [
   },
   {
     name: 'M&K Sound',
-    logo: '/brands/M%26K.png',
+    logo: '/brands/mk.webp',
     chip: 'light',
     origin: 'United States',
     code: 'US',
@@ -87,7 +87,7 @@ export const BRANDS: Brand[] = [
   },
   {
     name: 'Sonus faber',
-    logo: '/brands/sonus-faber-.png',
+    logo: '/brands/sonus-faber.webp',
     chip: 'light',
     origin: 'Italy',
     code: 'IT',
@@ -95,7 +95,7 @@ export const BRANDS: Brand[] = [
   },
   {
     name: 'Klipsch',
-    logo: '/brands/klipsch.png',
+    logo: '/brands/klipsch.webp',
     chip: 'light',
     origin: 'United States',
     code: 'US',

@@ -6,6 +6,7 @@ import { Navigation } from './Navigation';
 import { FooterSection } from './FooterSection';
 import { BRAND } from '@/lib/constants';
 import { useExperience } from '@/store/useExperience';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 /**
  * ContactPageView — the dedicated /contact page.
@@ -95,8 +96,25 @@ function FrequencyField({ reducedMotion }: { reducedMotion: boolean }) {
     let dpr = 1;
 
     // Low-res field, scaled up + smoothed for the soft, blurred band look.
-    const LW = 190;
-    const LH = 110;
+    // The inner loop runs a Math.exp per band for every pixel, so the field
+    // resolution is by far the dominant cost. Phones / low-core / data-saver
+    // machines get a coarser grid — the heavy upscale-and-smooth that follows
+    // hides the lower resolution, so the look barely changes.
+    const nav =
+      typeof navigator !== 'undefined'
+        ? (navigator as Navigator & {
+            connection?: { saveData?: boolean };
+            deviceMemory?: number;
+          })
+        : undefined;
+    const lowPower =
+      !!nav &&
+      ((nav.hardwareConcurrency ?? 8) <= 4 ||
+        (nav.deviceMemory ?? 8) <= 4 ||
+        nav.connection?.saveData === true ||
+        (typeof window !== 'undefined' && window.innerWidth < 768));
+    const LW = lowPower ? 132 : 190;
+    const LH = lowPower ? 76 : 110;
     const buf = document.createElement('canvas');
     buf.width = LW;
     buf.height = LH;
@@ -160,7 +178,7 @@ function FrequencyField({ reducedMotion }: { reducedMotion: boolean }) {
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = Math.min(window.devicePixelRatio || 1, lowPower ? 1.5 : 2);
       W = Math.max(1, Math.floor(rect.width));
       H = Math.max(1, Math.floor(rect.height));
       canvas.width = Math.floor(W * dpr);
@@ -175,32 +193,74 @@ function FrequencyField({ reducedMotion }: { reducedMotion: boolean }) {
       ctx.drawImage(buf, 0, 0, W, H); // upscale low-res field → soft bands
     };
 
+    // The field undulates slowly, so a ~30fps cap looks identical to 60 but
+    // roughly halves the (heavy, per-pixel Math.exp) compute, leaving the
+    // main thread free for smooth scrolling.
+    const FRAME_MS = 1000 / 30;
+    let lastFrame = 0;
+    let running = false;
+    let onScreen = true;
+
     const loop = (nowMs: number) => {
+      raf = requestAnimationFrame(loop);
+      if (nowMs - lastFrame < FRAME_MS) return;
+      lastFrame = nowMs;
       compute(nowMs / 1000);
       render();
+    };
+
+    const start = () => {
+      if (running || reducedMotion) return;
+      running = true;
       raf = requestAnimationFrame(loop);
+    };
+    const stop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
     };
 
     const onResize = () => {
       resize();
-      if (reducedMotion) {
+      if (reducedMotion || !running) {
         compute(0);
         render();
       }
     };
 
     resize();
+
+    // Only animate while the hero is actually on screen and the tab is
+    // visible — scrolling down to the form no longer leaves the field
+    // computing thousands of exponentials per frame off-screen.
+    const onVisibility = () => {
+      if (document.hidden || !onScreen) stop();
+      else start();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        onScreen = entries[0]?.isIntersecting ?? true;
+        if (onScreen && !document.hidden) start();
+        else stop();
+      },
+      { threshold: 0 },
+    );
+    io.observe(canvas);
+
     if (reducedMotion) {
       compute(0);
       render();
     } else {
-      raf = requestAnimationFrame(loop);
+      start();
     }
 
     window.addEventListener('resize', onResize);
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
+      io.disconnect();
       window.removeEventListener('resize', onResize);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, [reducedMotion]);
 
@@ -412,6 +472,11 @@ function ThemedSelect({
 /* ----------------------------------------------------------------- */
 
 export function ContactPageView() {
+  // Respect the OS "reduce motion" preference on this standalone route. The
+  // homepage wires this through its experience shell, but /contact must set it
+  // itself, or reduced-motion users would still get the animated frequency
+  // field and reveals.
+  useReducedMotion();
   const reducedMotion = useExperience((s) => s.reducedMotion);
   const phoneTel = `tel:${BRAND.phone.replace(/\s/g, '')}`;
 

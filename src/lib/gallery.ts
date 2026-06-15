@@ -30,7 +30,12 @@ export interface Project {
   more: string[];
 }
 
-const g = (file: string) => `/gallery/${file}`;
+// Serve the WebP variant of every photo. Each /public/gallery/*.jpg ships a
+// matching .webp (produced by scripts/convert-to-webp.mjs) that is markedly
+// smaller with no visible quality loss, so the grid and lightbox load much
+// faster. The entries below keep the original .jpg names (they mirror the
+// source files); this swaps the extension at the point of use.
+const g = (file: string) => `/gallery/${file.replace(/\.jpg$/, '.webp')}`;
 
 /** Every project, main (.1) image first. */
 export const PROJECTS: Project[] = [

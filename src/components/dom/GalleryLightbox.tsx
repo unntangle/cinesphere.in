@@ -172,6 +172,7 @@ export function GalleryLightbox({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                decoding="async"
                 className="max-h-full max-w-full rounded-xl object-contain"
                 draggable={false}
               />
@@ -200,6 +201,8 @@ export function GalleryLightbox({
                     src={src}
                     alt=""
                     aria-hidden
+                    loading="lazy"
+                    decoding="async"
                     className="h-full w-full object-cover"
                     draggable={false}
                   />

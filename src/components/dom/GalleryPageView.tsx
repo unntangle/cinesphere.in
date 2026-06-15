@@ -11,6 +11,7 @@ import {
   type LightboxSelection,
 } from './GalleryLightbox';
 import { useExperience } from '@/store/useExperience';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 /* Scroll-reveal: each card fades and rises into place, staggered left-to-right
    within its row (delay derived from the column index). No blur here — a blur
@@ -41,6 +42,10 @@ const EXTRA_CROP = new Set(['project-13', 'project-15']);
  * one is exhausted. Data comes from PROJECTS in src/lib/gallery.ts.
  */
 export function GalleryPageView() {
+  // Respect the OS "reduce motion" preference on this standalone route. The
+  // homepage sets this through its experience shell, but /gallery must do it
+  // itself, or reduced-motion users would still get the animated card reveals.
+  useReducedMotion();
   const [selection, setSelection] = useState<LightboxSelection | null>(null);
   const reducedMotion = useExperience((s) => s.reducedMotion);
 
@@ -99,13 +104,14 @@ export function GalleryPageView() {
                       alt={`${project.label} — Cinesphere`}
                       className={`h-full w-full object-cover brightness-[0.9] transition-transform duration-700 ease-out group-hover:brightness-100 ${coverScale}`}
                       loading="lazy"
+                      decoding="async"
                       draggable={false}
                     />
                   </div>
 
                   {/* Photo-count badge — hints there's more to see. */}
                   {count > 1 && (
-                    <span className="absolute right-3 top-3 rounded-full bg-black/55 px-2.5 py-1 font-sans text-[11px] font-medium text-ivory backdrop-blur-sm">
+                    <span className="absolute right-3 top-3 rounded-full bg-black/65 px-2.5 py-1 font-sans text-[11px] font-medium text-ivory">
                       {count} photos
                     </span>
                   )}

@@ -100,6 +100,16 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  /* Skip layout + paint for long offscreen sections — a big scroll-perf win
+     on this media- and animation-heavy page, and it speeds first render too.
+     The `auto` keyword in contain-intrinsic-size makes each section remember
+     its real rendered height, so re-entering during scroll causes no jump.
+     Offscreen CSS animations inside (e.g. the Focal equaliser) also stop
+     ticking automatically while the section is skipped. */
+  .perf-section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 720px;
+  }
   /* Sheen sweep for .text-gold — the gradient (background-size: 200%)
      glides across the lettering like light over polished metal. */
   .text-gold-sweep {
