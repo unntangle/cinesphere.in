@@ -216,7 +216,7 @@ export const SOLUTIONS = [
 export const NAV_LINKS = [
   { label: 'Home', href: '/#top' },
   { label: 'About Us', href: '/about' },
-  { label: 'Our Solutions', href: '/#dolby-atmos' },
+  { label: 'Our Solutions', href: '/solutions' },
   { label: 'Our Clients', href: '/clients' },
   { label: 'Gallery', href: '/gallery' },
   { label: 'Contact Us', href: '/contact' },

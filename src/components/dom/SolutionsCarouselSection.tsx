@@ -39,7 +39,7 @@ export const SOLUTION_CARDS: SolutionCard[] = [
     lead: 'High-impact displays with immersive audio,',
     rest: 'tuned for clarity and presence in any environment.',
     image:
-      'https://images.unsplash.com/photo-1635788798247-92a15f830a3b?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1521607630287-ee2e81ad3ced?auto=format&fit=crop&w=1600&q=80',
   },
   {
     title: 'Conference, Boardroom & Tele-Conference Studios',
@@ -80,7 +80,7 @@ export const SOLUTION_CARDS: SolutionCard[] = [
     lead: 'Engaging content at any scale,',
     rest: 'from single displays to seamless LED video walls.',
     image:
-      'https://images.unsplash.com/photo-1562342918-28657524a992?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1685122185154-a9a0119c7d53?auto=format&fit=crop&w=1600&q=80',
   },
   {
     title: 'Intelligent Solutions & Stage Lighting',
@@ -94,13 +94,24 @@ export const SOLUTION_CARDS: SolutionCard[] = [
     lead: 'Round-the-clock protection,',
     rest: 'with surveillance systems that integrate cleanly into your AV setup.',
     image:
-      'https://images.unsplash.com/photo-1496368077930-c1e31b4e5b44?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1461175128502-8b13d90ee1ec?auto=format&fit=crop&w=1600&q=80',
   },
 ];
 
 /* Track geometry (desktop): card 54vw + 4vw gap, 7vw padding each side.
    The end translate is derived from the card count so adding/removing
    cards keeps the last card landing neatly at the right edge. */
+/**
+ * Stable anchor slug for a solution title — shared by the dedicated
+ * /solutions page (section ids) and the nav dropdown (hash links) so the
+ * two never drift.
+ */
+export const solutionSlug = (title: string) =>
+  title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
 const CARD_VW = 54;
 const GAP_VW = 4;
 const PAD_VW = 7;

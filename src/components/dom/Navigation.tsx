@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BRAND, SOLUTIONS } from '@/lib/constants';
 import { BRANDS as BRAND_ITEMS } from '@/lib/brands';
-import { SOLUTION_CARDS } from './SolutionsCarouselSection';
+import { SOLUTION_CARDS, solutionSlug } from './SolutionsCarouselSection';
 import { useExperience } from '@/store/useExperience';
 
 /**
@@ -107,7 +107,7 @@ interface MenuItem {
 const MENU: MenuItem[] = [
   { label: 'Home', href: '/#top' },
   { label: 'About Us', href: '/about' },
-  { label: 'Our Solutions', dropdown: 'solutions' },
+  { label: 'Our Solutions', dropdown: 'solutions', href: '/solutions' },
   { label: 'Brands', dropdown: 'brands', href: '/brands' },
   { label: 'Our Clients', href: '/clients' },
   { label: 'Gallery', href: '/gallery' },
@@ -183,7 +183,7 @@ function SolutionsPanel({
             {SOLUTIONS.map((s, i) => (
               <motion.li key={s} variants={reducedMotion ? undefined : LIST_ITEM}>
                 <Link
-                  href="/#dolby-atmos"
+                  href={`/solutions#${solutionSlug(s)}`}
                   onClick={close}
                   onMouseEnter={() => setActive(i)}
                   onFocus={() => setActive(i)}
@@ -262,6 +262,21 @@ function SolutionsPanel({
             </motion.div>
           </AnimatePresence>
         </div>
+      </div>
+      <div className="flex justify-end px-4 pb-3.5 pt-1">
+        <Link
+          href="/solutions"
+          onClick={close}
+          className="group inline-flex items-center gap-1.5 font-sans text-xs font-semibold uppercase tracking-wide text-champagne-deep transition-colors hover:text-champagne"
+        >
+          Explore all solutions
+          <span
+            aria-hidden
+            className="transition-transform duration-300 group-hover:translate-x-0.5"
+          >
+            →
+          </span>
+        </Link>
       </div>
     </div>
   );
@@ -584,7 +599,7 @@ export function Navigation() {
                             ? SOLUTIONS.map((s, i) => (
                                 <Link
                                   key={s}
-                                  href="/#dolby-atmos"
+                                  href={`/solutions#${solutionSlug(s)}`}
                                   onClick={closeAll}
                                   className="flex items-start gap-2.5 rounded-md px-3 py-2 font-sans text-[13px] leading-snug text-ivory/70 transition-colors hover:bg-white/5 hover:text-ivory"
                                 >

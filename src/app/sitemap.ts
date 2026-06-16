@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const routes: { path: string; priority: number }[] = [
     { path: '', priority: 1 },
+    { path: '/solutions', priority: 0.8 },
     { path: '/brands', priority: 0.8 },
     { path: '/clients', priority: 0.8 },
     { path: '/gallery', priority: 0.8 },
