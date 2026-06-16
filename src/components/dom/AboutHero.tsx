@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useExperience } from '@/store/useExperience';
 
@@ -19,6 +20,11 @@ import { useExperience } from '@/store/useExperience';
 const HERO_DARK = '/images/about-hero-dark.webp';
 const HERO_LIGHT = '/images/about-hero-light.webp';
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+/* next/image serves a resized, modern-format (AVIF/WebP) version of these   */
+/* large stills at request time; motion.create keeps the optimised <Image>   */
+/* animatable for the Ken-Burns parallax + dark→light cross-fade.            */
+const MotionImage = motion.create(Image);
 
 export function AboutHero() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -48,26 +54,33 @@ export function AboutHero() {
       {/* releases (scroll continues) only once it's fully lit.           */}
       <div
         className={`flex w-full items-center justify-center overflow-hidden ${
-          reducedMotion ? 'h-screen min-h-[640px]' : 'sticky top-0 h-screen min-h-[640px]'
+          reducedMotion ? 'relative h-screen min-h-[640px]' : 'sticky top-0 h-screen min-h-[640px]'
         }`}
       >
       {/* Dark base frame — gentle parallax drift (frozen for reduced motion). */}
-      <motion.img
+      <MotionImage
         src={HERO_DARK}
         alt=""
         aria-hidden
+        fill
+        priority
+        sizes="100vw"
+        quality={82}
         style={reducedMotion ? undefined : { scale: imageScale, y: imageY }}
-        className="absolute inset-0 h-full w-full object-cover"
+        className="object-cover"
         draggable={false}
       />
       {/* Light frame — slowly cross-fades in as the hero scrolls. */}
       {!reducedMotion && (
-        <motion.img
+        <MotionImage
           src={HERO_LIGHT}
           alt=""
           aria-hidden
+          fill
+          sizes="100vw"
+          quality={82}
           style={{ scale: imageScale, y: imageY, opacity: lightOpacity }}
-          className="absolute inset-0 h-full w-full object-cover"
+          className="object-cover"
           draggable={false}
         />
       )}

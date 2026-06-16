@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   motion,
   useInView,
@@ -47,6 +48,12 @@ import { BRANDS, type Brand } from '@/lib/brands';
  */
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+/* next/image serves resized, modern-format (AVIF/WebP) versions of the heavy */
+/* local stills (the auditorium interstitial + the two brand speaker renders) */
+/* at request time. motion.create wraps the optimised <Image> so it stays     */
+/* animatable for the parallax drift and wireframe→mesh cross-fade.           */
+const MotionImage = motion.create(Image);
 
 /* Shared scroll-reveal orchestration (matches the Clients / Brands pages). */
 const groupV: Variants = {
@@ -387,12 +394,8 @@ function SpotChar({
 }) {
   const color = useTransform(progress, range, ['#55555a', '#e4d2ac']);
   const opacity = useTransform(progress, range, [0.5, 1]);
-  const y = useTransform(progress, range, [3, 0]);
   return (
-    <motion.span
-      style={{ color, opacity, y }}
-      className="inline-block will-change-transform"
-    >
+    <motion.span style={{ color, opacity }} className="inline-block">
       {char}
     </motion.span>
   );
@@ -783,15 +786,18 @@ function RoomDisappears({ reducedMotion }: { reducedMotion: boolean }) {
       {/* content slides up through it as you scroll.                  */}
       <div
         className={`flex w-full items-center justify-center overflow-hidden px-[7vw] py-28 md:py-36 ${
-          reducedMotion ? 'min-h-[88vh]' : 'sticky top-0 min-h-screen'
+          reducedMotion ? 'relative min-h-[88vh]' : 'sticky top-0 min-h-screen'
         }`}
       >
-      <motion.img
-        src="/images/auditorium-dark.jpg"
+      <MotionImage
+        src="/images/auditorium-dark.webp"
         alt=""
         aria-hidden
+        fill
+        sizes="100vw"
+        quality={80}
         style={reducedMotion ? undefined : { scale: bgScale }}
-        className="absolute inset-0 h-full w-full object-cover opacity-80"
+        className="object-cover opacity-80"
         draggable={false}
       />
       <div
@@ -1307,30 +1313,65 @@ function CredentialsAuthoritySection({ reducedMotion }: { reducedMotion: boolean
             }
             viewport={{ once: true, margin: '-15%' }}
             transition={{ duration: 0.9, ease: EASE }}
-            className="relative z-10 mx-auto mt-8 h-[52vh] w-full max-w-[80vw] md:mt-10 md:h-[60vh] xl:absolute xl:inset-x-0 xl:bottom-0 xl:top-[250px] xl:z-0 xl:mt-0 xl:h-auto xl:max-w-none"
+            className="relative z-10 mx-auto mt-8 h-[44vh] w-full max-w-[80vw] md:mt-10 md:h-[60vh] xl:absolute xl:inset-x-0 xl:bottom-0 xl:top-[250px] xl:z-0 xl:mt-0 xl:h-auto xl:max-w-none"
           >
             <div
               aria-hidden
               className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[110%] w-[140%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(205,178,133,0.07),transparent_68%)] blur-2xl"
             />
-            <motion.img
-              src="/images/brands-wireframe.png"
+            <MotionImage
+              src="/images/brands-wireframe.webp"
               alt="Wireframe render of a reference loudspeaker"
-              loading="lazy"
-              decoding="async"
+              fill
+              sizes="(min-width: 1280px) 90vw, 80vw"
+              quality={85}
               style={reducedMotion ? { opacity: 0 } : { opacity: wireOpacity }}
-              className="absolute inset-0 h-full w-full object-contain xl:object-bottom"
+              className="object-contain object-bottom"
               draggable={false}
             />
-            <motion.img
-              src="/images/brands-mesh.png"
+            <MotionImage
+              src="/images/brands-mesh.webp"
               alt="The premium audio brands Cinesphere is trusted to carry"
-              loading="lazy"
-              decoding="async"
+              fill
+              sizes="(min-width: 1280px) 90vw, 80vw"
+              quality={85}
               style={reducedMotion ? { opacity: 1 } : { opacity: meshOpacity }}
-              className="pointer-events-none absolute inset-0 h-full w-full object-contain xl:object-bottom"
+              className="pointer-events-none object-contain object-bottom"
               draggable={false}
             />
+          </motion.div>
+
+          {/* Mobile / tablet brand grid — the scroll spotlight is xl-only, */}
+          {/* so below xl show every brand as a clean white-on-dark grid.    */}
+          <motion.div
+            variants={reducedMotion ? undefined : groupV}
+            initial={reducedMotion ? false : 'hidden'}
+            whileInView={reducedMotion ? undefined : 'show'}
+            viewport={{ once: true, margin: '-10%' }}
+            className="relative z-20 mt-2 w-full max-w-md xl:hidden"
+          >
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {BRANDS.map((b) => (
+                <motion.div
+                  key={b.name}
+                  variants={reducedMotion ? undefined : itemV}
+                  className="flex aspect-[3/2] items-center justify-center rounded-xl border border-champagne/15 bg-white/[0.03] p-4"
+                >
+                  <img
+                    src={WHITE_LOGOS[b.name] ?? b.logo}
+                    alt={b.name}
+                    loading="lazy"
+                    decoding="async"
+                    className={`max-h-9 w-auto max-w-[78%] object-contain ${
+                      WHITE_LOGOS[b.name]
+                        ? 'mix-blend-screen'
+                        : 'brightness-0 invert'
+                    }`}
+                    draggable={false}
+                  />
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
         </div>
       </section>

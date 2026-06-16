@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Serve modern, smaller formats (AVIF first, then WebP) from next/image.
+  images: {
+    formats: ['image/avif', 'image/webp'],
+  },
   // three.js / r3f play nicely with the app router when transpiled
   transpilePackages: ['three'],
   experimental: {
