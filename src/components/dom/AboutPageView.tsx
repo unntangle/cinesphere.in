@@ -1137,6 +1137,30 @@ function CredentialCard({
 /* as it crosses the middle of the pinned stage and fades as it leaves, */
 /* in the spirit of the reference scroll. Driven by scroll progress.    */
 /* ----------------------------------------------------------------- */
+/* White brand marks for the dark spotlight rail. These dedicated white  */
+/* assets are screen-blended so any black backing drops out on the black */
+/* section. Filenames with '&' are URL-encoded as %26 so they resolve.   */
+/* Focal & Harman have no white file, so their marks fall back to the    */
+/* originals and are forced white with brightness-0 + invert instead.    */
+const WHITE_LOGOS: Record<string, string> = {
+  'Bang & Olufsen': '/brands/white/B%26O.webp',
+  'JBL Synthesis': '/brands/white/JBL.webp',
+  'Bowers & Wilkins': '/brands/white/B%26W.webp',
+  'M&K Sound': '/brands/white/MK.webp',
+  'Sonus faber': '/brands/white/sonus-faber.webp',
+  Klipsch: '/brands/white/klipsch.webp',
+};
+
+/* Per-logo size tuning so the marks read at a consistent visual size   */
+/* despite differing artwork aspect ratios — the wide Focal & Harman     */
+/* wordmarks are capped smaller than the default.                       */
+const DEFAULT_LOGO_SIZE =
+  'max-h-[140px] max-w-[420px] 2xl:max-h-[170px] 2xl:max-w-[460px]';
+const LOGO_SIZE: Record<string, string> = {
+  Focal: 'max-h-[95px] max-w-[300px] 2xl:max-h-[120px] 2xl:max-w-[360px]',
+  'Harman Kardon': 'max-h-[85px] max-w-[320px] 2xl:max-h-[105px] 2xl:max-w-[380px]',
+};
+
 function ZigItem({
   brand,
   index,
@@ -1151,7 +1175,7 @@ function ZigItem({
   const onRight = index % 2 === 0; // start on the right, then alternate
   // The progress value at which this logo is centred and fully lit, spread
   // evenly across the scrubbable range so they light one after another.
-  const active = 0.1 + (0.8 * index) / Math.max(1, total - 1);
+  const active = 0.18 + (0.66 * index) / Math.max(1, total - 1);
   const SPAN = 0.14;
   const y = useTransform(progress, [active - SPAN, active + SPAN], [300, -300]);
   const opacity = useTransform(
@@ -1166,27 +1190,21 @@ function ZigItem({
   );
   return (
     <div
-      className={`absolute top-1/2 -translate-y-1/2 ${
-        onRight ? 'right-[6vw]' : 'left-[6vw]'
+      className={`absolute top-1/2 flex w-[420px] -translate-y-1/2 justify-center 2xl:w-[480px] ${
+        onRight ? 'right-[6vw] 2xl:right-[10vw]' : 'left-[6vw] 2xl:left-[10vw]'
       }`}
     >
       <motion.div style={{ y, opacity, scale }} className="will-change-transform">
-        <span
-          className={`flex h-14 w-[160px] items-center justify-center rounded-2xl px-5 ${
-            brand.chip === 'light'
-              ? 'bg-white shadow-[0_16px_40px_-16px_rgba(0,0,0,0.9)]'
-              : `bg-[#161617] ring-1 ${brand.featured ? 'ring-champagne/40' : 'ring-white/10'}`
-          }`}
-        >
-          <img
-            src={brand.logo}
-            alt={brand.name}
-            loading="lazy"
-            decoding="async"
-            className={`max-h-7 w-auto max-w-[120px] object-contain ${brand.filter ?? ''}`}
-            draggable={false}
-          />
-        </span>
+        <img
+          src={WHITE_LOGOS[brand.name] ?? brand.logo}
+          alt={brand.name}
+          loading="lazy"
+          decoding="async"
+          className={`block h-auto w-auto object-contain ${
+            LOGO_SIZE[brand.name] ?? DEFAULT_LOGO_SIZE
+          } ${WHITE_LOGOS[brand.name] ? 'mix-blend-screen' : 'brightness-0 invert'}`}
+          draggable={false}
+        />
       </motion.div>
     </div>
   );
@@ -1227,12 +1245,12 @@ function CredentialsAuthoritySection({ reducedMotion }: { reducedMotion: boolean
     damping: 26,
     restDelta: 0.001,
   });
-  // The centre render breathes a touch as the stage is scrolled past.
-  const imgScale = useTransform(smooth, [0, 0.5, 1], [1.06, 1, 0.96]);
-  const imgY = useTransform(smooth, [0, 1], ['-3%', '3%']);
-  // The wireframe render resolves into the finished speaker on scroll.
-  const wireOpacity = useTransform(smooth, [0.34, 0.6], [1, 0]);
-  const meshOpacity = useTransform(smooth, [0.45, 0.7], [0, 1]);
+  // Pinned-window choreography: first the wireframe resolves into the
+  // finished speaker (early in the pin), then the brand logos run their
+  // spotlight over the remainder of the pinned scroll.
+  const wireOpacity = useTransform(smooth, [0.3, 0.42], [1, 0]);
+  const meshOpacity = useTransform(smooth, [0.34, 0.46], [0, 1]);
+  const brandsProgress = useTransform(smooth, [0.47, 0.74], [0, 1]);
 
   return (
     <>
@@ -1245,79 +1263,75 @@ function CredentialsAuthoritySection({ reducedMotion }: { reducedMotion: boolean
         {/* Pinned stage — stays fixed through the whole section on xl. */}
         <div
           className={`relative flex w-full flex-col items-center justify-center overflow-hidden px-[7vw] py-24 md:py-32 ${
-            reducedMotion ? '' : 'xl:sticky xl:top-0 xl:h-screen xl:py-0'
+            reducedMotion ? '' : 'xl:sticky xl:top-0 xl:h-screen xl:justify-start xl:pb-0 xl:pt-[150px]'
           }`}
         >
           {/* Brand spotlight — xl + motion only. */}
           {!reducedMotion && (
             <div aria-hidden className="absolute inset-0 z-0 hidden xl:block">
-              <ZigZagBrands progress={smooth} />
+              <ZigZagBrands progress={brandsProgress} />
             </div>
           )}
 
-          {/* Centre — headline above the brand render. */}
-          <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center text-center">
+          {/* Heading — held near the top of the pinned stage. */}
+          <motion.div
+            variants={reducedMotion ? undefined : groupV}
+            initial={reducedMotion ? false : 'hidden'}
+            whileInView={reducedMotion ? undefined : 'show'}
+            viewport={{ once: true, margin: '-15%' }}
+            className="relative z-20 text-center"
+          >
             <motion.h2
               variants={reducedMotion ? undefined : itemV}
-              initial={reducedMotion ? false : 'hidden'}
-              whileInView={reducedMotion ? undefined : 'show'}
-              viewport={{ once: true, margin: '-15%' }}
               className="display text-4xl text-ivory md:text-6xl"
             >
-              Our Brands
+              BRANDS
             </motion.h2>
-
-            {/* Brand render — wireframe resolves into the finished speaker. */}
-            <motion.div
-              initial={
-                reducedMotion ? false : { opacity: 0, scale: 0.94, filter: 'blur(10px)' }
-              }
-              whileInView={
-                reducedMotion ? undefined : { opacity: 1, scale: 1, filter: 'blur(0px)' }
-              }
-              viewport={{ once: true, margin: '-15%' }}
-              transition={{ duration: 0.9, ease: EASE }}
-              style={reducedMotion ? undefined : { scale: imgScale, y: imgY }}
-              className="relative mx-auto mt-8 w-fit max-w-[80vw] md:mt-10"
+            <motion.p
+              variants={reducedMotion ? undefined : itemV}
+              className="mt-3 font-sans text-sm uppercase tracking-[0.28em] text-champagne/70"
             >
-              <div
-                aria-hidden
-                className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[120%] w-[150%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(205,178,133,0.07),transparent_68%)] blur-2xl"
-              />
-              <motion.img
-                src="/images/brands-wireframe.png"
-                alt="Wireframe render of a reference loudspeaker"
-                loading="lazy"
-                decoding="async"
-                style={reducedMotion ? { opacity: 0 } : { opacity: wireOpacity }}
-                className="block h-auto max-h-[52vh] w-auto md:max-h-[60vh]"
-                draggable={false}
-              />
-              <motion.img
-                src="/images/brands-mesh.png"
-                alt="The premium audio brands Cinesphere is trusted to carry"
-                loading="lazy"
-                decoding="async"
-                style={reducedMotion ? { opacity: 1 } : { opacity: meshOpacity }}
-                className="pointer-events-none absolute inset-0 h-full w-full object-contain"
-                draggable={false}
-              />
-            </motion.div>
-          </div>
-        </div>
-      </section>
+              We Deal With
+            </motion.p>
+          </motion.div>
 
-      {/* Partner plaques — the certification detail, kept after the stage. */}
-      <section className="relative z-10 bg-piano px-[7vw] pb-24 pt-4 md:pb-32">
-        <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
-          {CREDENTIALS.map((c, i) => (
-            <CredentialCard
-              key={c.name}
-              c={c}
-              index={i}
-              reducedMotion={reducedMotion}
+          {/* Brand render — wireframe resolves into the finished speaker.   */}
+          {/* On xl it is anchored to the bottom and grown to fill the stage, */}
+          {/* so the speaker reaches the bottom edge of the viewport.         */}
+          <motion.div
+            initial={
+              reducedMotion ? false : { opacity: 0, scale: 0.96, filter: 'blur(10px)' }
+            }
+            whileInView={
+              reducedMotion ? undefined : { opacity: 1, scale: 1, filter: 'blur(0px)' }
+            }
+            viewport={{ once: true, margin: '-15%' }}
+            transition={{ duration: 0.9, ease: EASE }}
+            className="relative z-10 mx-auto mt-8 h-[52vh] w-full max-w-[80vw] md:mt-10 md:h-[60vh] xl:absolute xl:inset-x-0 xl:bottom-0 xl:top-[250px] xl:z-0 xl:mt-0 xl:h-auto xl:max-w-none"
+          >
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[110%] w-[140%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(205,178,133,0.07),transparent_68%)] blur-2xl"
             />
-          ))}
+            <motion.img
+              src="/images/brands-wireframe.png"
+              alt="Wireframe render of a reference loudspeaker"
+              loading="lazy"
+              decoding="async"
+              style={reducedMotion ? { opacity: 0 } : { opacity: wireOpacity }}
+              className="absolute inset-0 h-full w-full object-contain xl:object-bottom"
+              draggable={false}
+            />
+            <motion.img
+              src="/images/brands-mesh.png"
+              alt="The premium audio brands Cinesphere is trusted to carry"
+              loading="lazy"
+              decoding="async"
+              style={reducedMotion ? { opacity: 1 } : { opacity: meshOpacity }}
+              className="pointer-events-none absolute inset-0 h-full w-full object-contain xl:object-bottom"
+              draggable={false}
+            />
+          </motion.div>
         </div>
       </section>
     </>
@@ -1461,58 +1475,60 @@ export function AboutPageView() {
           <CredentialsAuthoritySection reducedMotion={reducedMotion} />
 
           {/* 9 ── CTA (dark, cinematic) ─────────────────────────────── */}
-          <section className="relative overflow-hidden px-[7vw] py-28 text-center md:py-36">
-            <motion.div
-              aria-hidden
-              className="pointer-events-none absolute inset-0"
-              initial={reducedMotion ? false : { scale: 1.12 }}
-              whileInView={reducedMotion ? undefined : { scale: 1 }}
-              viewport={{ once: true, margin: '-10%' }}
-              transition={{ duration: 1.6, ease: EASE }}
-            >
-              <img
-                src="/images/12y-section.webp"
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="h-full w-full object-cover"
-                draggable={false}
-              />
-              <div className="absolute inset-0 bg-black/72" />
-            </motion.div>
-
-            <motion.div
-              variants={reducedMotion ? undefined : groupV}
-              initial={reducedMotion ? false : 'hidden'}
-              whileInView={reducedMotion ? undefined : 'show'}
-              viewport={{ once: true, margin: '-15%' }}
-              className="relative mx-auto max-w-2xl"
-            >
-              <motion.h2
-                variants={itemV}
-                className="display text-3xl text-ivory md:text-5xl"
+          <section className="relative bg-[#f7f2e8] px-4 py-16 sm:px-8 md:px-[6vw] md:py-20">
+            <div className="relative overflow-hidden rounded-[2rem] px-6 py-16 text-center md:rounded-[2.75rem] md:px-16 md:py-20">
+              <motion.div
+                aria-hidden
+                className="pointer-events-none absolute inset-0"
+                initial={reducedMotion ? false : { scale: 1.12 }}
+                whileInView={reducedMotion ? undefined : { scale: 1 }}
+                viewport={{ once: true, margin: '-10%' }}
+                transition={{ duration: 1.6, ease: EASE }}
               >
-                Let’s make your space
-                <br className="hidden sm:block" /> unforgettable.
-              </motion.h2>
-              <motion.p
-                variants={itemV}
-                className="mx-auto mt-4 max-w-lg font-sans text-base leading-relaxed text-ivory/70"
-              >
-                From a single listening room to a full auditorium, tell us what
-                you have in mind, and our team will get back to you within a
-                working day.
-              </motion.p>
-              <motion.div variants={itemV} className="mt-8">
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center gap-2 rounded-full bg-champagne-deep px-7 py-3 font-sans text-sm font-medium text-white transition-colors hover:bg-champagne"
-                >
-                  Start a project
-                  <span aria-hidden>→</span>
-                </Link>
+                <img
+                  src="https://images.unsplash.com/photo-1626683164688-9ea28b9276c6?q=80&w=2400&auto=format&fit=crop"
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-cover"
+                  draggable={false}
+                />
+                <div className="absolute inset-0 bg-black/72" />
               </motion.div>
-            </motion.div>
+
+              <motion.div
+                variants={reducedMotion ? undefined : groupV}
+                initial={reducedMotion ? false : 'hidden'}
+                whileInView={reducedMotion ? undefined : 'show'}
+                viewport={{ once: true, margin: '-15%' }}
+                className="relative mx-auto max-w-2xl"
+              >
+                <motion.h2
+                  variants={itemV}
+                  className="display text-3xl text-ivory md:text-5xl"
+                >
+                  Let’s make your space
+                  <br className="hidden sm:block" /> unforgettable.
+                </motion.h2>
+                <motion.p
+                  variants={itemV}
+                  className="mx-auto mt-4 max-w-lg font-sans text-base leading-relaxed text-ivory/70"
+                >
+                  From a single listening room to a full auditorium, tell us what
+                  you have in mind, and our team will get back to you within a
+                  working day.
+                </motion.p>
+                <motion.div variants={itemV} className="mt-8">
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center gap-2 rounded-full bg-champagne-deep px-7 py-3 font-sans text-sm font-medium text-white transition-colors hover:bg-champagne"
+                  >
+                    Start a project
+                    <span aria-hidden>→</span>
+                  </Link>
+                </motion.div>
+              </motion.div>
+            </div>
           </section>
         </main>
 
