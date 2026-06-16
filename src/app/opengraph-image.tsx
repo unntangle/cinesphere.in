@@ -8,7 +8,7 @@ import { BRAND } from '@/lib/constants';
  * card instead of a bare URL. Uses the built-in font shipped with next/og, so
  * there is nothing extra to fetch.
  */
-export const alt = `${BRAND.name} — ${BRAND.tagline}`;
+export const alt = `${BRAND.name} · ${BRAND.tagline}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -75,7 +75,7 @@ export default function OpengraphImage() {
           }}
         >
           Home Theatre · Conference & Boardroom · Auditorium AV · Digital
-          Signage — Chennai
+          Signage · Chennai
         </div>
       </div>
     ),

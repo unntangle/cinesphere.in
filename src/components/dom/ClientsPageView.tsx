@@ -664,8 +664,8 @@ export function ClientsPageView() {
               variants={itemV}
               className="mx-auto mt-4 max-w-lg font-sans text-base leading-relaxed text-ivory/70"
             >
-              Whatever you&apos;re building — a hotel, a campus, a boardroom or a
-              home — we&apos;ll design a system that lives up to your name.
+              Whatever you&apos;re building: a hotel, a campus, a boardroom or a
+              home, we&apos;ll design a system that lives up to your name.
             </motion.p>
             <motion.div variants={itemV} className="mt-8">
               <Link

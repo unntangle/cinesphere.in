@@ -9,17 +9,17 @@ import { GalleryPageView } from '@/components/dom/GalleryPageView';
  * (nav, hover effects) lives in the client GalleryPageView component.
  */
 export const metadata: Metadata = {
-  title: `Gallery — ${BRAND.name}`,
+  title: `Gallery · ${BRAND.name}`,
   description:
-    'Browse Cinesphere project photography — auditoriums, home theatres, seminar halls and studios delivered across Chennai.',
+    'Browse Cinesphere project photography: auditoriums, home theatres, seminar halls and studios delivered across Chennai.',
   alternates: { canonical: '/gallery' },
   openGraph: {
     type: 'website',
     url: '/gallery',
     siteName: BRAND.name,
-    title: `Gallery — ${BRAND.name}`,
+    title: `Gallery · ${BRAND.name}`,
     description:
-      'Browse Cinesphere project photography — auditoriums, home theatres, seminar halls and studios delivered across Chennai.',
+      'Browse Cinesphere project photography: auditoriums, home theatres, seminar halls and studios delivered across Chennai.',
   },
 };
 

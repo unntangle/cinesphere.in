@@ -75,7 +75,7 @@ export const BRANDS: Brand[] = [
     origin: 'United Kingdom',
     code: 'UK',
     blurb:
-      'British acoustic engineering — the monitors trusted at Abbey Road Studios.',
+      'British acoustic engineering, the monitors trusted at Abbey Road Studios.',
   },
   {
     name: 'M&K Sound',
@@ -91,7 +91,7 @@ export const BRANDS: Brand[] = [
     chip: 'light',
     origin: 'Italy',
     code: 'IT',
-    blurb: 'Hand-built Italian loudspeakers — instruments crafted in Vicenza.',
+    blurb: 'Hand-built Italian loudspeakers, instruments crafted in Vicenza.',
   },
   {
     name: 'Klipsch',

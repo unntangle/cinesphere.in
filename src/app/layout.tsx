@@ -23,9 +23,9 @@ const sans = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(BRAND.url),
-  title: `${BRAND.name} — ${BRAND.tagline}`,
+  title: `${BRAND.name} · ${BRAND.tagline}`,
   description:
-    'Cinesphere offers a huge range of audio and video solutions for every situation — home theatres, conference & boardroom integration, video/tele-conference studios, e-class rooms, digital signage and training & seminar halls across Chennai.',
+    'Cinesphere offers a huge range of audio and video solutions for every situation, including home theatres, conference & boardroom integration, video/tele-conference studios, e-class rooms, digital signage and training & seminar halls across Chennai.',
   applicationName: BRAND.name,
   authors: [{ name: BRAND.name, url: BRAND.url }],
   creator: BRAND.name,
@@ -54,15 +54,15 @@ export const metadata: Metadata = {
     siteName: BRAND.name,
     locale: 'en_IN',
     url: '/',
-    title: `${BRAND.name} — ${BRAND.tagline}`,
+    title: `${BRAND.name} · ${BRAND.tagline}`,
     description:
-      'Finest Audio Artistry — 12 years of audio & video solutions for every situation, across Chennai.',
+      'Finest Audio Artistry. 12 years of audio & video solutions for every situation, across Chennai.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${BRAND.name} — ${BRAND.tagline}`,
+    title: `${BRAND.name} · ${BRAND.tagline}`,
     description:
-      'Finest Audio Artistry — 12 years of audio & video solutions for every situation, across Chennai.',
+      'Finest Audio Artistry. 12 years of audio & video solutions for every situation, across Chennai.',
   },
   robots: {
     index: true,
@@ -89,7 +89,7 @@ export const viewport: Viewport = {
    by @id, and makes the business eligible for rich results. Built from BRAND
    so it never drifts from the rest of the site. */
 const SEO_DESCRIPTION =
-  'Cinesphere designs and installs premium audio-video systems across Chennai — home theatres, conference & boardroom integration, auditorium and seminar-hall AV, digital signage and multi-room audio.';
+  'Cinesphere designs and installs premium audio-video systems across Chennai, including home theatres, conference & boardroom integration, auditorium and seminar-hall AV, digital signage and multi-room audio.';
 
 const ORG_ID = `${BRAND.url}/#organization`;
 const WEBSITE_ID = `${BRAND.url}/#website`;

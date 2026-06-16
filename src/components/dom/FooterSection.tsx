@@ -16,7 +16,7 @@ const COMMERCIAL_SOLUTIONS = SOLUTIONS.slice(0, 5);
 const MORE_SOLUTIONS = SOLUTIONS.slice(5);
 
 const COMPANY_LINKS = [
-  { label: 'About Us', href: '/#home-theatre' },
+  { label: 'About Us', href: '/about' },
   { label: 'Our Solutions', href: '/#dolby-atmos' },
   { label: 'Our Clients', href: '/clients' },
   { label: 'Gallery', href: '/gallery' },

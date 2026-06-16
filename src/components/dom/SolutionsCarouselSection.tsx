@@ -64,7 +64,7 @@ export const SOLUTION_CARDS: SolutionCard[] = [
   {
     title: 'Multi-Room Audio & Background Music',
     lead: 'Music in every room,',
-    rest: 'beautifully synchronised — with paging and background music for business spaces.',
+    rest: 'beautifully synchronised, with paging and background music for business spaces.',
     image:
       'https://images.unsplash.com/photo-1711127093141-caea1718c784?auto=format&fit=crop&w=1600&q=80',
   },

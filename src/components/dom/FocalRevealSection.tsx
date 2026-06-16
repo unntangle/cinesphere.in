@@ -236,7 +236,7 @@ export function FocalRevealSection({ scene }: { scene: SceneDef }) {
                 logo matches the cap-height of the "Partner" headline. */}
             <img
               src="/images/focal-logo.webp"
-              alt="FOCAL — The Spirit of Sound"
+              alt="FOCAL · The Spirit of Sound"
               className="h-20 w-auto self-start object-contain object-left brightness-[0.98] sepia-[0.85] saturate-[1.4] lg:h-24 xl:h-28"
               draggable={false}
             />
@@ -285,7 +285,7 @@ export function FocalRevealSection({ scene }: { scene: SceneDef }) {
         >
           <img
             src="/images/focal-logo.webp"
-            alt="FOCAL — The Spirit of Sound"
+            alt="FOCAL · The Spirit of Sound"
             className="h-9 w-auto object-contain brightness-[0.98] sepia-[0.85] saturate-[1.4]"
             draggable={false}
           />

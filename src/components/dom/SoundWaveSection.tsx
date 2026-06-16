@@ -367,7 +367,7 @@ export function SoundWaveSection() {
         </h2>
         <p className="mx-auto mt-5 max-w-xl font-sans text-base leading-relaxed text-ivory-muted md:text-lg">
           Every auditorium, theatre and studio we build begins as a
-          waveform — engineered, shaped and tuned until the experience is
+          waveform, engineered, shaped and tuned until the experience is
           unmistakable.
         </p>
       </motion.div>

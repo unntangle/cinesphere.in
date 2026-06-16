@@ -41,7 +41,7 @@ export const SCENES: SceneDef[] = [
   {
     id: 'birth-of-sound',
     index: 0,
-    label: 'Scene 01 — Welcome / 12 Years of Experience',
+    label: 'Scene 01 · Welcome / 12 Years of Experience',
     copy: {
       eyebrow: 'Welcome to Cinesphere',
       title: '12 Years of\nExperience.',
@@ -54,7 +54,7 @@ export const SCENES: SceneDef[] = [
   {
     id: 'home-theatre',
     index: 1,
-    label: 'Scene 02 — About Us',
+    label: 'Scene 02 · About Us',
     copy: {
       eyebrow: 'About Us',
       title: 'Welcome to Cinesphere',
@@ -67,7 +67,7 @@ export const SCENES: SceneDef[] = [
   {
     id: 'sound-evolution',
     index: 2,
-    label: 'Scene 03 — FOCAL Certified Partner',
+    label: 'Scene 03 · FOCAL Certified Partner',
     copy: {
       eyebrow: 'What Drives Us',
       title: 'Quality. Innovation.\nLeadership.',
@@ -80,11 +80,11 @@ export const SCENES: SceneDef[] = [
   {
     id: 'harman-kardon',
     index: 3,
-    label: 'Scene 04 — Harman Kardon Authorized Dealer',
+    label: 'Scene 04 · Harman Kardon Authorized Dealer',
     copy: {
       eyebrow: 'Authorized Dealer',
       title: 'Harman Kardon.',
-      body: 'Beautiful sound, beautifully made — official Harman Kardon audio, delivered and installed by Cinesphere.',
+      body: 'Beautiful sound, beautifully made. Official Harman Kardon audio, delivered and installed by Cinesphere.',
       align: 'center',
     },
     camera: { position: [0, 0.5, 8], lookAt: [0, 0, 0] },
@@ -93,7 +93,7 @@ export const SCENES: SceneDef[] = [
   {
     id: 'dolby-atmos',
     index: 4,
-    label: 'Scene 05 — Audio / Video Display Solutions',
+    label: 'Scene 05 · Audio / Video Display Solutions',
     copy: {
       eyebrow: 'Our Solutions',
       title: 'Audio / Video\nDisplay Solutions.',
@@ -106,11 +106,11 @@ export const SCENES: SceneDef[] = [
   {
     id: 'smart-villa',
     index: 5,
-    label: 'Scene 06 — Conference, Boardroom & Studios',
+    label: 'Scene 06 · Conference, Boardroom & Studios',
     copy: {
       eyebrow: 'Our Solutions',
       title: 'Conference, Boardroom\n& Studios.',
-      body: 'Seamlessly integrate advanced audio-visual technology into your conference rooms and boardrooms — with video/tele-conference studios designed for clear communication and smooth collaboration across distances.',
+      body: 'Seamlessly integrate advanced audio-visual technology into your conference rooms and boardrooms, with video/tele-conference studios designed for clear communication and smooth collaboration across distances.',
       align: 'left',
     },
     camera: { position: [6, 2, 12], lookAt: [0, 1, 0] },
@@ -119,7 +119,7 @@ export const SCENES: SceneDef[] = [
   {
     id: 'automation',
     index: 6,
-    label: 'Scene 07 — E-Class Rooms, Signage & Seminar Halls',
+    label: 'Scene 07 · E-Class Rooms, Signage & Seminar Halls',
     copy: {
       eyebrow: 'Our Solutions',
       title: 'Learn. Display.\nPresent.',
@@ -132,7 +132,7 @@ export const SCENES: SceneDef[] = [
   {
     id: 'brand-vault',
     index: 7,
-    label: 'Scene 08 — Our Valuable Clients',
+    label: 'Scene 08 · Our Valuable Clients',
     copy: {
       eyebrow: 'Our Clients',
       title: 'Know Our\nValuable Clients.',
@@ -146,11 +146,11 @@ export const SCENES: SceneDef[] = [
   {
     id: 'projects',
     index: 8,
-    label: 'Scene 09 — Gallery / Latest Works',
+    label: 'Scene 09 · Gallery / Latest Works',
     copy: {
       eyebrow: 'Gallery',
       title: "Let's Check Our\nLatest Works.",
-      body: 'Auditoriums, home theatres, seminar halls and studios — 80+ projects delivered.',
+      body: 'Auditoriums, home theatres, seminar halls and studios. 80+ projects delivered.',
       align: 'center',
     },
     camera: { position: [0, 8, 18], lookAt: [0, 0, 0] },
@@ -159,7 +159,7 @@ export const SCENES: SceneDef[] = [
   {
     id: 'why-us',
     index: 9,
-    label: 'Scene 10 — Stats & Testimonials',
+    label: 'Scene 10 · Stats & Testimonials',
     copy: {
       eyebrow: 'Testimonials',
       title: "What Our\nClients Say.",
@@ -172,11 +172,11 @@ export const SCENES: SceneDef[] = [
   {
     id: 'finale',
     index: 10,
-    label: "Scene 11 — Let's Talk CTA",
+    label: "Scene 11 · Let's Talk CTA",
     copy: {
       eyebrow: "Let's Talk",
       title: 'Having queries?\nWe’re all ears.',
-      body: 'From a single listening room to a full auditorium — tell us what you have in mind and our team will get back to you within a working day.',
+      body: 'From a single listening room to a full auditorium, tell us what you have in mind and our team will get back to you within a working day.',
       align: 'center',
     },
     camera: { position: [0, 0, 6], lookAt: [0, 0, 0] },
@@ -215,7 +215,7 @@ export const SOLUTIONS = [
  *  sections; Gallery points to its own dedicated page. */
 export const NAV_LINKS = [
   { label: 'Home', href: '/#top' },
-  { label: 'About Us', href: '/#home-theatre' },
+  { label: 'About Us', href: '/about' },
   { label: 'Our Solutions', href: '/#dolby-atmos' },
   { label: 'Our Clients', href: '/clients' },
   { label: 'Gallery', href: '/gallery' },
@@ -227,17 +227,17 @@ export const TESTIMONIALS = [
   {
     name: 'Mr. Arul Selvan',
     quote:
-      'We hired Cinesphere — they were prompt, efficient and did an awesome job on my home theater. Great ideas, competitive pricing, and great effort on wiring and installation without disturbing my room design. I highly recommend them for their flawless work.',
+      'We hired Cinesphere. They were prompt, efficient and did an awesome job on my home theater. Great ideas, competitive pricing, and great effort on wiring and installation without disturbing my room design. I highly recommend them for their flawless work.',
   },
   {
     name: 'Mr. Ramesh Rajasekar',
     quote:
-      'A high quality experience. Very satisfied — the entire group did an outstanding job on our home theater. The work was done to a very high standard and they stuck to our budget and completed the project on time. Their number one fan for life.',
+      'A high quality experience. Very satisfied. The entire group did an outstanding job on our home theater. The work was done to a very high standard and they stuck to our budget and completed the project on time. Their number one fan for life.',
   },
   {
     name: 'Mr. Sridhar',
     quote:
-      'The team was very professional — showed up on time, finished before the announced time, and was so helpful in understanding our needs. Cinesphere delivered the system and made it so simple. Highly recommended!',
+      'The team was very professional, showed up on time, finished before the announced time, and was so helpful in understanding our needs. Cinesphere delivered the system and made it so simple. Highly recommended!',
   },
 ] as const;
 

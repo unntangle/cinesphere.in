@@ -221,7 +221,7 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
               style={still ? undefined : { opacity: descOpacity, y: descY }}
               className="mt-6 max-w-sm font-sans text-[13px] leading-relaxed text-ivory-muted md:hidden"
             >
-              Beautiful sound, beautifully made — since 1953. As an authorized
+              Beautiful sound, beautifully made, since 1953. As an authorized
               Harman Kardon dealer, Cinesphere brings genuine systems, expert
               calibration and seamless installation, backed by full manufacturer
               warranty.
@@ -240,7 +240,7 @@ export function HarmanRevealSection({ scene }: { scene: SceneDef }) {
                 </span>
               </div>
               <p className="mt-4 font-sans text-sm leading-relaxed text-ivory-muted md:text-base">
-                Beautiful sound, beautifully made — since 1953, Harman Kardon
+                Beautiful sound, beautifully made. Since 1953, Harman Kardon
                 has shaped audio where engineering meets sculpture. As an
                 authorized dealer, Cinesphere brings you genuine systems,
                 expert calibration and seamless installation, backed by full

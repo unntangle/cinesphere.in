@@ -49,7 +49,7 @@ export function Overlay() {
           screen readers (the scroll-scrubbed hero canvas carries no text of
           its own, so without this the homepage would have no H1). */}
       <h1 className="sr-only">
-        Cinesphere — Finest Audio Artistry. Home theatre, conference &amp;
+        Cinesphere: Finest Audio Artistry. Home theatre, conference &amp;
         boardroom, auditorium, e-class room and digital signage audio-video
         solutions in Chennai.
       </h1>

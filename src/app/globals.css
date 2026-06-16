@@ -208,6 +208,29 @@ body {
       opacity: 0;
     }
   }
+  /* Signal pulse — a glowing packet of "sound" that travels straight down
+     the vertical signal-path cable on a loop, so the wire reads as sound
+     continuously flowing toward the stage. Animates `top` (0% → 100% of the
+     cable height); the head is the bright bottom edge, with a soft trail. */
+  .signal-pulse {
+    animation: signal-travel 3.2s linear infinite;
+  }
+  @keyframes signal-travel {
+    0% {
+      top: -4%;
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+    }
+    88% {
+      opacity: 1;
+    }
+    100% {
+      top: 104%;
+      opacity: 0;
+    }
+  }
   /* Infinite logo marquee — the track holds TWO copies of the card
      list and glides by half its width, looping seamlessly. */
   .marquee-track {

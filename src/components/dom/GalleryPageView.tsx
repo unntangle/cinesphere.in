@@ -61,7 +61,7 @@ export function GalleryPageView() {
             Our latest works.
           </h1>
           <p className="mt-4 max-w-xl font-sans text-sm leading-relaxed text-ivory-muted md:text-base">
-            Auditoriums, home theatres, seminar halls and studios — 80+
+            Auditoriums, home theatres, seminar halls and studios. 80+
             projects delivered. Tap a project to preview its photos.
           </p>
           <Link
@@ -101,7 +101,7 @@ export function GalleryPageView() {
                   <div className="aspect-[4/3] w-full">
                     <img
                       src={project.main}
-                      alt={`${project.label} — Cinesphere`}
+                      alt={`${project.label} · Cinesphere`}
                       className={`h-full w-full object-cover brightness-[0.9] transition-transform duration-700 ease-out group-hover:brightness-100 ${coverScale}`}
                       loading="lazy"
                       decoding="async"

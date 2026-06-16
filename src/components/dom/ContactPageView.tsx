@@ -500,11 +500,11 @@ export function ContactPageView() {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const subject = `Enquiry — ${form.interest}`;
+    const subject = `Enquiry: ${form.interest}`;
     const body =
       `Name: ${form.name}\n` +
       `Email: ${form.email}\n` +
-      `Phone: ${form.phone || '—'}\n` +
+      `Phone: ${form.phone || '-'}\n` +
       `Interest: ${form.interest}\n\n` +
       `${form.message}`;
     // No backend wired up — compose the message in the visitor's mail client.
@@ -597,7 +597,7 @@ export function ContactPageView() {
                 variants={itemV}
                 className="mt-4 max-w-md font-sans text-sm leading-relaxed text-ivory-muted md:text-base"
               >
-                From a single listening room to a full auditorium — drop by, call
+                From a single listening room to a full auditorium, drop by, call
                 or write, and we&apos;ll take it from there.
               </motion.p>
 
@@ -699,7 +699,7 @@ export function ContactPageView() {
                     Your message is ready.
                   </h3>
                   <p className="mt-3 max-w-sm font-sans text-sm leading-relaxed text-ivory-muted">
-                    Your mail app should have opened with everything filled in —
+                    Your mail app should have opened with everything filled in,
                     just hit send. Prefer another way? Reach us directly at{' '}
                     <a
                       href={`mailto:${BRAND.email}`}

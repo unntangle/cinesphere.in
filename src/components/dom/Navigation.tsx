@@ -106,7 +106,7 @@ interface MenuItem {
 
 const MENU: MenuItem[] = [
   { label: 'Home', href: '/#top' },
-  { label: 'About Us', href: '/#home-theatre' },
+  { label: 'About Us', href: '/about' },
   { label: 'Our Solutions', dropdown: 'solutions' },
   { label: 'Brands', dropdown: 'brands', href: '/brands' },
   { label: 'Our Clients', href: '/clients' },

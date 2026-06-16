@@ -90,7 +90,7 @@ export function GalleryParallaxSection() {
           variants={still ? undefined : REVEAL_ITEM}
           className="mt-4 max-w-xl font-sans text-sm leading-relaxed text-ivory-muted md:text-base"
         >
-          Auditoriums, home theatres, seminar halls and studios — 80+
+          Auditoriums, home theatres, seminar halls and studios. 80+
           projects delivered.
         </motion.p>
       </motion.div>
@@ -127,7 +127,7 @@ export function GalleryParallaxSection() {
                   <div className="absolute inset-0 overflow-hidden rounded-2xl bg-carbon [backface-visibility:hidden]">
                     <img
                       src={project.main}
-                      alt={`${project.label} — Cinesphere`}
+                      alt={`${project.label} · Cinesphere`}
                       className={`h-full w-full object-cover brightness-[0.9] saturate-[1.05] ${
                         zoom ? 'scale-[1.3]' : ''
                       }`}

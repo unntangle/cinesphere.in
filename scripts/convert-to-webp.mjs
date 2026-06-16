@@ -36,6 +36,7 @@ const SOURCE_EXTS = new Set(['.jpg', '.jpeg', '.png']);
 const FOLDERS = [
   { rel: ['public', 'hero', 'frames'], quality: 80 },
   { rel: ['public', 'gallery'], quality: 82 },
+  { rel: ['public', 'images'], quality: 82 },
 ];
 
 async function mtimeOrZero(path) {
