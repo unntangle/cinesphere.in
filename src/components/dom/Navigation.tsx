@@ -116,6 +116,12 @@ const MENU: MenuItem[] = [
 /* The brand roster lives in src/lib/brands.ts (shared with the dedicated
    /brands page) and is imported above as BRAND_ITEMS. */
 
+/* The nav "Brands" dropdown shows only the headline names — the first eight
+   in the roster — so the panel stays compact; the full list lives on the
+   /brands page, reached via the "Explore all brands" link below the grid.
+   Reorder BRAND_ITEMS in src/lib/brands.ts to change which eight appear. */
+const NAV_BRANDS = BRAND_ITEMS.slice(0, 8);
+
 /* The dropdown's media pane reuses the exact images from the Solutions
    section cards (SOLUTION_CARDS, same order as SOLUTIONS), so the photo
    shown for each service always matches its card and the two never drift. */
@@ -305,7 +311,7 @@ function BrandsPanel({
           initial={reducedMotion ? false : 'hidden'}
           animate={reducedMotion ? undefined : 'show'}
         >
-          {BRAND_ITEMS.map((b) => (
+          {NAV_BRANDS.map((b) => (
             <motion.div
               key={b.name}
               variants={reducedMotion ? undefined : LIST_ITEM}
@@ -609,7 +615,7 @@ export function Navigation() {
                                   {s}
                                 </Link>
                               ))
-                            : BRAND_ITEMS.map((b) => (
+                            : NAV_BRANDS.map((b) => (
                                 <div
                                   key={b.name}
                                   className="flex items-center gap-3 rounded-md px-3 py-2"

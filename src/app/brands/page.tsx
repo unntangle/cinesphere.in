@@ -8,18 +8,19 @@ import { BrandsPageView } from '@/components/dom/BrandsPageView';
  * Server component for per-route metadata; the interactive, sound-themed
  * view (waveforms, equalizers, ripples) lives in the client BrandsPageView.
  */
+const BRANDS_DESCRIPTION =
+  'The premium audio, home-cinema and projection brands Cinesphere carries — including Focal, Bowers & Wilkins, Sonus faber, Bang & Olufsen, JBL Synthesis, Denon, Marantz, Revel, Sony, Barco, Christie and more.';
+
 export const metadata: Metadata = {
   title: `Brands · ${BRAND.name}`,
-  description:
-    'The audio brands Cinesphere carries: Focal, Bang & Olufsen, JBL Synthesis, Bowers & Wilkins, M&K Sound, Sonus faber, Klipsch and QSC.',
+  description: BRANDS_DESCRIPTION,
   alternates: { canonical: '/brands' },
   openGraph: {
     type: 'website',
     url: '/brands',
     siteName: BRAND.name,
     title: `Brands · ${BRAND.name}`,
-    description:
-      'The audio brands Cinesphere carries: Focal, Bang & Olufsen, JBL Synthesis, Bowers & Wilkins, M&K Sound, Sonus faber, Klipsch and QSC.',
+    description: BRANDS_DESCRIPTION,
   },
 };
 

@@ -561,12 +561,6 @@ export function BrandsPageView() {
                 Every brand we carry.
               </motion.h2>
             </div>
-            <motion.span
-              variants={itemV}
-              className="font-sans text-sm text-[#1d1d1f]/40"
-            >
-              {rest.length} brands
-            </motion.span>
           </motion.div>
 
           {/* white logo cards — ripple in with a tight stagger */}
@@ -575,7 +569,7 @@ export function BrandsPageView() {
             initial={reducedMotion ? false : 'hidden'}
             whileInView={reducedMotion ? undefined : 'show'}
             viewport={{ once: true, margin: '-8%' }}
-            className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+            className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
           >
             {rest.map((b) => (
               <motion.div
@@ -583,7 +577,7 @@ export function BrandsPageView() {
                 variants={cardV}
                 whileHover={reducedMotion ? undefined : { y: -4 }}
                 transition={{ duration: 0.3, ease: EASE }}
-                className="group relative flex aspect-[5/4] items-center justify-center overflow-hidden rounded-2xl border border-black/[0.07] bg-white shadow-[0_2px_10px_-6px_rgba(0,0,0,0.15)] transition-shadow hover:shadow-[0_16px_44px_-20px_rgba(0,0,0,0.3)]"
+                className="group relative flex aspect-[5/4] items-center justify-center overflow-hidden rounded-xl border border-black/[0.07] bg-white shadow-[0_2px_10px_-6px_rgba(0,0,0,0.15)] transition-shadow hover:shadow-[0_16px_44px_-20px_rgba(0,0,0,0.3)]"
               >
                 {/* logo */}
                 <img
@@ -591,9 +585,9 @@ export function BrandsPageView() {
                   alt={b.name}
                   loading="lazy"
                   decoding="async"
-                  className={`relative z-10 max-h-[54%] w-auto max-w-[76%] object-contain transition-transform duration-500 group-hover:scale-[1.06] ${
-                    b.filter ?? ''
-                  }`}
+                  className={`relative z-10 w-auto object-contain transition-transform duration-500 group-hover:scale-[1.06] ${
+                    b.imgClass ?? 'max-h-[54%] max-w-[76%]'
+                  } ${b.filter ?? ''}`}
                   draggable={false}
                 />
               </motion.div>

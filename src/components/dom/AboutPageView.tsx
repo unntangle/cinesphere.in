@@ -6,6 +6,7 @@ import Image from 'next/image';
 import {
   motion,
   useInView,
+  useMotionTemplate,
   useMotionValue,
   useScroll,
   useSpring,
@@ -1143,88 +1144,210 @@ function CredentialCard({
 /* as it crosses the middle of the pinned stage and fades as it leaves, */
 /* in the spirit of the reference scroll. Driven by scroll progress.    */
 /* ----------------------------------------------------------------- */
-/* White brand marks for the dark spotlight rail. These dedicated white  */
-/* assets are screen-blended so any black backing drops out on the black */
-/* section. Filenames with '&' are URL-encoded as %26 so they resolve.   */
-/* Focal & Harman have no white file, so their marks fall back to the    */
-/* originals and are forced white with brightness-0 + invert instead.    */
+/* Brand marks for the dark spotlight rail, sourced from /brands/white/.  */
+/* Each mark is forced to a clean white silhouette via brightness-0 +     */
+/* invert (applied on the <img> below), which renders ANY transparent     */
+/* logo white regardless of its original colour — so dark-coloured marks  */
+/* show up too (a plain screen blend would drop them on the black         */
+/* section). Filenames with '&' are URL-encoded as %26 so they resolve.   */
+/* Harman Kardon has no white file, so it falls back to its original      */
+/* /images logo (also transparent, so the same trick renders it white).   */
+/* NOTE: this assumes every file is transparent. A file with an opaque    */
+/* (e.g. white) background will show as a solid white box and must be      */
+/* re-exported with its alpha channel preserved.                          */
 const WHITE_LOGOS: Record<string, string> = {
+  Focal: '/brands/white/focal-logo.webp',
   'Bang & Olufsen': '/brands/white/B%26O.webp',
   'JBL Synthesis': '/brands/white/JBL.webp',
   'Bowers & Wilkins': '/brands/white/B%26W.webp',
   'M&K Sound': '/brands/white/MK.webp',
   'Sonus faber': '/brands/white/sonus-faber.webp',
   Klipsch: '/brands/white/klipsch.webp',
+  QSC: '/brands/white/QSC.webp',
+  Barco: '/brands/white/barco.webp',
+  Arcam: '/brands/white/arcam.webp',
+  BenQ: '/brands/white/benq.webp',
+  Epson: '/brands/white/EPSON.webp',
+  Sony: '/brands/white/sony.webp',
+  Christie: '/brands/white/christie.webp',
+  Denon: '/brands/white/denon.webp',
+  Marantz: '/brands/white/marantz.webp',
+  'Optimal Audio': '/brands/white/optimalaudio.webp',
+  Revel: '/brands/white/revel.webp',
+  Bose: '/brands/white/bose.webp',
+  'British Acoustics': '/brands/white/british-acoustics.webp',
+  'U&K Sound': '/brands/white/uandksound-logo.webp',
 };
 
-/* Per-logo size tuning so the marks read at a consistent visual size   */
-/* despite differing artwork aspect ratios — the wide Focal & Harman     */
-/* wordmarks are capped smaller than the default.                       */
-const DEFAULT_LOGO_SIZE =
-  'max-h-[140px] max-w-[420px] 2xl:max-h-[170px] 2xl:max-w-[460px]';
-const LOGO_SIZE: Record<string, string> = {
-  Focal: 'max-h-[95px] max-w-[300px] 2xl:max-h-[120px] 2xl:max-w-[360px]',
-  'Harman Kardon': 'max-h-[85px] max-w-[320px] 2xl:max-h-[105px] 2xl:max-w-[380px]',
+/* British Acoustics and U&K Sound have white marks in /brands/white/ but are
+   not part of the shared roster (lib/brands.ts), so they're appended here for
+   the About brand wall only — name + logo are all the wall needs. Add them to
+   lib/brands.ts too if they should also appear in the nav "Brands" dropdown
+   and the /brands page. */
+const EXTRA_BRANDS: Brand[] = [
+  {
+    name: 'British Acoustics',
+    logo: '/brands/white/british-acoustics.webp',
+    chip: 'dark',
+    origin: '',
+    code: '',
+    blurb: '',
+  },
+  {
+    name: 'U&K Sound',
+    logo: '/brands/white/uandksound-logo.webp',
+    chip: 'dark',
+    origin: '',
+    code: '',
+    blurb: '',
+  },
+];
+
+/* The full wall shown on /about: the shared roster plus the two extras —
+   every white mark in /brands/white/, so all of them appear. */
+const WALL_BRANDS: Brand[] = [...BRANDS, ...EXTRA_BRANDS];
+
+/* The two spotlight rails, balanced so both columns carry a similar number of
+   logos. Each array is that column's top-to-bottom order, so reordering names
+   — or moving one between LEFT_RAIL and RIGHT_RAIL — is all it takes to retune
+   the layout. Emblem / monogram marks lead each column with wordmarks woven
+   in to keep the two sides even. */
+const LEFT_RAIL = [
+  'Bang & Olufsen',
+  'Focal',
+  'JBL Synthesis',
+  'Denon',
+  'Bowers & Wilkins',
+  'QSC',
+  'M&K Sound',
+  'Sony',
+  'Optimal Audio',
+  'Sonus faber',
+  'U&K Sound',
+];
+const RIGHT_RAIL = [
+  'Klipsch',
+  'Barco',
+  'Christie',
+  'Bose',
+  'Marantz',
+  'Harman Kardon',
+  'Arcam',
+  'BenQ',
+  'Epson',
+  'Revel',
+  'British Acoustics',
+];
+
+/* Name -> Brand lookup so each rail array can reference brands by name. */
+const BY_NAME: Record<string, Brand> = Object.fromEntries(
+  WALL_BRANDS.map((b) => [b.name, b]),
+);
+
+/* Uniform canvas for every mark, so they all occupy the same footprint
+   regardless of artwork aspect ratio — object-contain letterboxes each logo
+   inside this identical box (wide wordmarks cap on width, compact marks on
+   height), which keeps the wall visually even. */
+const LOGO_CANVAS =
+  'flex h-[120px] w-[340px] items-center justify-center 2xl:h-[150px] 2xl:w-[420px]';
+
+/* Optional per-logo scale nudge for marks whose artwork carries extra built-in
+   padding, so they read at a similar visual size to the rest. Omit a brand for
+   no change (1 = unchanged). */
+const LOGO_SCALE: Record<string, string> = {
+  Bose: 'scale-[1.4]',
 };
+
+const SPAN = 0.06;
 
 function ZigItem({
   brand,
-  index,
-  total,
+  onRight,
+  active,
   progress,
 }: {
   brand: Brand;
-  index: number;
-  total: number;
+  onRight: boolean;
+  active: number;
   progress: MotionValue<number>;
 }) {
-  const onRight = index % 2 === 0; // start on the right, then alternate
-  // The progress value at which this logo is centred and fully lit, spread
-  // evenly across the scrubbable range so they light one after another.
-  const active = 0.18 + (0.66 * index) / Math.max(1, total - 1);
-  const SPAN = 0.14;
   const y = useTransform(progress, [active - SPAN, active + SPAN], [300, -300]);
   const opacity = useTransform(
     progress,
     [active - SPAN, active - SPAN * 0.45, active, active + SPAN * 0.45, active + SPAN],
     [0, 0.18, 1, 0.18, 0],
   );
+  // Zoom-in reveal: the mark punches up past 1 and snaps into sharp focus as
+  // it crosses the centre (its fully-revealed state), then eases back down and
+  // softens again as it leaves — so the active logo "zooms in" in the middle.
   const scale = useTransform(
     progress,
     [active - SPAN, active, active + SPAN],
-    [0.9, 1, 0.9],
+    [0.8, 1.12, 0.8],
   );
+  const blurPx = useTransform(
+    progress,
+    [active - SPAN, active, active + SPAN],
+    [10, 0, 10],
+  );
+  const filter = useMotionTemplate`blur(${blurPx}px)`;
   return (
     <div
-      className={`absolute top-1/2 flex w-[420px] -translate-y-1/2 justify-center 2xl:w-[480px] ${
+      className={`absolute top-1/2 -translate-y-1/2 ${
         onRight ? 'right-[6vw] 2xl:right-[10vw]' : 'left-[6vw] 2xl:left-[10vw]'
       }`}
     >
-      <motion.div style={{ y, opacity, scale }} className="will-change-transform">
-        <img
-          src={WHITE_LOGOS[brand.name] ?? brand.logo}
-          alt={brand.name}
-          loading="lazy"
-          decoding="async"
-          className={`block h-auto w-auto object-contain ${
-            LOGO_SIZE[brand.name] ?? DEFAULT_LOGO_SIZE
-          } ${WHITE_LOGOS[brand.name] ? 'mix-blend-screen' : 'brightness-0 invert'}`}
-          draggable={false}
-        />
+      <motion.div
+        style={{ y, opacity, scale, filter }}
+        className="will-change-[transform,filter]"
+      >
+        <div className={LOGO_CANVAS}>
+          <img
+            src={WHITE_LOGOS[brand.name] ?? brand.logo}
+            alt={brand.name}
+            loading="lazy"
+            decoding="async"
+            className={`max-h-full max-w-full object-contain brightness-0 invert ${
+              LOGO_SCALE[brand.name] ?? ''
+            }`}
+            draggable={false}
+          />
+        </div>
       </motion.div>
     </div>
   );
 }
 
 function ZigZagBrands({ progress }: { progress: MotionValue<number> }) {
+  // Weave the two rails into ONE alternating sequence — left, right, left,
+  // right … — so exactly one logo is lit at a time and the spotlight zigzags
+  // from side to side as you scroll, instead of the two sides arriving in
+  // matched pairs. Each step gets its own peak spread evenly across the run
+  // (0.14 → 1.0), so the final mark peaks right at the end (the pin's release
+  // point) and — since brandsProgress is clamped at 1 — holds there rather than
+  // fading back out, keeping the last logo lit as the scroll hands back.
+  const leftBrands = LEFT_RAIL.map((n) => BY_NAME[n]).filter(
+    (b): b is Brand => Boolean(b),
+  );
+  const rightBrands = RIGHT_RAIL.map((n) => BY_NAME[n]).filter(
+    (b): b is Brand => Boolean(b),
+  );
+
+  const sequence: { brand: Brand; onRight: boolean }[] = [];
+  const rows = Math.max(leftBrands.length, rightBrands.length);
+  for (let i = 0; i < rows; i += 1) {
+    if (leftBrands[i]) sequence.push({ brand: leftBrands[i], onRight: false });
+    if (rightBrands[i]) sequence.push({ brand: rightBrands[i], onRight: true });
+  }
+
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 z-0">
-      {BRANDS.map((b, i) => (
+      {sequence.map((s, k, arr) => (
         <ZigItem
-          key={b.name}
-          brand={b}
-          index={i}
-          total={BRANDS.length}
+          key={s.brand.name}
+          brand={s.brand}
+          onRight={s.onRight}
+          active={0.14 + (0.86 * k) / Math.max(1, arr.length - 1)}
           progress={progress}
         />
       ))}
@@ -1253,17 +1376,20 @@ function CredentialsAuthoritySection({ reducedMotion }: { reducedMotion: boolean
   });
   // Pinned-window choreography: first the wireframe resolves into the
   // finished speaker (early in the pin), then the brand logos run their
-  // spotlight over the remainder of the pinned scroll.
-  const wireOpacity = useTransform(smooth, [0.3, 0.42], [1, 0]);
-  const meshOpacity = useTransform(smooth, [0.34, 0.46], [0, 1]);
-  const brandsProgress = useTransform(smooth, [0.47, 0.74], [0, 1]);
+  // spotlight. The logo run is mapped to COMPLETE exactly at the pin's
+  // release point (~0.8 = where the sticky stage unpins), so the scroll
+  // hands back the instant the last row of logos is fully lit, with no
+  // trailing locked scroll afterwards.
+  const wireOpacity = useTransform(smooth, [0.24, 0.32], [1, 0]);
+  const meshOpacity = useTransform(smooth, [0.28, 0.36], [0, 1]);
+  const brandsProgress = useTransform(smooth, [0.38, 0.8], [0, 1]);
 
   return (
     <>
       <section
         ref={ref}
         className={`relative w-full bg-piano ${
-          reducedMotion ? '' : 'xl:h-[260vh]'
+          reducedMotion ? '' : 'xl:h-[400vh]'
         }`}
       >
         {/* Pinned stage — stays fixed through the whole section on xl. */}
@@ -1351,7 +1477,7 @@ function CredentialsAuthoritySection({ reducedMotion }: { reducedMotion: boolean
             className="relative z-20 mt-2 w-full max-w-md xl:hidden"
           >
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {BRANDS.map((b) => (
+              {WALL_BRANDS.map((b) => (
                 <motion.div
                   key={b.name}
                   variants={reducedMotion ? undefined : itemV}
@@ -1362,11 +1488,7 @@ function CredentialsAuthoritySection({ reducedMotion }: { reducedMotion: boolean
                     alt={b.name}
                     loading="lazy"
                     decoding="async"
-                    className={`max-h-9 w-auto max-w-[78%] object-contain ${
-                      WHITE_LOGOS[b.name]
-                        ? 'mix-blend-screen'
-                        : 'brightness-0 invert'
-                    }`}
+                    className="max-h-9 w-auto max-w-[78%] object-contain brightness-0 invert"
                     draggable={false}
                   />
                 </motion.div>
