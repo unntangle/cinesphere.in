@@ -18,8 +18,8 @@ import { useExperience } from '@/store/useExperience';
  * the scroll distance adapts to the count automatically.
  */
 
-/** Scroll runway in viewport-heights — scales with the card count. */
-const CAROUSEL_SCREENS = 1 + 0.45 * 9;
+/** Scroll runway in viewport-heights — scales with the card count (11). */
+const CAROUSEL_SCREENS = 1 + 0.45 * 11;
 
 interface SolutionCard {
   title: string;
@@ -35,66 +35,81 @@ interface SolutionCard {
 
 export const SOLUTION_CARDS: SolutionCard[] = [
   {
-    title: 'Audio / Video Display Solutions',
-    lead: 'High-impact displays with immersive audio,',
-    rest: 'tuned for clarity and presence in any environment.',
+    title: 'Luxury Home Theatre Systems',
+    lead: 'Reference-grade cinema at home,',
+    rest: 'designed, installed and calibrated around the way you watch and listen.',
     image:
-      'https://images.unsplash.com/photo-1521607630287-ee2e81ad3ced?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1650091507687-5ea34d80e674?auto=format&fit=crop&w=1600&q=80',
   },
   {
-    title: 'Conference, Boardroom & Tele-Conference Studios',
-    lead: 'Seamless AV integration',
-    rest: 'for clear communication and smooth collaboration across distances.',
-    image: '/images/conference-room.webp',
-  },
-  {
-    title: 'E-Class Rooms & Seminar Halls',
-    lead: 'Cutting-edge learning spaces',
-    rest: 'with technology built for dynamic teaching, training and presentations.',
+    title: 'Private Cinemas',
+    lead: 'A dedicated theatre of your own,',
+    rest: 'tiered seating, true blacks and big-screen scale, built into your space.',
     image:
-      'https://images.unsplash.com/photo-1755995286639-0164e827640a?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1687773448285-50ee470e5583?auto=format&fit=crop&w=1600&q=80',
   },
   {
-    title: 'Home Theatre Solutions',
-    lead: 'Cinema-grade sound and picture,',
-    rest: 'designed and calibrated around your space.',
+    title: 'Immersive Audio',
+    lead: 'Dolby Atmos and surround sound,',
+    rest: 'placing you inside the scene with height, depth and pinpoint detail.',
     image:
-      'https://images.unsplash.com/photo-1776303054657-4d21e2a6ef18?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1504904126298-3fde501c9b31?auto=format&fit=crop&w=1600&q=80',
   },
   {
-    title: 'Multi-Room Audio & Background Music',
+    title: 'Acoustics',
+    lead: 'Rooms tuned to sound right,',
+    rest: 'with treatment and calibration that tame reflections and reveal every detail.',
+    image:
+      'https://images.unsplash.com/photo-1585395721167-fcaef5e1cc3f?auto=format&fit=crop&w=1600&q=80',
+  },
+  {
+    title: 'Audiophile Systems',
+    lead: 'High-fidelity two-channel sound,',
+    rest: 'reference electronics and loudspeakers set up for honest, musical listening.',
+    image:
+      'https://images.unsplash.com/photo-1757889693087-2fc515c9471d?auto=format&fit=crop&w=1600&q=80',
+  },
+  {
+    title: 'Multiroom Audio Systems',
     lead: 'Music in every room,',
-    rest: 'beautifully synchronised, with paging and background music for business spaces.',
+    rest: 'beautifully synchronised and controlled from a single app or touch panel.',
     image:
-      'https://images.unsplash.com/photo-1711127093141-caea1718c784?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1529359744902-86b2ab9edaea?auto=format&fit=crop&w=1600&q=80',
   },
   {
-    title: 'Auditoriums AV',
-    lead: 'Large-venue sound, vision and control,',
-    rest: 'engineered for auditoriums where every seat deserves the best.',
+    title: 'Media Rooms',
+    lead: 'A relaxed cinematic lounge,',
+    rest: 'big-screen entertainment that lives comfortably in an everyday room.',
     image:
-      'https://images.unsplash.com/photo-1722321974501-059dff03e970?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1461151304267-38535e780c79?auto=format&fit=crop&w=1600&q=80',
   },
   {
-    title: 'Digital Signage & LED Video Wall',
-    lead: 'Engaging content at any scale,',
-    rest: 'from single displays to seamless LED video walls.',
+    title: 'Outdoor Entertainment Systems',
+    lead: 'Cinema and sound outdoors,',
+    rest: 'weatherised speakers and screens for patios, gardens and poolside.',
     image:
-      'https://images.unsplash.com/photo-1685122185154-a9a0119c7d53?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=1600&q=80',
   },
   {
-    title: 'Intelligent Solutions & Stage Lighting',
-    lead: 'Smart automation and dramatic lighting,',
-    rest: 'bringing rooms and stages to life at the touch of a button.',
+    title: 'LED Display Solutions',
+    lead: 'Brilliant large-format LED,',
+    rest: 'from premium direct-view walls to seamless big-screen video.',
     image:
-      'https://images.unsplash.com/photo-1626220777023-61ac837f0871?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1703890641448-8b56191d7bdc?auto=format&fit=crop&w=1600&q=80',
   },
   {
-    title: 'Surveillance Solutions',
-    lead: 'Round-the-clock protection,',
-    rest: 'with surveillance systems that integrate cleanly into your AV setup.',
+    title: 'Cinema Interiors',
+    lead: 'Bespoke theatre design,',
+    rest: 'seating, lighting, acoustics and finishes crafted into one cohesive room.',
     image:
-      'https://images.unsplash.com/photo-1461175128502-8b13d90ee1ec?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1710131459450-7c384b8be18f?auto=format&fit=crop&w=1600&q=80',
+  },
+  {
+    title: 'Studio Design',
+    lead: 'Purpose-built studio spaces,',
+    rest: 'control rooms and production suites engineered for accurate sound.',
+    image:
+      'https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?auto=format&fit=crop&w=1600&q=80',
   },
 ];
 

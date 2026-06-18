@@ -15,7 +15,7 @@ import { useExperience } from '@/store/useExperience';
  *   • a dark cinematic hero whose background is a live acoustics ripple
  *     field — point sources emit expanding wavefronts that interfere
  *     (see HeroAcoustics), and the cursor becomes a third source,
- *   • nine alternating image/copy blocks that slide in from their outer
+ *   • eleven alternating image/copy blocks that slide in from their outer
  *     edge, parallax their photo, and rise their copy out of a soft blur,
  *   • a rounded dark CTA card.
  *
@@ -395,8 +395,8 @@ export function SolutionsPageView() {
               variants={itemV}
               className="mx-auto mt-6 max-w-xl font-sans text-base leading-relaxed text-ivory/65 md:text-lg"
             >
-              Nine integrated audio-visual disciplines — from a single listening
-              room to a full auditorium — designed, installed and calibrated end
+              Eleven home-cinema disciplines — from a luxury home theatre to a
+              dedicated private cinema — designed, installed and calibrated end
               to end by Cinesphere.
             </motion.p>
             <motion.div variants={itemV} className="mt-9 flex justify-center">

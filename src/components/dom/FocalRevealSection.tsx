@@ -16,13 +16,15 @@ import { useExperience } from '@/store/useExperience';
  *
  * Timing (the stage pins when the section reaches the viewport top; the
  * stage is pure black at rest, so the scroll-in seam is invisible):
- *   0.00–0.08  pinned, at rest (black — speaker below the fold)
- *   0.10–0.42  speaker rises; side columns drift in; wave follows
- *   0.42–1.00  finished composition holds
+ *   0.00–0.03  pinned, at rest (black — speaker below the fold)
+ *   0.03–0.90  wave sweeps in, speaker rises, side columns + copy settle in
+ *   0.90–1.00  brief beat, then the stage releases to the next chapter
  */
 
-/** Scroll runway in viewport-heights. */
-const REVEAL_SCREENS = 2.5;
+/** Scroll runway in viewport-heights. Kept short and the choreography below
+ *  runs across almost the whole runway, so the finished scene releases to the
+ *  next section right after it assembles (no long pinned hold). */
+const REVEAL_SCREENS = 1.9;
 
 /* ------------------------------------------------------------------ */
 /* Cinematic sound wave — one refined lead line + quiet harmonic       */
@@ -178,22 +180,22 @@ export function FocalRevealSection({ scene }: { scene: SceneDef }) {
   // left into its resting place as it fades up: sound arrives first.
   const waveX = useTransform(
     scrollYProgress,
-    [0.02, 0.2],
+    [0.03, 0.26],
     ['calc(-50% + 55vw)', 'calc(-50% + 0vw)'],
   );
-  const waveOpacity = useTransform(scrollYProgress, [0.02, 0.16], [0, 1]);
+  const waveOpacity = useTransform(scrollYProgress, [0.03, 0.22], [0, 1]);
 
   // ACT 2 — the speaker climbs from below the fold to its resting
   // position once the wave has settled.
-  const speakerY = useTransform(scrollYProgress, [0.2, 0.5], ['105%', '0%']);
+  const speakerY = useTransform(scrollYProgress, [0.24, 0.62], ['105%', '0%']);
 
   // ACT 3 — side columns drift in from their own sides as they fade.
-  const leftColX = useTransform(scrollYProgress, [0.26, 0.52], ['-5vw', '0vw']);
-  const rightColX = useTransform(scrollYProgress, [0.26, 0.52], ['5vw', '0vw']);
-  const colOpacity = useTransform(scrollYProgress, [0.26, 0.52], [0, 1]);
+  const leftColX = useTransform(scrollYProgress, [0.34, 0.76], ['-5vw', '0vw']);
+  const rightColX = useTransform(scrollYProgress, [0.34, 0.76], ['5vw', '0vw']);
+  const colOpacity = useTransform(scrollYProgress, [0.34, 0.76], [0, 1]);
 
   // Sub-copy inside the columns arrives a beat later.
-  const copyOpacity = useTransform(scrollYProgress, [0.38, 0.6], [0, 1]);
+  const copyOpacity = useTransform(scrollYProgress, [0.52, 0.9], [0, 1]);
 
   const still = reducedMotion; // show the finished composition statically
 

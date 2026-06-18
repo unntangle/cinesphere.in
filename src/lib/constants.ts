@@ -196,18 +196,21 @@ export const BRANDS = [
   'The Residency',
 ] as const;
 
-/** Full solutions list — used in the footer (matches the 9 cards in
- *  the Our Solutions carousel). */
+/** Full solutions list — drives the nav dropdown (text) and the footer, and
+ *  is kept in the SAME order and length as SOLUTION_CARDS so the dropdown's
+ *  per-item photo (pulled from the matching card by index) never drifts. */
 export const SOLUTIONS = [
-  'Audio / Video Display Solutions',
-  'Conference, Boardroom & Tele-Conference Studios',
-  'E-Class Rooms & Seminar Halls',
-  'Home Theatre Solutions',
-  'Multi-Room Audio & Background Music',
-  'Auditoriums AV',
-  'Digital Signage & LED Video Wall',
-  'Intelligent Solutions & Stage Lighting',
-  'Surveillance Solutions',
+  'Luxury Home Theatre Systems',
+  'Private Cinemas',
+  'Immersive Audio',
+  'Acoustics',
+  'Audiophile Systems',
+  'Multiroom Audio Systems',
+  'Media Rooms',
+  'Outdoor Entertainment Systems',
+  'LED Display Solutions',
+  'Cinema Interiors',
+  'Studio Design',
 ] as const;
 
 /** Top navigation — absolute links so the menu works from any route
