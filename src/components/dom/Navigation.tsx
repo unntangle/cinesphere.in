@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BRAND, SOLUTIONS } from '@/lib/constants';
 import { BRANDS as BRAND_ITEMS } from '@/lib/brands';
@@ -68,6 +69,7 @@ const SPECTRUM = Array.from({ length: SPECTRUM_BARS }, (_, i) => {
 function NavWave({ animate }: { animate: boolean }) {
   return (
     <span
+      id="cs-nav-spectrum"
       aria-hidden
       className="relative block h-6 w-[120px] shrink-0 sm:h-8 sm:w-[240px] md:w-[300px] lg:hidden xl:block xl:w-[280px]"
     >
@@ -105,7 +107,7 @@ interface MenuItem {
 }
 
 const MENU: MenuItem[] = [
-  { label: 'Home', href: '/#top' },
+  { label: 'Home', href: '/' },
   { label: 'About Us', href: '/about' },
   { label: 'Our Solutions', dropdown: 'solutions', href: '/solutions' },
   { label: 'Brands', dropdown: 'brands', href: '/brands' },
@@ -400,10 +402,29 @@ export function Navigation() {
   const [open, setOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<DropdownKind | null>(null);
   const [mobileSub, setMobileSub] = useState<DropdownKind | null>(null);
+  const pathname = usePathname();
 
   const closeAll = () => {
     setOpen(false);
     setMobileSub(null);
+  };
+
+  /* Home / logo: on the homepage, smooth-scroll to the top and keep the URL
+     clean (no #top hash); on other pages, let the link navigate to "/". */
+  const handleHome = (e: MouseEvent) => {
+    if (pathname !== '/') return;
+    e.preventDefault();
+    const lenis = (
+      window as unknown as {
+        __lenis?: { scrollTo: (t: number, o?: object) => void };
+      }
+    ).__lenis;
+    if (lenis?.scrollTo) lenis.scrollTo(0, { duration: 1.0 });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.location.hash) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+    closeAll();
   };
 
   return (
@@ -414,7 +435,8 @@ export function Navigation() {
       className="fixed inset-x-4 top-4 z-30 mx-auto flex max-w-7xl items-center justify-between rounded-full bg-black/55 px-5 py-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.35),0_0_46px_-6px_rgba(205,178,133,0.22),inset_0_1px_0_rgba(238,220,181,0.08)] backdrop-blur-xl backdrop-saturate-150 md:inset-x-10 md:px-8"
     >
       <Link
-        href="/#top"
+        href="/"
+        onClick={handleHome}
         aria-label={BRAND.name}
         className="relative flex items-center"
       >
@@ -525,6 +547,7 @@ export function Navigation() {
             <Link
               key={item.label}
               href={item.href!}
+              onClick={item.label === 'Home' ? handleHome : undefined}
               className="font-sans text-xs text-ivory/80 transition-colors hover:text-ivory"
             >
               {item.label}
@@ -657,7 +680,10 @@ export function Navigation() {
                 <Link
                   key={item.label}
                   href={item.href!}
-                  onClick={closeAll}
+                  onClick={(e) => {
+                    if (item.label === 'Home') handleHome(e);
+                    closeAll();
+                  }}
                   className="rounded-lg px-3 py-2.5 font-sans text-sm text-ivory/80 transition-colors hover:bg-white/5 hover:text-ivory"
                 >
                   {item.label}

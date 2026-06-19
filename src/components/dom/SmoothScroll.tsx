@@ -29,6 +29,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       touchMultiplier: 1.5,
     });
     lenisRef.current = lenis;
+    (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
 
     /**
      * Scene sections in scroll order. Progress is derived from their real
@@ -83,6 +84,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       gsap.ticker.remove(raf);
       lenis.destroy();
       lenisRef.current = null;
+      (window as unknown as { __lenis?: Lenis }).__lenis = undefined;
     };
   }, [setProgress]);
 

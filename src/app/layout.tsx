@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { BRAND } from '@/lib/constants';
+import { AmbientAudio } from '@/components/dom/AmbientAudio';
 import './globals.css';
 
 /**
@@ -162,6 +163,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         {children}
+        <AmbientAudio />
       </body>
     </html>
   );

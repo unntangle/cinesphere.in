@@ -45,7 +45,7 @@ export const BRANDS: Brand[] = [
   },
   {
     name: 'Bang & Olufsen',
-    logo: '/brands/bo.webp',
+    logo: '/brands/B%26O.webp',
     chip: 'light',
     origin: 'Denmark',
     code: 'DK',
@@ -73,7 +73,7 @@ export const BRANDS: Brand[] = [
   },
   {
     name: 'Bowers & Wilkins',
-    logo: '/brands/bw.webp',
+    logo: '/brands/B%26W.webp',
     chip: 'light',
     imgClass: 'max-h-[72%] max-w-[86%]',
     origin: 'United Kingdom',
@@ -134,11 +134,9 @@ export const BRANDS: Brand[] = [
       'American audio pioneer, known for research-driven sound and acoustic innovation.',
   },
   {
-    // White logo — inverted so it renders dark on the light roster cards.
     name: 'Denon',
     logo: '/brands/denon.webp',
     chip: 'light',
-    filter: 'invert',
     origin: 'Japan',
     code: 'JP',
     blurb:
@@ -163,11 +161,9 @@ export const BRANDS: Brand[] = [
       'British commercial audio for hospitality, with effortless zoned sound and control.',
   },
   {
-    // White logo — inverted so it renders dark on the light roster cards.
     name: 'Revel',
     logo: '/brands/revel.webp',
     chip: 'light',
-    filter: 'invert',
     origin: 'United States',
     code: 'US',
     blurb:
@@ -217,5 +213,23 @@ export const BRANDS: Brand[] = [
     code: 'JP',
     blurb:
       'Japanese electronics leader — flagship projectors and reference home-cinema technology.',
+  },
+  {
+    name: 'British Acoustics',
+    logo: '/brands/british-acoustics.webp',
+    chip: 'light',
+    origin: 'United Kingdom',
+    code: 'UK',
+    blurb:
+      'British loudspeaker engineering for high-fidelity listening and home cinema.',
+  },
+  {
+    name: 'U&K Sound',
+    logo: '/brands/uandksound-logo.webp',
+    chip: 'light',
+    origin: 'China',
+    code: 'CN',
+    blurb:
+      'Immersive home-cinema loudspeakers and acoustics engineered to awaken the senses.',
   },
 ];

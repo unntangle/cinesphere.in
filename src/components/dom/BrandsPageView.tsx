@@ -586,7 +586,7 @@ export function BrandsPageView() {
                   loading="lazy"
                   decoding="async"
                   className={`relative z-10 w-auto object-contain transition-transform duration-500 group-hover:scale-[1.06] ${
-                    b.imgClass ?? 'max-h-[54%] max-w-[76%]'
+                    b.imgClass ?? 'max-h-[72%] max-w-[86%]'
                   } ${b.filter ?? ''}`}
                   draggable={false}
                 />

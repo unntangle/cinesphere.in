@@ -1,25 +1,20 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import type { SceneDef } from '@/lib/constants';
 import { useExperience } from '@/store/useExperience';
 
 /**
- * SolutionsCarouselSection — Scenes 05–07 merged (Our Solutions)
- * ---------------------------------------------------------------
- * Apple-style horizontal showcase: the section pins as a light
- * editorial panel, and a row of large rounded media cards — one per
- * solution, each with a caption beneath it — glides RIGHT → LEFT,
- * one by one, driven by vertical scroll.
+ * SolutionsCarouselSection — "Our Solutions"
+ * ------------------------------------------
+ * A horizontal showcase of solution cards. On desktop it's an arrow-driven
+ * carousel (prev/next buttons overlaid on the left & right card edges); on
+ * mobile / reduced-motion it falls back to a simple vertical stack.
  *
- * To change the cards, edit SOLUTION_CARDS below: swap `image` paths
- * (drop new files in /public), adjust captions, add or remove cards —
- * the scroll distance adapts to the count automatically.
+ * To change the cards, edit SOLUTION_CARDS below: swap `image` paths (drop
+ * new files in /public), adjust captions, add or remove cards.
  */
-
-/** Scroll runway in viewport-heights — scales with the card count (11). */
-const CAROUSEL_SCREENS = 1 + 0.45 * 11;
 
 interface SolutionCard {
   title: string;
@@ -113,9 +108,6 @@ export const SOLUTION_CARDS: SolutionCard[] = [
   },
 ];
 
-/* Track geometry (desktop): card 54vw + 4vw gap, 7vw padding each side.
-   The end translate is derived from the card count so adding/removing
-   cards keeps the last card landing neatly at the right edge. */
 /**
  * Stable anchor slug for a solution title — shared by the dedicated
  * /solutions page (section ids) and the nav dropdown (hash links) so the
@@ -127,16 +119,20 @@ export const solutionSlug = (title: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
+/* Track geometry (desktop): card 54vw + 4vw gap, 7vw padding each side. */
 const CARD_VW = 54;
 const GAP_VW = 4;
 const PAD_VW = 7;
+const STEP_VW = CARD_VW + GAP_VW; // one card advance
 const TRACK_VW =
   SOLUTION_CARDS.length * CARD_VW + (SOLUTION_CARDS.length - 1) * GAP_VW;
-const TRACK_END_PCT = -(((TRACK_VW - (100 - 2 * PAD_VW)) / TRACK_VW) * 100);
+// Furthest the track can slide so its right edge meets the viewport right edge.
+const MAX_SHIFT_VW = Math.max(0, TRACK_VW + 2 * PAD_VW - 100);
+const MAX_INDEX = Math.ceil(MAX_SHIFT_VW / STEP_VW);
 
 /**
  * One solution card — the media tile (image + serial number + title) and
- * its caption beneath. Shared by the desktop scrub track and the mobile
+ * its caption beneath. Shared by the desktop carousel and the mobile
  * stacked list so both stay identical.
  */
 function SolutionCardView({
@@ -191,26 +187,29 @@ function SolutionCardView({
   );
 }
 
+/** Chevron icon for the carousel arrows. */
+function Chevron({ dir }: { dir: 'left' | 'right' }) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={dir === 'left' ? 'M15 18l-6-6 6-6' : 'M9 6l6 6-6 6'} />
+    </svg>
+  );
+}
+
 export function SolutionsCarouselSection({ scene }: { scene: SceneDef }) {
   const sectionRef = useRef<HTMLElement>(null);
   const reducedMotion = useExperience((s) => s.reducedMotion);
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end end'],
-  });
-
-  // The track glides right → left as the section scrubs; the endpoint
-  // is derived from the card count (see TRACK_END_PCT above).
-  const trackX = useTransform(
-    scrollYProgress,
-    [0.06, 0.94],
-    ['0%', `${TRACK_END_PCT.toFixed(2)}%`],
-  );
-
-  // Desktop drives the pinned horizontal scrub. On mobile that pattern is
-  // awkward and the scrub maths assume desktop card widths; reduced motion
-  // shouldn't pin at all — both fall back to a simple vertical stack.
   const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 768px)');
@@ -222,7 +221,15 @@ export function SolutionsCarouselSection({ scene }: { scene: SceneDef }) {
 
   const carousel = isDesktop && !reducedMotion;
 
-  // Shared header (animates only in the desktop scrub).
+  // Arrow-driven carousel position.
+  const [index, setIndex] = useState(0);
+  const shiftVw = Math.min(index * STEP_VW, MAX_SHIFT_VW);
+  const atStart = index <= 0;
+  const atEnd = shiftVw >= MAX_SHIFT_VW - 0.1;
+  const prev = () => setIndex((i) => Math.max(0, i - 1));
+  const next = () => setIndex((i) => Math.min(MAX_INDEX, i + 1));
+
+  // Shared header.
   const header = (
     <motion.div
       initial={carousel ? 'hidden' : undefined}
@@ -275,9 +282,6 @@ export function SolutionsCarouselSection({ scene }: { scene: SceneDef }) {
         className="section-light relative z-10 w-full py-16 md:py-20"
       >
         {header}
-        {/* Zigzag entrance — odd cards slide in from the left, even from the
-            right, each as it scrolls into view. overflow-hidden keeps the
-            horizontal travel from ever spilling past the viewport edge. */}
         <div className="flex flex-col gap-12 overflow-hidden px-[7vw]">
           {SOLUTION_CARDS.map((card, index) => (
             <motion.div
@@ -299,52 +303,55 @@ export function SolutionsCarouselSection({ scene }: { scene: SceneDef }) {
     );
   }
 
-  // DESKTOP — the pinned horizontal scrub. Card width now matches CARD_VW
-  // so the scrub endpoint lands the last card neatly at the right edge.
+  // DESKTOP — arrow-driven horizontal carousel (no scroll scrubbing).
   return (
     <section
       ref={sectionRef}
       id={scene.id}
       data-scene={scene.index}
-      className="section-light relative z-10 w-full"
-      style={{ height: `${CAROUSEL_SCREENS * 100}vh` }}
+      className="section-light relative z-10 w-full overflow-hidden py-16 md:py-24"
     >
-      <div className="sticky top-0 flex h-screen w-full flex-col justify-center overflow-hidden">
-        {header}
+      {header}
 
-        <motion.div
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-15%' }}
-          variants={{
-            hidden: {},
-            show: { transition: { staggerChildren: 0.14, delayChildren: 0.1 } },
-          }}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-15%' }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        className="relative"
+      >
+        {/* sliding track */}
+        <div
+          className="flex w-max items-start gap-[4vw] pl-[7vw] pr-[7vw] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform"
+          style={{ transform: `translateX(-${shiftVw}vw)` }}
         >
-          <motion.div
-            style={{ x: trackX }}
-            className="flex w-max items-start gap-[4vw] pl-[7vw] pr-[7vw]"
-          >
-            {SOLUTION_CARDS.map((card, index) => (
-              <motion.div
-                key={card.title}
-                variants={{
-                  hidden: { opacity: 0, y: 60, scale: 0.94 },
-                  show: {
-                    opacity: 1,
-                    y: 0,
-                    scale: 1,
-                    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
-                  },
-                }}
-                className="w-[54vw] flex-none"
-              >
-                <SolutionCardView card={card} index={index} />
-              </motion.div>
-            ))}
-          </motion.div>
-        </motion.div>
-      </div>
+          {SOLUTION_CARDS.map((card, i) => (
+            <div key={card.title} className="w-[54vw] flex-none">
+              <SolutionCardView card={card} index={i} />
+            </div>
+          ))}
+        </div>
+
+        {/* Overlaid arrows on the left & right card edges, centred on media. */}
+        <button
+          type="button"
+          aria-label="Previous solution"
+          onClick={prev}
+          disabled={atStart}
+          className="absolute left-4 top-[26vh] z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white/95 text-carbon shadow-[0_12px_34px_-10px_rgba(0,0,0,0.5)] backdrop-blur transition-all duration-300 hover:scale-105 hover:text-champagne-deep disabled:pointer-events-none disabled:opacity-0 md:left-6"
+        >
+          <Chevron dir="left" />
+        </button>
+        <button
+          type="button"
+          aria-label="Next solution"
+          onClick={next}
+          disabled={atEnd}
+          className="absolute right-4 top-[26vh] z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white/95 text-carbon shadow-[0_12px_34px_-10px_rgba(0,0,0,0.5)] backdrop-blur transition-all duration-300 hover:scale-105 hover:text-champagne-deep disabled:pointer-events-none disabled:opacity-0 md:right-6"
+        >
+          <Chevron dir="right" />
+        </button>
+      </motion.div>
     </section>
   );
 }

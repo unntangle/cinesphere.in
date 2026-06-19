@@ -791,7 +791,7 @@ function RoomDisappears({ reducedMotion }: { reducedMotion: boolean }) {
         }`}
       >
       <MotionImage
-        src="/images/auditorium-dark.webp"
+        src="/images/Our craft-image.webp"
         alt=""
         aria-hidden
         fill
@@ -1203,9 +1203,13 @@ const EXTRA_BRANDS: Brand[] = [
   },
 ];
 
-/* The full wall shown on /about: the shared roster plus the two extras —
-   every white mark in /brands/white/, so all of them appear. */
-const WALL_BRANDS: Brand[] = [...BRANDS, ...EXTRA_BRANDS];
+/* The full wall shown on /about: the shared roster plus any extras that aren't
+   already in it. British Acoustics and U&K Sound now also live in the shared
+   roster (lib/brands.ts), so we dedupe by name — keeping the first occurrence —
+   to avoid duplicate React keys (and duplicate logos) on the wall. */
+const WALL_BRANDS: Brand[] = [...BRANDS, ...EXTRA_BRANDS].filter(
+  (b, i, arr) => arr.findIndex((x) => x.name === b.name) === i,
+);
 
 /* The two spotlight rails, balanced so both columns carry a similar number of
    logos. Each array is that column's top-to-bottom order, so reordering names
@@ -1389,7 +1393,7 @@ function CredentialsAuthoritySection({ reducedMotion }: { reducedMotion: boolean
       <section
         ref={ref}
         className={`relative w-full bg-piano ${
-          reducedMotion ? '' : 'xl:h-[400vh]'
+          reducedMotion ? '' : 'xl:h-[700vh]'
         }`}
       >
         {/* Pinned stage — stays fixed through the whole section on xl. */}
